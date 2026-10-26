@@ -49,3 +49,11 @@ Official references:
 - https://github.com/binance/binance-public-data
 - https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md
 
+
+## v2.2 enhanced postprocessing (October 2026)
+
+The daily workflow now runs `python enrich.py --input output/latest.json` after the original checksum/volume-verified daily calculation and **before** publishing JSON. This additional pass downloads the preceding completed UTC day's aggTrades for daily POC migration and all seven daily aggTrades archives for the **previous completed UTC week** to calculate weekly POC, VAH, VAL and VWAP. The weekly result is checked against the sum of the seven closed spot klines. This costs more bandwidth/runtime; a first run can be slow and the workflow may fail within its 45-minute timeout. No stale output should be presented as newly calculated. Failed workflow runs should be inspected under the Actions tab.
+
+New JSON fields once the updated Actions workflow successfully runs: `report_reference_date_utc` (one UTC day after `as_of_closed_day_utc`), `daily_poc_migration`, and `previous_completed_week_trade_volume_profile`. The `levels.previous_day` now refers to the last completed UTC day **as of the report reference date**, fixing the original one-day offset. Note: `output/latest.json` already committed before this upgrade retains the original schema until the next successful workflow publish.
+
+The ChatGPT daily task tries to retrieve https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest.json, but access is not guaranteed for a private repo or blocked HTTP fetch. Never assume the automation can read a connector-authorized GitHub file just because the connector can. Omit the Value Map when not independently fetched and validated. All calculated metrics are historical closed-session data, not live indicators.
