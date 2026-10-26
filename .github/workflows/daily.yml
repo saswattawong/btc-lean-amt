@@ -22,6 +22,8 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Calculate trade-exact prior UTC day profile and VWAP
         run: python calculate.py --output output/latest.json
+      - name: Enrich with POC migration and previous weekly trade profile
+        run: python enrich.py --input output/latest.json
       - name: Publish versioned JSON
         run: |
           python - <<'PY'
