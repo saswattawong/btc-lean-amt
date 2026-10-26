@@ -1,9 +1,19 @@
 name: BTC Lean AMT daily value map
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'calculate.py'
+      - 'enrich.py'
+      - 'render_brief.py'
+      - 'tests/**'
+      - '.github/workflows/daily.yml'
   schedule:
-    - cron: '30 2 * * *' # 09:30 Bangkok; may fail if archive not yet published
-    - cron: '10 10 * * *' # 17:10 Bangkok retry after publication
+    - cron: '30 2 * * *' # 09:30 Bangkok; archive may not be published yet
+    - cron: '30 3 * * *' # 10:30 Bangkok retry before the noon dashboard
+    - cron: '0 4 * * *'  # 11:00 Bangkok final pre-dashboard retry
+    - cron: '10 10 * * *' # 17:10 Bangkok recovery retry
 permissions:
   contents: write
 concurrency:
@@ -18,17 +28,61 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
+      - name: Check whether the target closed day is already published
+        id: freshness
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import datetime as dt
+          import json
+          import os
+          import pathlib
+
+          target = (dt.datetime.now(dt.timezone.utc).date() - dt.timedelta(days=1)).isoformat()
+          path = pathlib.Path('output/latest.json')
+          current = None
+          complete = False
+          if path.exists():
+              try:
+                  data = json.loads(path.read_text(encoding='utf-8'))
+                  current = data.get('as_of_closed_day_utc')
+                  complete = (
+                      current == target
+                      and data.get('integrity_cross_check', {}).get('status') == 'passed'
+                      and data.get('previous_completed_week_trade_volume_profile', {}).get('integrity_status') == 'passed'
+                      and data.get('daily_poc_migration', {}).get('to_day_utc') == target
+                  )
+              except (OSError, ValueError):
+                  pass
+          should_run = os.environ['EVENT_NAME'] != 'schedule' or not complete
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'should_run={str(should_run).lower()}\n')
+          print(json.dumps({'event': os.environ['EVENT_NAME'], 'target': target,
+                            'current': current, 'complete': complete, 'should_run': should_run}))
+          PY
       - name: Run deterministic unit tests
+        if: steps.freshness.outputs.should_run == 'true'
         run: python -m unittest discover -s tests -v
       - name: Calculate trade-exact prior UTC day profile and VWAP
+        if: steps.freshness.outputs.should_run == 'true'
         run: python calculate.py --output output/latest.json
       - name: Enrich with POC migration and previous weekly trade profile
+        if: steps.freshness.outputs.should_run == 'true'
         run: python enrich.py --input output/latest.json
+      - name: Render dashboard-ready public brief
+        if: steps.freshness.outputs.should_run == 'true'
+        run: python render_brief.py --input output/latest.json --output output/latest.md
       - name: Publish versioned JSON
+        if: steps.freshness.outputs.should_run == 'true'
         run: |
           python - <<'PY'
           import json, pathlib
-          p=pathlib.Path('output/latest.json'); d=json.loads(p.read_text()); q=pathlib.Path('output')/(d['as_of_closed_day_utc']+'.json');q.write_text(p.read_text())
+          p=pathlib.Path('output/latest.json'); d=json.loads(p.read_text())
+          day=d['as_of_closed_day_utc']; out=pathlib.Path('output')
+          (out/(day+'.json')).write_text(p.read_text(encoding='utf-8'),encoding='utf-8')
+          brief=out/'latest.md'
+          (out/(day+'.md')).write_text(brief.read_text(encoding='utf-8'),encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

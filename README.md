@@ -32,8 +32,10 @@ Data files for BTCUSDT can be substantial; download size and runtime vary, and e
 1. Create a GitHub repository and upload the contents of this folder (including `.github/workflows/daily.yml`).
 2. In repository **Settings → Actions → General**, allow Actions; grant the `GITHUB_TOKEN` **read/write repository contents** if required by your organization. Consider a dedicated non-sensitive repository for public market data.
 3. Run **Actions → BTC Lean AMT daily value map → Run workflow** once.
-4. Scheduling is **02:30 UTC = 09:30 Bangkok** (attempt before the noon ChatGPT report) and **10:10 UTC = 17:10 Bangkok** (retry when archive is more likely published); the morning run may fail if Binance has not released the previous UTC day ZIP. GitHub scheduled workflows can run late or be missed. Investigate failed runs; missing data must not be silently re-used.
-5. JSON appears at `output/latest.json` and a dated file `output/YYYY-MM-DD.json`. In a public repository its raw URL would be `https://raw.githubusercontent.com/OWNER/REPO/BRANCH/output/latest.json`, substituting the actual values. This link is NOT live until deployed.
+4. Scheduling is **02:30, 03:30 and 04:00 UTC = 09:30, 10:30 and 11:00 Bangkok**, with a **10:10 UTC = 17:10 Bangkok** recovery retry. Scheduled retries are skipped once a complete, integrity-passed result for the target day exists. The morning archive may still be unavailable, and GitHub scheduled workflows can run late or be missed. Investigate failed runs; missing data must not be silently re-used.
+5. Machine JSON appears at `output/latest.json` and `output/YYYY-MM-DD.json`. A dashboard-ready Markdown fallback appears at `output/latest.md` and `output/YYYY-MM-DD.md`. For this public deployment, use:
+   - JSON: `https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest.json`
+   - Brief: `https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest.md`
 
 **Integration warning:** ChatGPT's own daily automation cannot be assumed to fetch this private GitHub output or local file. For an automated report connection, publish the JSON at an actually accessible URL, and verify the ChatGPT execution can retrieve it. If not, keep AMT value data omitted, as specified by v2.2.
 
