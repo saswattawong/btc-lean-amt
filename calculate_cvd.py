@@ -111,7 +111,12 @@ def fetch_klines_with_failover(endpoints, symbol, start_ms, end_ms, fetcher=fetc
     for endpoint in endpoints:
         try:
             return fetcher(endpoint, symbol, start_ms, end_ms), endpoint
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as error:
+        except (
+            json.JSONDecodeError,
+            urllib.error.HTTPError,
+            urllib.error.URLError,
+            TimeoutError,
+        ) as error:
             status = getattr(error, "code", None)
             detail = f"HTTP {status}" if status is not None else type(error).__name__
             errors.append(f"{endpoint}: {detail}")
