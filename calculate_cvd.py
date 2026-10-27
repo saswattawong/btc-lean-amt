@@ -9,6 +9,7 @@ import argparse
 import datetime as dt
 import json
 import pathlib
+import sys
 import time
 import urllib.error
 import urllib.parse
@@ -18,8 +19,11 @@ from decimal import Decimal
 
 UTC = dt.timezone.utc
 MINUTE_MS = 60_000
-SPOT_KLINES = "https://data-api.binance.vision/api/v3/klines"
-USD_M_FUTURES_KLINES = "https://fapi.binance.com/fapi/v1/klines"
+SPOT_KLINES = ("https://data-api.binance.vision/api/v3/klines",)
+USD_M_FUTURES_KLINES = tuple(
+    f"https://fapi{suffix}.binance.com/fapi/v1/klines"
+    for suffix in ("", "1", "2", "3", "4")
+)
 WINDOWS = {"1h": 60, "4h": 240, "24h": 1_440}
 
 
@@ -56,7 +60,13 @@ def request_json(url, attempts=3):
         try:
             with urllib.request.urlopen(request, timeout=45) as response:
                 return json.load(response)
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+        except urllib.error.HTTPError as error:
+            if error.code not in {408, 425, 429, 500, 502, 503, 504}:
+                raise
+            if attempt + 1 == attempts:
+                raise
+            time.sleep(2 ** attempt)
+        except (urllib.error.URLError, TimeoutError):
             if attempt + 1 == attempts:
                 raise
             time.sleep(2 ** attempt)
@@ -93,6 +103,20 @@ def fetch_klines(endpoint, symbol, start_ms, end_ms, requester=request_json):
             raise ValueError(f"Non-advancing Binance kline page from {endpoint}")
         cursor = last_open + MINUTE_MS
     return rows
+
+
+def fetch_klines_with_failover(endpoints, symbol, start_ms, end_ms, fetcher=fetch_klines):
+    """Try Binance-owned REST hosts in order and return rows plus the host used."""
+    errors = []
+    for endpoint in endpoints:
+        try:
+            return fetcher(endpoint, symbol, start_ms, end_ms), endpoint
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as error:
+            status = getattr(error, "code", None)
+            detail = f"HTTP {status}" if status is not None else type(error).__name__
+            errors.append(f"{endpoint}: {detail}")
+            print(f"Binance endpoint unavailable ({detail}): {endpoint}", file=sys.stderr)
+    raise RuntimeError("All Binance endpoints failed: " + "; ".join(errors))
 
 
 def validate_klines(rows, start_ms, end_ms, market):
@@ -170,25 +194,30 @@ def compute(as_of_utc, symbol="BTCUSDT", fetcher=None):
     if as_of_utc.minute or as_of_utc.second or as_of_utc.microsecond:
         raise ValueError("as_of_utc must be an exact top-of-hour boundary")
 
-    fetcher = fetcher or fetch_klines
     start_utc = as_of_utc - dt.timedelta(hours=24)
     start_ms = int(start_utc.timestamp() * 1000)
     end_ms = int(as_of_utc.timestamp() * 1000)
     market_config = {
-        "spot": {"label": "Binance Spot", "endpoint": SPOT_KLINES},
+        "spot": {"label": "Binance Spot", "endpoints": SPOT_KLINES},
         "usd_m_futures": {
             "label": "Binance USD-M Futures perpetual",
-            "endpoint": USD_M_FUTURES_KLINES,
+            "endpoints": USD_M_FUTURES_KLINES,
         },
     }
 
     markets = {}
     for key, config in market_config.items():
-        raw = fetcher(config["endpoint"], symbol, start_ms, end_ms)
+        if fetcher is None:
+            raw, source_endpoint = fetch_klines_with_failover(
+                config["endpoints"], symbol, start_ms, end_ms
+            )
+        else:
+            source_endpoint = config["endpoints"][0]
+            raw = fetcher(source_endpoint, symbol, start_ms, end_ms)
         rows = validate_klines(raw, start_ms, end_ms, config["label"])
         markets[key] = {
             "market": config["label"],
-            "source_endpoint": config["endpoint"],
+            "source_endpoint": source_endpoint,
             "validated_closed_1m_klines": len(rows),
             "windows": {
                 name: window_stats(rows, minutes, as_of_utc)
@@ -247,3 +276,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
