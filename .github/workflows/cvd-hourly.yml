@@ -1,4 +1,4 @@
-name: Binance BTCUSDT hourly CVD
+name: CoinGlass Binance BTCUSDT hourly CVD
 
 on:
   workflow_dispatch:
@@ -25,9 +25,11 @@ jobs:
           python-version: '3.12'
       - name: Run deterministic unit tests
         run: python -m unittest discover -s tests -v
-      - name: Calculate synchronized closed-minute CVD
-        run: python calculate_cvd.py --output output/latest_cvd.json
-      - name: Validate and publish latest CVD
+      - name: Calculate synchronized closed-hour CVD
+        env:
+          COINGLASS_API_KEY: ${{ secrets.COINGLASS_API_KEY }}
+        run: python calculate_coinglass_cvd.py --output output/latest_cvd.json
+      - name: Validate latest CVD
         run: |
           python - <<'PY'
           import json
@@ -35,17 +37,24 @@ jobs:
 
           path = pathlib.Path('output/latest_cvd.json')
           data = json.loads(path.read_text(encoding='utf-8'))
+          assert data['schema'] == 'btc_coinglass_usd_cvd_v1'
+          assert data['provider'] == 'CoinGlass'
+          assert data['unit'] == 'USD'
           assert data['integrity']['status'] == 'passed'
           assert data['integrity']['synchronized_utc_boundary'] is True
+          assert data['integrity']['provider_data_not_binance_raw_klines'] is True
           for market in ('spot', 'usd_m_futures'):
-              assert data['markets'][market]['validated_closed_1m_klines'] == 1440
+              assert data['markets'][market]['validated_closed_1h_intervals'] == 24
               assert set(data['markets'][market]['windows']) == {'1h', '4h', '24h'}
           PY
+      - name: Publish latest CVD on main
+        if: github.ref == 'refs/heads/main'
+        run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add output/latest_cvd.json
           if ! git diff --cached --quiet; then
-            git commit -m 'Update Binance BTCUSDT hourly CVD'
+            git commit -m 'Update CoinGlass Binance BTCUSDT hourly CVD'
             git pull --rebase origin main
-            git push
+            git push origin HEAD:main
           fi

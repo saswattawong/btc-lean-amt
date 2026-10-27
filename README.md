@@ -16,16 +16,16 @@ Generates a verifiable **Binance BTCUSDT Spot** value map from *actual historica
 
 ## Hourly Spot / USD-M Futures CVD
 
-`calculate_cvd.py` produces `output/latest_cvd.json` from Binance BTCUSDT Spot and USD-M perpetual **closed 1-minute klines**. Both markets use the same top-of-hour UTC cutoff and the same half-open 1H, 4H and 24H windows. A result is rejected unless all 1,440 expected minutes exist, are contiguous, have exact one-minute close times and contain valid quote-volume fields.
+`calculate_coinglass_cvd.py` produces `output/latest_cvd.json` from CoinGlass hourly taker-buy and taker-sell USD volume for Binance BTCUSDT Spot and USD-M perpetual. Both markets use the same top-of-hour UTC cutoff and the same half-open 1H, 4H and 24H windows. A result is rejected unless all 24 expected hourly intervals exist, are contiguous and contain finite, non-negative buy/sell volumes. The output uses schema `btc_coinglass_usd_cvd_v1`: it deliberately does not describe provider-aggregated USD data as raw Binance USDT klines.
 
 For each market and window:
 
-- `cvd_quote_usdt = sum(taker buy quote volume - taker sell quote volume)`
-- `taker sell quote volume = total quote volume - taker buy quote volume`
-- `taker_buy_share = taker buy quote volume / total quote volume`
-- `normalized_cvd = cvd / total quote volume = 2 * taker_buy_share - 1`
+- `cvd_usd = sum(taker buy USD volume - taker sell USD volume)`
+- `total_volume_usd = taker buy USD volume + taker sell USD volume`
+- `taker_buy_share = taker buy USD volume / total USD volume`
+- `normalized_cvd = cvd / total USD volume = 2 * taker_buy_share - 1`
 
-The separate **Binance BTCUSDT hourly CVD** workflow runs at minute 7 of every UTC hour and commits only `output/latest_cvd.json`. It shares a non-canceling publish lock with the daily value-map workflow to prevent concurrent pushes, but otherwise does not change the existing daily calculation. The public dashboard input is:
+The separate **CoinGlass Binance BTCUSDT hourly CVD** workflow runs at minute 7 of every UTC hour and commits only `output/latest_cvd.json`. It requires the repository secret `COINGLASS_API_KEY`, shares a non-canceling publish lock with the daily value-map workflow to prevent concurrent pushes, and otherwise does not change the existing daily calculation. The public dashboard input is:
 
 - `https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest_cvd.json`
 
@@ -33,9 +33,10 @@ Run it locally with:
 
 ```bash
 python -m unittest discover -s tests -v
-python calculate_cvd.py --output output/latest_cvd.json
+export COINGLASS_API_KEY='...'
+python calculate_coinglass_cvd.py --output output/latest_cvd.json
 # Reproduce one exact closed boundary:
-python calculate_cvd.py --as-of 2026-10-27T12:00:00Z --output output/latest_cvd.json
+python calculate_coinglass_cvd.py --as-of 2026-10-27T12:00:00Z --output output/latest_cvd.json
 ```
 
 ## Run locally
