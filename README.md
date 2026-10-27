@@ -14,6 +14,30 @@ Generates a verifiable **Binance BTCUSDT Spot** value map from *actual historica
 
 **Does NOT promise:** current intra-session or weekly VAH/VAL/POC, exact compatibility with TradingView profile, live OB absorption, multi-day VWAP SD, true exchange-wide global value or a direct live connection to ChatGPT Scheduled Tasks.
 
+## Hourly Spot / USD-M Futures CVD
+
+`calculate_cvd.py` produces `output/latest_cvd.json` from Binance BTCUSDT Spot and USD-M perpetual **closed 1-minute klines**. Both markets use the same top-of-hour UTC cutoff and the same half-open 1H, 4H and 24H windows. A result is rejected unless all 1,440 expected minutes exist, are contiguous, have exact one-minute close times and contain valid quote-volume fields.
+
+For each market and window:
+
+- `cvd_quote_usdt = sum(taker buy quote volume - taker sell quote volume)`
+- `taker sell quote volume = total quote volume - taker buy quote volume`
+- `taker_buy_share = taker buy quote volume / total quote volume`
+- `normalized_cvd = cvd / total quote volume = 2 * taker_buy_share - 1`
+
+The separate **Binance BTCUSDT hourly CVD** workflow runs at minute 7 of every UTC hour and commits only `output/latest_cvd.json`. It shares a non-canceling publish lock with the daily value-map workflow to prevent concurrent pushes, but otherwise does not change the existing daily calculation. The public dashboard input is:
+
+- `https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest_cvd.json`
+
+Run it locally with:
+
+```bash
+python -m unittest discover -s tests -v
+python calculate_cvd.py --output output/latest_cvd.json
+# Reproduce one exact closed boundary:
+python calculate_cvd.py --as-of 2026-10-27T12:00:00Z --output output/latest_cvd.json
+```
+
 ## Run locally
 
 Python 3.10+ with standard library only:
