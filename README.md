@@ -14,9 +14,9 @@ Generates a verifiable **Binance BTCUSDT Spot** value map from *actual historica
 
 **Does NOT promise:** current intra-session or weekly VAH/VAL/POC, exact compatibility with TradingView profile, live OB absorption, multi-day VWAP SD, true exchange-wide global value or a direct live connection to ChatGPT Scheduled Tasks.
 
-## Hourly Spot / USD-M Futures CVD
+## Free Spot / USD-M Futures CVD
 
-`calculate_cvd.py` produces `output/latest_cvd.json` from Binance BTCUSDT Spot and USD-M perpetual **closed 1-minute klines**. Both markets use the same top-of-hour UTC cutoff and the same half-open 1H, 4H and 24H windows. A result is rejected unless all 1,440 expected minutes exist, are contiguous, have exact one-minute close times and contain valid quote-volume fields.
+`calculate_archive_cvd.py` produces `output/latest_cvd.json` from the free official Binance Data Vision daily archives for BTCUSDT Spot and USD-M perpetual. It requires no API key or paid data plan. Both ZIPs and their companion `.CHECKSUM` files are downloaded directly from Binance, and the output is rejected unless each SHA-256 matches and both markets contain exactly 1,440 contiguous, closed one-minute candles on identical UTC boundaries. The output keeps the compatible schema `btc_binance_quote_cvd_v1`.
 
 For each market and window:
 
@@ -25,7 +25,7 @@ For each market and window:
 - `taker_buy_share = taker buy quote volume / total quote volume`
 - `normalized_cvd = cvd / total quote volume = 2 * taker_buy_share - 1`
 
-The separate **Binance BTCUSDT hourly CVD** workflow runs at minute 7 of every UTC hour and commits only `output/latest_cvd.json`. It shares a non-canceling publish lock with the daily value-map workflow to prevent concurrent pushes, but otherwise does not change the existing daily calculation. The public dashboard input is:
+The separate **Binance Data Vision BTCUSDT CVD** workflow checks at minute 17 of every UTC hour and commits only `output/latest_cvd.json` when a newer common Spot/Futures archive is available. It shares a non-canceling publish lock with the daily value-map workflow and does not change the existing daily calculation. Binance documents that a completed day's daily files become available the next day, so this feed is intentionally delayed closed-session evidence rather than live intraday CVD. The public dashboard input is:
 
 - `https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest_cvd.json`
 
@@ -33,9 +33,9 @@ Run it locally with:
 
 ```bash
 python -m unittest discover -s tests -v
-python calculate_cvd.py --output output/latest_cvd.json
-# Reproduce one exact closed boundary:
-python calculate_cvd.py --as-of 2026-10-27T12:00:00Z --output output/latest_cvd.json
+python calculate_archive_cvd.py --output output/latest_cvd.json
+# Reproduce one exact completed UTC day:
+python calculate_archive_cvd.py --date 2026-10-26 --output output/latest_cvd.json
 ```
 
 ## Run locally

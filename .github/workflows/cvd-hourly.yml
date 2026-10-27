@@ -1,9 +1,15 @@
-name: Binance BTCUSDT hourly CVD
+name: Binance Data Vision BTCUSDT CVD
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'calculate_archive_cvd.py'
+      - 'tests/test_archive_cvd.py'
+      - '.github/workflows/cvd-hourly.yml'
   schedule:
-    - cron: '7 * * * *'
+    - cron: '17 * * * *'
 
 permissions:
   contents: write
@@ -15,7 +21,7 @@ concurrency:
 jobs:
   publish-cvd:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
@@ -25,9 +31,9 @@ jobs:
           python-version: '3.12'
       - name: Run deterministic unit tests
         run: python -m unittest discover -s tests -v
-      - name: Calculate synchronized closed-minute CVD
-        run: python calculate_cvd.py --output output/latest_cvd.json
-      - name: Validate and publish latest CVD
+      - name: Calculate latest checksum-verified closed-day CVD
+        run: python calculate_archive_cvd.py --output output/latest_cvd.json
+      - name: Validate latest CVD
         run: |
           python - <<'PY'
           import json
@@ -35,17 +41,25 @@ jobs:
 
           path = pathlib.Path('output/latest_cvd.json')
           data = json.loads(path.read_text(encoding='utf-8'))
+          assert data['schema'] == 'btc_binance_quote_cvd_v1'
+          assert data['provider'] == 'Binance Data Vision'
+          assert data['quote_asset'] == 'USDT'
           assert data['integrity']['status'] == 'passed'
           assert data['integrity']['synchronized_utc_boundary'] is True
+          assert data['integrity']['archive_sha256_verified'] is True
           for market in ('spot', 'usd_m_futures'):
               assert data['markets'][market]['validated_closed_1m_klines'] == 1440
               assert set(data['markets'][market]['windows']) == {'1h', '4h', '24h'}
+              assert len(data['markets'][market]['source_archive']['sha256']) == 64
           PY
+      - name: Publish latest CVD on main
+        if: github.ref == 'refs/heads/main'
+        run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add output/latest_cvd.json
           if ! git diff --cached --quiet; then
-            git commit -m 'Update Binance BTCUSDT hourly CVD'
+            git commit -m 'Update verified Binance BTCUSDT CVD archive'
             git pull --rebase origin main
-            git push
+            git push origin HEAD:main
           fi
