@@ -3,6 +3,7 @@ import pathlib
 import sys
 import unittest
 from decimal import Decimal
+from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -11,6 +12,7 @@ from calculate_cvd import (
     UTC,
     closed_hour_boundary,
     compute,
+    fetch_klines_with_failover,
     parse_as_of,
     validate_klines,
     window_stats,
@@ -100,6 +102,51 @@ class CvdTest(unittest.TestCase):
             self.assertEqual(windows["4h"]["cvd_quote_usdt"], 4800)
             self.assertEqual(windows["24h"]["cvd_quote_usdt"], 28800)
 
+    def test_endpoint_failover_records_the_working_source(self):
+        endpoints = ("https://first.invalid/klines", "https://second.test/klines")
+        calls = []
+
+        def fake_fetch(endpoint, symbol, start_ms, end_ms):
+            calls.append(endpoint)
+            if endpoint == endpoints[0]:
+                raise TimeoutError("unavailable")
+            return [kline(start_ms)]
+
+        rows, source = fetch_klines_with_failover(
+            endpoints, "BTCUSDT", 0, MINUTE_MS, fetcher=fake_fetch
+        )
+        self.assertEqual(calls, list(endpoints))
+        self.assertEqual(source, endpoints[1])
+        self.assertEqual(rows, [kline(0)])
+
+    def test_compute_uses_endpoint_failover_in_production_path(self):
+        as_of = dt.datetime(2026, 10, 27, 12, 0, tzinfo=UTC)
+        start_ms = int((as_of - dt.timedelta(hours=24)).timestamp() * 1000)
+        rows = [
+            kline(value)
+            for value in range(start_ms, int(as_of.timestamp() * 1000), MINUTE_MS)
+        ]
+
+        with mock.patch(
+            "calculate_cvd.fetch_klines_with_failover",
+            side_effect=[
+                (rows, "https://spot.test/klines"),
+                (rows, "https://futures.test/klines"),
+            ],
+        ) as failover:
+            result = compute(as_of)
+
+        self.assertEqual(failover.call_count, 2)
+        self.assertEqual(
+            result["markets"]["spot"]["source_endpoint"],
+            "https://spot.test/klines",
+        )
+        self.assertEqual(
+            result["markets"]["usd_m_futures"]["source_endpoint"],
+            "https://futures.test/klines",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
+
