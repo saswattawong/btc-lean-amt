@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 import pathlib
 import sys
 import unittest
@@ -109,11 +110,24 @@ class CvdTest(unittest.TestCase):
         def fake_fetch(endpoint, symbol, start_ms, end_ms):
             calls.append(endpoint)
             if endpoint == endpoints[0]:
-                raise TimeoutError("unavailable")
+                raise ValueError("unexpected test error")
+            return [kline(start_ms)]
+
+        with self.assertRaisesRegex(ValueError, "unexpected test error"):
+            fetch_klines_with_failover(
+                endpoints, "BTCUSDT", 0, MINUTE_MS, fetcher=fake_fetch
+            )
+
+        calls.clear()
+
+        def retryable_fetch(endpoint, symbol, start_ms, end_ms):
+            calls.append(endpoint)
+            if endpoint == endpoints[0]:
+                raise json.JSONDecodeError("empty response", "", 0)
             return [kline(start_ms)]
 
         rows, source = fetch_klines_with_failover(
-            endpoints, "BTCUSDT", 0, MINUTE_MS, fetcher=fake_fetch
+            endpoints, "BTCUSDT", 0, MINUTE_MS, fetcher=retryable_fetch
         )
         self.assertEqual(calls, list(endpoints))
         self.assertEqual(source, endpoints[1])
