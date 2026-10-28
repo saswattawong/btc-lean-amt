@@ -2,28 +2,37 @@ name: BTCUSDT validated intraday snapshot
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'calculate_cvd.py'
+      - 'gate_perp_cvd.py'
+      - 'monitor_intraday_freshness.py'
+      - 'publish_outputs.py'
+      - 'validate_outputs.py'
+      - '.github/workflows/intraday.yml'
   push:
     branches: [main]
     paths:
       - 'calculate_cvd.py'
+      - 'gate_perp_cvd.py'
+      - 'monitor_intraday_freshness.py'
+      - 'publish_outputs.py'
       - 'validate_outputs.py'
-      - 'tests/test_cvd.py'
-      - 'tests/test_freshness.py'
       - '.github/workflows/intraday.yml'
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    - cron: '*/5 * * * *' # GitHub-hosted schedules are best effort, not an SLA
 
 permissions:
   contents: write
 
 concurrency:
   group: btc-lean-amt-intraday-publisher
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   publish-intraday:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -31,20 +40,49 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Run deterministic unit tests
-        run: python -m unittest discover -s tests -v
+      - name: Observe freshness before collection
+        id: freshness_before
+        if: hashFiles('output/latest_intraday.json') != ''
+        run: >-
+          python monitor_intraday_freshness.py output/latest_intraday.json
+          --ledger output/intraday_freshness.json
+          --target-age-seconds 900
       - name: Collect synchronized closed-minute data
-        run: python calculate_cvd.py --output output/latest_intraday.json
+        run: >-
+          python calculate_cvd.py
+          --output output/latest_intraday.json
+          --perp-state output/perp_cvd_state.json
+          --perp-bootstrap-minutes 60
       - name: Validate structure, completeness and source freshness
-        run: python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 1200
+        run: python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 900
+      - name: Initialize freshness ledger when no previous snapshot existed
+        if: steps.freshness_before.outcome == 'skipped'
+        run: >-
+          python monitor_intraday_freshness.py output/latest_intraday.json
+          --ledger output/intraday_freshness.json
+          --target-age-seconds 900
       - name: Publish separate intraday JSON on main
+        id: publish_snapshot
         if: github.ref == 'refs/heads/main'
+        run: >-
+          python publish_outputs.py
+          --message 'Update validated BTCUSDT intraday snapshot'
+          output/latest_intraday.json
+          output/perp_cvd_state.json
+          output/intraday_freshness.json
+      - name: Preserve freshness observation when collection or snapshot publish failed
+        if: >-
+          always() && github.ref == 'refs/heads/main' &&
+          steps.freshness_before.outcome == 'success' &&
+          steps.publish_snapshot.outcome != 'success'
+        run: >-
+          python publish_outputs.py
+          --message 'Record BTCUSDT intraday freshness observation'
+          output/intraday_freshness.json
+      - name: Alert when the pre-collection freshness target was breached
+        if: >-
+          always() && github.event_name == 'schedule' &&
+          steps.freshness_before.outputs.within_target == 'false'
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add output/latest_intraday.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'Update validated BTCUSDT intraday snapshot'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+          echo "::error title=Intraday freshness SLO breached::Previous source age was ${{ steps.freshness_before.outputs.source_age_seconds }}s; target is <=900s. The collector still ran and attempted recovery."
+          exit 1

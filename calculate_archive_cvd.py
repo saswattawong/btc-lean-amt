@@ -223,25 +223,54 @@ def download_market(market, symbol, day, cache, requester=request_bytes):
     return download_verified_archive(url, destination, requester)
 
 
+def _validate_downloaded_day(day, downloaded):
+    sequences = {}
+    for market, config in ARCHIVES.items():
+        path, _ = downloaded[market]
+        rows = validate_klines(kline_rows_from_zip(path), day, config["label"])
+        sequences[market] = [row["open_ms"] for row in rows]
+    if sequences["spot"] != sequences["usd_m_futures"]:
+        raise ValueError("Spot and USD-M Futures one-minute boundaries are not synchronized")
+
+
 def find_latest_common_day(today, symbol, cache, lookback_days=4, downloader=download_market):
+    attempts = []
     for days_ago in range(1, lookback_days + 1):
         day = today - dt.timedelta(days=days_ago)
         downloaded = {}
+        attempt = {"day_utc": day.isoformat(), "status": "checking", "markets": {}}
         try:
             for market in ARCHIVES:
                 downloaded[market] = downloader(market, symbol, day, cache)
-            return day, downloaded
-        except ArchiveUnavailable:
+                attempt["markets"][market] = "checksum_verified"
+            _validate_downloaded_day(day, downloaded)
+            attempt["status"] = "selected"
+            attempts.append(attempt)
+            return day, downloaded, {
+                "strategy": "newest checksum-verified common completed UTC day with 1440 synchronized closed one-minute klines",
+                "latest_completed_day_utc": (today - dt.timedelta(days=1)).isoformat(),
+                "selected_day_utc": day.isoformat(),
+                "days_behind_latest_completed": days_ago - 1,
+                "attempts": attempts,
+            }
+        except ArchiveUnavailable as error:
+            attempt["status"] = "unavailable"
+            attempt["error"] = str(error)[:240]
+            attempts.append(attempt)
+            continue
+        except (OSError, ValueError, zipfile.BadZipFile) as error:
+            attempt["status"] = "invalid"
+            attempt["error"] = f"{type(error).__name__}: {str(error)[:200]}"
+            attempts.append(attempt)
             continue
     raise ArchiveUnavailable(
-        f"No common Binance Spot/USD-M daily archive found in the last {lookback_days} completed UTC days"
+        f"No valid common Binance Spot/USD-M daily archive found in the last {lookback_days} completed UTC days; "
+        + json.dumps(attempts, separators=(",", ":"))
     )
 
 
-def compute(day, downloaded, symbol="BTCUSDT"):
+def compute(day, downloaded, symbol="BTCUSDT", selection=None, generated_at=None):
     end_utc = day_boundary(day)
-    generated_at = dt.datetime.now(UTC)
-    source_age_seconds = max(0, int((generated_at - end_utc).total_seconds()))
     markets = {}
     open_sequences = {}
     for key, config in ARCHIVES.items():
@@ -259,6 +288,15 @@ def compute(day, downloaded, symbol="BTCUSDT"):
         }
     if open_sequences["spot"] != open_sequences["usd_m_futures"]:
         raise ValueError("Spot and USD-M Futures one-minute boundaries are not synchronized")
+    generated_at = (generated_at or dt.datetime.now(UTC)).astimezone(UTC)
+    source_age_seconds = max(0, int((generated_at - end_utc).total_seconds()))
+    selection = selection or {
+        "strategy": "explicit completed UTC day",
+        "latest_completed_day_utc": day.isoformat(),
+        "selected_day_utc": day.isoformat(),
+        "days_behind_latest_completed": 0,
+        "attempts": [{"day_utc": day.isoformat(), "status": "selected"}],
+    }
 
     return {
         "schema": "btc_binance_quote_cvd_v1",
@@ -278,6 +316,7 @@ def compute(day, downloaded, symbol="BTCUSDT"):
             "status_at_generation": "latest_verified_archive",
             "note": "Freshness is measured from the completed source-day boundary, never from file generation time.",
         },
+        "archive_selection": selection,
         "data_freshness": "Completed UTC-day archives are published by Binance on the following day; this is verified closed-session data, not live intraday data.",
         "window_semantics": "Half-open UTC intervals [start_utc, end_utc_exclusive) using only checksum-verified closed one-minute Binance klines; both markets share the same boundaries.",
         "definitions": {
@@ -306,6 +345,8 @@ def write_if_changed(data, destination):
                 and current.get("integrity", {}).get("archive_sha256_verified") is True
                 and current.get("freshness", {}).get("source_as_of_utc")
                 == data.get("freshness", {}).get("source_as_of_utc")
+                and current.get("archive_selection", {}).get("selected_day_utc")
+                == data.get("archive_selection", {}).get("selected_day_utc")
             ):
                 return False
         except (OSError, ValueError):
@@ -334,19 +375,23 @@ def main():
             for market in ARCHIVES
         }
     else:
-        day, downloaded = find_latest_common_day(
+        day, downloaded, selection = find_latest_common_day(
             dt.datetime.now(UTC).date(), args.symbol, cache, args.lookback_days
         )
 
-    data = compute(day, downloaded, args.symbol)
+    if args.date:
+        selection = None
+    data = compute(day, downloaded, args.symbol, selection=selection)
     destination = pathlib.Path(args.output)
     changed = write_if_changed(data, destination)
     print(
         json.dumps(
             {
                 "output": str(destination),
+                "source_closed_day_utc": data["source_closed_day_utc"],
                 "as_of_utc": data["as_of_utc"],
                 "integrity": data["integrity"]["status"],
+                "archive_selection": data["archive_selection"],
                 "changed": changed,
             }
         )

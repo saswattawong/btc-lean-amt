@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Validated intraday BTCUSDT market snapshot from public Binance APIs.
+"""Validated multi-provider intraday BTCUSDT market snapshot.
 
-The output intentionally tolerates provider-specific access failures. A market
-is published only after its full trailing 24 hours of synchronized, closed 1m
-klines validate; unavailable markets and point-in-time derivatives metrics are
-explicitly represented as N/A instead of failing the usable Spot snapshot.
+Binance supplies Spot klines.  Gate supplies a separately labelled USDT
+perpetual CVD reconstructed from public aggressor-side trades.  Provider
+failures remain explicit N/A and are never filled with zero or merged across
+venues.
 """
 
 import argparse
@@ -17,19 +17,21 @@ import urllib.parse
 import urllib.request
 from decimal import Decimal, InvalidOperation
 
+from gate_perp_cvd import (
+    CONTRACT_ENDPOINT as GATE_CONTRACT_ENDPOINT,
+    PROVIDER as GATE_PROVIDER,
+    TRADES_ENDPOINT as GATE_TRADES_ENDPOINT,
+    collect_gate_perpetual,
+)
+
 
 UTC = dt.timezone.utc
 MINUTE_MS = 60_000
 WINDOWS = {"1h": 60, "4h": 240, "24h": 1_440}
-MAX_SOURCE_AGE_SECONDS = 20 * 60
+MAX_SOURCE_AGE_SECONDS = 15 * 60
 SPOT_KLINE_ENDPOINTS = (
     "https://data-api.binance.vision/api/v3/klines",
     "https://api.binance.com/api/v3/klines",
-)
-USD_M_FUTURES_KLINE_ENDPOINTS = (
-    "https://fapi.binance.com/fapi/v1/klines",
-    "https://fapi1.binance.com/fapi/v1/klines",
-    "https://fapi2.binance.com/fapi/v1/klines",
 )
 FUNDING_ENDPOINTS = (
     "https://fapi.binance.com/fapi/v1/premiumIndex",
@@ -389,38 +391,56 @@ def collect_derivatives(symbol="BTCUSDT", generated_at=None, requester=request_j
     return result
 
 
-def compute(as_of_utc, symbol="BTCUSDT", fetcher=fetch_klines, generated_at=None, derivatives=None):
+def compute(
+    as_of_utc,
+    symbol="BTCUSDT",
+    fetcher=fetch_klines,
+    generated_at=None,
+    derivatives=None,
+    perp_market=None,
+    perp_collector=collect_gate_perpetual,
+    perp_state_path="output/perp_cvd_state.json",
+    perp_bootstrap_minutes=60,
+):
     if as_of_utc.tzinfo is None:
         raise ValueError("as_of_utc must be timezone-aware")
     as_of_utc = as_of_utc.astimezone(UTC)
     if as_of_utc.second or as_of_utc.microsecond:
         raise ValueError("as_of_utc must be an exact one-minute boundary")
-    generated_at = (generated_at or dt.datetime.now(UTC)).astimezone(UTC)
     start_utc = as_of_utc - dt.timedelta(hours=24)
 
-    markets = {
-        "spot": collect_market(
-            "Binance Spot",
-            "Binance Spot Market Data API",
-            SPOT_KLINE_ENDPOINTS,
-            symbol,
-            start_utc,
-            as_of_utc,
-            fetcher,
-        ),
-        "usd_m_futures": collect_market(
-            "Binance USD-M Futures perpetual",
-            "Binance USD-M Futures REST API",
-            USD_M_FUTURES_KLINE_ENDPOINTS,
-            symbol,
-            start_utc,
-            as_of_utc,
-            fetcher,
-        ),
-    }
-    available = [key for key, market in markets.items() if market["status"] == "available"]
+    spot = collect_market(
+        "Binance Spot",
+        "Binance Spot Market Data API",
+        SPOT_KLINE_ENDPOINTS,
+        symbol,
+        start_utc,
+        as_of_utc,
+        fetcher,
+    )
+    if perp_market is None:
+        try:
+            perp_market = perp_collector(
+                as_of_utc,
+                pathlib.Path(perp_state_path),
+                bootstrap_minutes=perp_bootstrap_minutes,
+            )
+        except (KeyError, InvalidOperation, OSError, RuntimeError, ValueError, TimeoutError) as error:
+            perp_market = unavailable_market(
+                "Gate BTC_USDT USDT-settled perpetual",
+                GATE_PROVIDER,
+                start_utc,
+                as_of_utc,
+                _safe_error(error),
+                (GATE_CONTRACT_ENDPOINT, GATE_TRADES_ENDPOINT),
+            )
+    markets = {"spot": spot, "usd_m_futures": perp_market}
+    generated_at = (generated_at or dt.datetime.now(UTC)).astimezone(UTC)
+    available = [
+        key for key, market in markets.items() if market["status"] in {"available", "partial"}
+    ]
+    fully_available = [key for key, market in markets.items() if market["status"] == "available"]
     source_age = max(0, int((generated_at - as_of_utc).total_seconds()))
-    spot = markets["spot"]
     if spot["status"] == "available":
         spot_price = {
             "status": "available",
@@ -443,7 +463,7 @@ def compute(as_of_utc, symbol="BTCUSDT", fetcher=fetch_klines, generated_at=None
         }
 
     return {
-        "schema": "btc_binance_intraday_v1",
+        "schema": "btc_multi_provider_intraday_v2",
         "generated_at_utc": iso_utc(generated_at),
         "symbol": symbol,
         "quote_asset": "USDT",
@@ -458,15 +478,18 @@ def compute(as_of_utc, symbol="BTCUSDT", fetcher=fetch_klines, generated_at=None
             "status_at_generation": "fresh" if source_age <= MAX_SOURCE_AGE_SECONDS else "stale",
             "note": "Freshness is measured from the last closed source candle, never from file generation time.",
         },
-        "window_semantics": "Trailing half-open UTC intervals [start_utc, end_utc_exclusive) using only validated closed 1m klines; every available market is requested on the same boundary.",
+        "window_semantics": "Trailing half-open UTC intervals [start_utc, end_utc_exclusive). Binance Spot uses validated closed 1m klines; Gate perpetual uses separately validated closed-minute trade aggregates on the same requested boundary.",
         "definitions": {
             "cvd_quote_usdt": "sum(taker_buy_quote_volume - taker_sell_quote_volume), where taker_sell_quote_volume = quote_volume - taker_buy_quote_volume",
             "taker_buy_share": "sum(taker_buy_quote_volume) / sum(quote_volume), in [0, 1]",
             "normalized_cvd": "cvd_quote_usdt / quote_volume_usdt = 2 * taker_buy_share - 1, in [-1, 1]",
+            "provider_separation": "Spot and perpetual observations retain their own exchange, endpoint, instrument, timestamp, coverage, and integrity. Values are not merged across providers.",
         },
         "integrity": {
-            "status": "passed" if len(available) == 2 else "partial" if available else "unavailable",
+            "status": "passed" if len(fully_available) == 2 else "partial" if available else "unavailable",
             "requested_synchronized_utc_boundary": True,
+            "providers_are_separate": True,
+            "cross_provider_values_not_merged": True,
             "required_closed_1m_klines_per_available_market": 1_440,
             "available_markets": available,
             "unavailable_markets": [key for key in markets if key not in available],
@@ -492,7 +515,8 @@ def compute(as_of_utc, symbol="BTCUSDT", fetcher=fetch_klines, generated_at=None
 
 def _quality(data):
     markets = sum(
-        market.get("status") == "available"
+        10 if market.get("status") == "available" else
+        sum(window.get("status") == "available" for window in market.get("windows", {}).values())
         for market in data.get("markets", {}).values()
     )
     points = sum(
@@ -528,14 +552,29 @@ def main():
     )
     parser.add_argument("--symbol", default="BTCUSDT")
     parser.add_argument("--output", default="output/latest_intraday.json")
+    parser.add_argument("--perp-state", default="output/perp_cvd_state.json")
+    parser.add_argument(
+        "--perp-bootstrap-minutes",
+        type=int,
+        default=60,
+        help="Closed minutes fetched when no verified Gate rolling state exists",
+    )
     args = parser.parse_args()
 
     as_of = parse_as_of(args.as_of) if args.as_of else closed_minute_boundary(dt.datetime.now(UTC))
-    generated_at = dt.datetime.now(UTC)
-    derivatives = collect_derivatives(args.symbol, generated_at)
-    data = compute(as_of, args.symbol, generated_at=generated_at, derivatives=derivatives)
+    derivatives = collect_derivatives(args.symbol, dt.datetime.now(UTC))
+    data = compute(
+        as_of,
+        args.symbol,
+        derivatives=derivatives,
+        perp_state_path=args.perp_state,
+        perp_bootstrap_minutes=args.perp_bootstrap_minutes,
+    )
     destination = pathlib.Path(args.output)
     changed = write_if_fresher(data, destination)
+    perp = data["markets"]["usd_m_futures"]
+    perp_coverage = perp.get("coverage", {})
+    perp_integrity = perp.get("fetch_integrity", {})
     print(
         json.dumps(
             {
@@ -544,6 +583,14 @@ def main():
                 "freshness": data["freshness"]["status_at_generation"],
                 "integrity": data["integrity"]["status"],
                 "available_markets": data["integrity"]["available_markets"],
+                "perp_provider": perp.get("provider"),
+                "perp_status": perp.get("status"),
+                "perp_validated_closed_minutes": perp_coverage.get("validated_closed_1m_klines"),
+                "perp_available_windows": [
+                    name for name, window in perp.get("windows", {}).items()
+                    if window.get("status") == "available"
+                ],
+                "perp_fetch_requests": perp_integrity.get("request_count", "N/A"),
                 "changed": changed,
             }
         )

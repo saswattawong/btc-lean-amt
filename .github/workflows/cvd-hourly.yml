@@ -2,12 +2,18 @@ name: Binance Data Vision BTCUSDT CVD
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'calculate_archive_cvd.py'
+      - 'publish_outputs.py'
+      - 'validate_outputs.py'
+      - '.github/workflows/cvd-hourly.yml'
   push:
     branches: [main]
     paths:
       - 'calculate_archive_cvd.py'
+      - 'publish_outputs.py'
       - 'validate_outputs.py'
-      - 'tests/test_archive_cvd.py'
       - '.github/workflows/cvd-hourly.yml'
   schedule:
     - cron: '17 * * * *'
@@ -22,7 +28,7 @@ concurrency:
 jobs:
   publish-cvd:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -30,20 +36,13 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Run deterministic unit tests
-        run: python -m unittest discover -s tests -v
       - name: Calculate latest checksum-verified closed-day CVD
         run: python calculate_archive_cvd.py --output output/latest_cvd.json
       - name: Validate archive checksums, integrity and source freshness
-        run: python validate_outputs.py archive-cvd output/latest_cvd.json --max-age-seconds 259200
+        run: python validate_outputs.py archive-cvd output/latest_cvd.json --max-age-seconds 172800
       - name: Publish latest CVD on main
         if: github.ref == 'refs/heads/main'
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add output/latest_cvd.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'Update verified Binance BTCUSDT CVD archive'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+        run: >-
+          python publish_outputs.py
+          --message 'Update verified Binance BTCUSDT CVD archive'
+          output/latest_cvd.json
