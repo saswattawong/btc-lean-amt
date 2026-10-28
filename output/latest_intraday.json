@@ -1,35 +1,37 @@
 {
-  "schema": "btc_binance_intraday_v1",
-  "generated_at_utc": "2026-10-28T05:28:27Z",
+  "schema": "btc_multi_provider_intraday_v2",
+  "generated_at_utc": "2026-10-28T07:37:34Z",
   "symbol": "BTCUSDT",
   "quote_asset": "USDT",
   "interval": "1m",
-  "as_of_utc": "2026-10-28T05:27:00Z",
-  "range_start_utc": "2026-10-27T05:27:00Z",
+  "as_of_utc": "2026-10-28T07:36:00Z",
+  "range_start_utc": "2026-10-27T07:36:00Z",
   "freshness": {
-    "source_as_of_utc": "2026-10-28T05:27:00Z",
-    "generated_at_utc": "2026-10-28T05:28:27Z",
-    "source_age_seconds_at_generation": 87,
-    "max_source_age_seconds": 1200,
+    "source_as_of_utc": "2026-10-28T07:36:00Z",
+    "generated_at_utc": "2026-10-28T07:37:34Z",
+    "source_age_seconds_at_generation": 94,
+    "max_source_age_seconds": 900,
     "status_at_generation": "fresh",
     "note": "Freshness is measured from the last closed source candle, never from file generation time."
   },
-  "window_semantics": "Trailing half-open UTC intervals [start_utc, end_utc_exclusive) using only validated closed 1m klines; every available market is requested on the same boundary.",
+  "window_semantics": "Trailing half-open UTC intervals [start_utc, end_utc_exclusive). Binance Spot uses validated closed 1m klines; Gate perpetual uses separately validated closed-minute trade aggregates on the same requested boundary.",
   "definitions": {
     "cvd_quote_usdt": "sum(taker_buy_quote_volume - taker_sell_quote_volume), where taker_sell_quote_volume = quote_volume - taker_buy_quote_volume",
     "taker_buy_share": "sum(taker_buy_quote_volume) / sum(quote_volume), in [0, 1]",
-    "normalized_cvd": "cvd_quote_usdt / quote_volume_usdt = 2 * taker_buy_share - 1, in [-1, 1]"
+    "normalized_cvd": "cvd_quote_usdt / quote_volume_usdt = 2 * taker_buy_share - 1, in [-1, 1]",
+    "provider_separation": "Spot and perpetual observations retain their own exchange, endpoint, instrument, timestamp, coverage, and integrity. Values are not merged across providers."
   },
   "integrity": {
     "status": "partial",
     "requested_synchronized_utc_boundary": true,
+    "providers_are_separate": true,
+    "cross_provider_values_not_merged": true,
     "required_closed_1m_klines_per_available_market": 1440,
     "available_markets": [
-      "spot"
-    ],
-    "unavailable_markets": [
+      "spot",
       "usd_m_futures"
-    ]
+    ],
+    "unavailable_markets": []
   },
   "markets": {
     "spot": {
@@ -41,12 +43,12 @@
         "https://data-api.binance.vision/api/v3/klines",
         "https://api.binance.com/api/v3/klines"
       ],
-      "source_timestamp_utc": "2026-10-28T05:26:59Z",
+      "source_timestamp_utc": "2026-10-28T07:35:59Z",
       "coverage": {
-        "start_utc": "2026-10-27T05:27:00Z",
-        "end_utc_exclusive": "2026-10-28T05:27:00Z",
-        "first_candle_open_utc": "2026-10-27T05:27:00Z",
-        "last_candle_close_utc": "2026-10-28T05:26:59Z",
+        "start_utc": "2026-10-27T07:36:00Z",
+        "end_utc_exclusive": "2026-10-28T07:36:00Z",
+        "first_candle_open_utc": "2026-10-27T07:36:00Z",
+        "last_candle_close_utc": "2026-10-28T07:35:59Z",
         "expected_closed_1m_klines": 1440,
         "validated_closed_1m_klines": 1440,
         "candle_completeness_pct": 100.0
@@ -54,88 +56,101 @@
       "windows": {
         "1h": {
           "status": "available",
-          "start_utc": "2026-10-28T04:27:00Z",
-          "end_utc_exclusive": "2026-10-28T05:27:00Z",
+          "start_utc": "2026-10-28T06:36:00Z",
+          "end_utc_exclusive": "2026-10-28T07:36:00Z",
           "closed_klines": 60,
-          "quote_volume_usdt": 17271958.0239741,
-          "taker_buy_quote_volume_usdt": 9528746.991442,
-          "taker_sell_quote_volume_usdt": 7743211.0325321,
-          "cvd_quote_usdt": 1785535.9589099,
-          "taker_buy_share": 0.5516888692,
-          "taker_buy_share_pct": 55.16888692,
-          "normalized_cvd": 0.1033777384,
+          "quote_volume_usdt": 14438603.6470442,
+          "taker_buy_quote_volume_usdt": 5954979.8089796,
+          "taker_sell_quote_volume_usdt": 8483623.8380646,
+          "cvd_quote_usdt": -2528644.029085,
+          "taker_buy_share": 0.4124346062,
+          "taker_buy_share_pct": 41.24346062,
+          "normalized_cvd": -0.1751307876,
           "error": null
         },
         "4h": {
           "status": "available",
-          "start_utc": "2026-10-28T01:27:00Z",
-          "end_utc_exclusive": "2026-10-28T05:27:00Z",
+          "start_utc": "2026-10-28T03:36:00Z",
+          "end_utc_exclusive": "2026-10-28T07:36:00Z",
           "closed_klines": 240,
-          "quote_volume_usdt": 117321255.2370737,
-          "taker_buy_quote_volume_usdt": 69931262.50109,
-          "taker_sell_quote_volume_usdt": 47389992.7359837,
-          "cvd_quote_usdt": 22541269.7651063,
-          "taker_buy_share": 0.5960664362,
-          "taker_buy_share_pct": 59.60664362,
-          "normalized_cvd": 0.1921328724,
+          "quote_volume_usdt": 75828213.3067486,
+          "taker_buy_quote_volume_usdt": 38228825.0105099,
+          "taker_sell_quote_volume_usdt": 37599388.2962387,
+          "cvd_quote_usdt": 629436.7142712,
+          "taker_buy_share": 0.5041504124,
+          "taker_buy_share_pct": 50.41504124,
+          "normalized_cvd": 0.0083008248,
           "error": null
         },
         "24h": {
           "status": "available",
-          "start_utc": "2026-10-27T05:27:00Z",
-          "end_utc_exclusive": "2026-10-28T05:27:00Z",
+          "start_utc": "2026-10-27T07:36:00Z",
+          "end_utc_exclusive": "2026-10-28T07:36:00Z",
           "closed_klines": 1440,
-          "quote_volume_usdt": 1015369033.9529592,
-          "taker_buy_quote_volume_usdt": 601721921.388548,
-          "taker_sell_quote_volume_usdt": 413647112.5644112,
-          "cvd_quote_usdt": 188074808.8241368,
-          "taker_buy_share": 0.5926140164,
-          "taker_buy_share_pct": 59.26140164,
-          "normalized_cvd": 0.1852280329,
+          "quote_volume_usdt": 960177141.7291727,
+          "taker_buy_quote_volume_usdt": 569423432.2086864,
+          "taker_sell_quote_volume_usdt": 390753709.5204864,
+          "cvd_quote_usdt": 178669722.6881999,
+          "taker_buy_share": 0.5930399793,
+          "taker_buy_share_pct": 59.30399793,
+          "normalized_cvd": 0.1860799585,
           "error": null
         }
       },
-      "last_closed_price_usdt": 80968.01,
+      "last_closed_price_usdt": 80939.18,
       "failover_errors": [],
       "error": null
     },
     "usd_m_futures": {
-      "status": "unavailable",
-      "market": "Binance USD-M Futures perpetual",
-      "provider": "Binance USD-M Futures REST API",
-      "source_endpoint": "N/A",
+      "status": "partial",
+      "market": "Gate BTC_USDT USDT-settled perpetual",
+      "exchange": "Gate",
+      "provider": "Gate API v4",
+      "provider_documentation": "https://www.gate.com/docs/developers/apiv4/en/futures/",
+      "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/trades",
+      "contract_metadata_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
       "endpoints_attempted": [
-        "https://fapi.binance.com/fapi/v1/klines",
-        "https://fapi1.binance.com/fapi/v1/klines",
-        "https://fapi2.binance.com/fapi/v1/klines"
+        "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
+        "https://api.gateio.ws/api/v4/futures/usdt/trades"
       ],
-      "source_timestamp_utc": "N/A",
-      "coverage": {
-        "start_utc": "2026-10-27T05:27:00Z",
-        "end_utc_exclusive": "2026-10-28T05:27:00Z",
-        "expected_closed_1m_klines": 1440,
-        "validated_closed_1m_klines": "N/A",
-        "candle_completeness_pct": "N/A"
+      "source_timestamp_utc": "2026-10-28T07:35:59Z",
+      "contract": {
+        "name": "BTC_USDT",
+        "type": "direct",
+        "settlement_asset": "USDT",
+        "underlying_asset": "BTC",
+        "quanto_multiplier_btc_per_contract": "0.0001",
+        "status": "trading",
+        "in_delisting": false
       },
+      "coverage": {
+        "start_utc": "2026-10-28T06:36:00Z",
+        "end_utc_exclusive": "2026-10-28T07:36:00Z",
+        "expected_closed_1m_klines": 1440,
+        "validated_closed_1m_klines": 60,
+        "candle_completeness_pct": 4.16666667
+      },
+      "aggressor_side_rule": "positive trade size = taker buy; negative trade size = taker sell",
+      "quote_notional_formula": "abs(size_contracts) * quanto_multiplier_btc_per_contract * price_usdt",
       "windows": {
         "1h": {
-          "status": "unavailable",
-          "start_utc": "2026-10-28T04:27:00Z",
-          "end_utc_exclusive": "2026-10-28T05:27:00Z",
-          "closed_klines": "N/A",
-          "quote_volume_usdt": "N/A",
-          "taker_buy_quote_volume_usdt": "N/A",
-          "taker_sell_quote_volume_usdt": "N/A",
-          "cvd_quote_usdt": "N/A",
-          "taker_buy_share": "N/A",
-          "taker_buy_share_pct": "N/A",
-          "normalized_cvd": "N/A",
-          "error": "RuntimeError: all endpoints failed; https://fapi.binance.com/fapi/v1/klines: HTTP 451; https://fapi1.binance.com/fapi/v1/klines: JSONDecodeError: Expecting value: line 1 column 1 (char 0); https://fapi2.binance.com"
+          "status": "available",
+          "start_utc": "2026-10-28T06:36:00Z",
+          "end_utc_exclusive": "2026-10-28T07:36:00Z",
+          "closed_klines": 60,
+          "quote_volume_usdt": 31331895.75552,
+          "taker_buy_quote_volume_usdt": 19053688.70978,
+          "taker_sell_quote_volume_usdt": 12278207.04574,
+          "cvd_quote_usdt": 6775481.66404,
+          "taker_buy_share": 0.608124349,
+          "taker_buy_share_pct": 60.8124349,
+          "normalized_cvd": 0.216248698,
+          "error": null
         },
         "4h": {
           "status": "unavailable",
-          "start_utc": "2026-10-28T01:27:00Z",
-          "end_utc_exclusive": "2026-10-28T05:27:00Z",
+          "start_utc": "2026-10-28T03:36:00Z",
+          "end_utc_exclusive": "2026-10-28T07:36:00Z",
           "closed_klines": "N/A",
           "quote_volume_usdt": "N/A",
           "taker_buy_quote_volume_usdt": "N/A",
@@ -144,12 +159,12 @@
           "taker_buy_share": "N/A",
           "taker_buy_share_pct": "N/A",
           "normalized_cvd": "N/A",
-          "error": "RuntimeError: all endpoints failed; https://fapi.binance.com/fapi/v1/klines: HTTP 451; https://fapi1.binance.com/fapi/v1/klines: JSONDecodeError: Expecting value: line 1 column 1 (char 0); https://fapi2.binance.com"
+          "error": "insufficient verified rolling coverage: 60/240 closed minutes"
         },
         "24h": {
           "status": "unavailable",
-          "start_utc": "2026-10-27T05:27:00Z",
-          "end_utc_exclusive": "2026-10-28T05:27:00Z",
+          "start_utc": "2026-10-27T07:36:00Z",
+          "end_utc_exclusive": "2026-10-28T07:36:00Z",
           "closed_klines": "N/A",
           "quote_volume_usdt": "N/A",
           "taker_buy_quote_volume_usdt": "N/A",
@@ -158,10 +173,22 @@
           "taker_buy_share": "N/A",
           "taker_buy_share_pct": "N/A",
           "normalized_cvd": "N/A",
-          "error": "RuntimeError: all endpoints failed; https://fapi.binance.com/fapi/v1/klines: HTTP 451; https://fapi1.binance.com/fapi/v1/klines: JSONDecodeError: Expecting value: line 1 column 1 (char 0); https://fapi2.binance.com"
+          "error": "insufficient verified rolling coverage: 60/1440 closed minutes"
         }
       },
-      "error": "RuntimeError: all endpoints failed; https://fapi.binance.com/fapi/v1/klines: HTTP 451; https://fapi1.binance.com/fapi/v1/klines: JSONDecodeError: Expecting value: line 1 column 1 (char 0); https://fapi2.binance.com"
+      "fetch_integrity": {
+        "status": "passed",
+        "state_schema": "btc_gate_perp_cvd_state_v1",
+        "time_range_untruncated": true,
+        "request_count": 13,
+        "verified_untruncated_segments": 7,
+        "unique_trades": 5429,
+        "duplicate_trade_ids_filtered": 0,
+        "page_limit": 1000,
+        "range_start_utc": "2026-10-28T06:36:00Z",
+        "range_end_utc_exclusive": "2026-10-28T07:36:00Z"
+      },
+      "error": null
     }
   },
   "btc_spot_price": {
@@ -169,8 +196,8 @@
     "provider": "Binance Spot Market Data API",
     "coverage": "close of the latest validated closed BTCUSDT 1m Spot candle",
     "source_endpoint": "https://data-api.binance.vision/api/v3/klines",
-    "source_timestamp_utc": "2026-10-28T05:26:59Z",
-    "price_usdt": 80968.01,
+    "source_timestamp_utc": "2026-10-28T07:35:59Z",
+    "price_usdt": 80939.18,
     "error": null
   },
   "derivatives": {
