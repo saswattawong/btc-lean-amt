@@ -1,54 +1,62 @@
 {
   "schema": "btc_lean_amt_value_map_v1",
-  "generated_at_utc": "2026-10-27T20:58:01.341000+00:00",
+  "generated_at_utc": "2026-10-28T05:28:38.211430+00:00",
   "exchange": "Binance",
   "market": "Spot",
   "symbol": "BTCUSDT",
   "price_quote": "USDT",
   "session_tz": "UTC",
-  "as_of_closed_day_utc": "2026-10-26",
-  "session_start_utc": "2026-10-26T00:00:00Z",
-  "session_end_utc_exclusive": "2026-10-27T00:00:00Z",
+  "as_of_closed_day_utc": "2026-10-27",
+  "session_start_utc": "2026-10-27T00:00:00Z",
+  "session_end_utc_exclusive": "2026-10-28T00:00:00Z",
+  "freshness": {
+    "source_as_of_utc": "2026-10-28T00:00:00Z",
+    "generated_at_utc": "2026-10-28T05:28:38.211430+00:00",
+    "source_age_seconds_at_generation": 19718,
+    "source_closed_day_utc": "2026-10-27",
+    "status_at_generation": "latest_verified_archive",
+    "note": "Freshness is measured from the completed source-day boundary, never from file generation time."
+  },
   "evidence": "A for Binance archived aggregated executions verified by the official companion checksum and cross-checked against the closed daily kline; value area is derived with the documented bucket rule (not identical to TradingView settings)",
   "sources": {
-    "archive_url": "https://data.binance.vision/data/spot/daily/aggTrades/BTCUSDT/BTCUSDT-aggTrades-2026-10-26.zip",
-    "checksum_url": "https://data.binance.vision/data/spot/daily/aggTrades/BTCUSDT/BTCUSDT-aggTrades-2026-10-26.zip.CHECKSUM",
-    "sha256": "ccba13649b4e8fb1569cfe52401a9ef920f1eccfd7f2c85550bee582288746df",
-    "kline_api_url": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=1757980800000&endTime=1793059199999&limit=1000"
+    "archive_url": "https://data.binance.vision/data/spot/daily/aggTrades/BTCUSDT/BTCUSDT-aggTrades-2026-10-27.zip",
+    "checksum_url": "https://data.binance.vision/data/spot/daily/aggTrades/BTCUSDT/BTCUSDT-aggTrades-2026-10-27.zip.CHECKSUM",
+    "sha256": "1989595d47684dc145664e94885c29f1790906ed7a64d9e30a0f8e3b091160f9",
+    "kline_api_url": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=1758067200000&endTime=1793145599999&limit=1000"
   },
   "integrity_cross_check": {
-    "daily_kline_base_volume_btc": 15371.34784,
-    "daily_kline_quote_volume_usdt": 1230994078.8598392,
-    "daily_kline_vwap_usdt": 80083.67852144313,
+    "daily_kline_base_volume_btc": 13230.64597,
+    "daily_kline_quote_volume_usdt": 1062256600.1288809,
+    "daily_kline_vwap_usdt": 80287.58403312344,
     "base_volume_absolute_difference_btc": 0.0,
     "vwap_absolute_difference_usdt": 0.0,
     "status": "passed"
   },
   "daily_trade_volume_profile": {
-    "poc_usdt": 80000.0,
-    "vah_usdt": 80500.0,
-    "val_usdt": 79830.0,
-    "vwap_usdt": 80083.67852144313,
-    "trade_price_sd_usdt": 296.60450186852296,
-    "vwap_plus_1sd_usdt": 80380.28302331165,
-    "vwap_minus_1sd_usdt": 79787.0740195746,
-    "base_volume_btc": 15371.34784,
-    "value_area_actual_share": 0.7012140829935184,
-    "aggregated_trade_rows": 1178942,
+    "poc_usdt": 80640.0,
+    "vah_usdt": 80830.0,
+    "val_usdt": 79870.0,
+    "vwap_usdt": 80287.58403312344,
+    "trade_price_sd_usdt": 415.41834013270966,
+    "vwap_plus_1sd_usdt": 80703.00237325614,
+    "vwap_minus_1sd_usdt": 79872.16569299073,
+    "base_volume_btc": 13230.64597,
+    "value_area_actual_share": 0.7017653016378005,
+    "aggregated_trade_rows": 930338,
     "price_bucket_usdt": 10.0
   },
   "vwap": {
-    "developing_month_vwap_to_last_closed_utc_day": 82975.42041,
+    "developing_month_vwap_to_last_closed_utc_day": 82881.60271,
     "previous_completed_month_vwap": 80780.82413,
-    "rolling_365_complete_utc_days_vwap": 77496.08821,
+    "rolling_365_complete_utc_days_vwap": 77381.66541,
     "note": "VWAP from sum(daily quote volume) / sum(daily base volume). No unsupported multi-day SD bands."
   },
   "levels": {
     "previous_day": {
-      "date": "2026-10-26",
-      "high": 80844.7,
-      "low": 79368.67,
-      "close": 80150.56
+      "date": "2026-10-27",
+      "high": 81300.0,
+      "low": 79506.0,
+      "close": 80909.77
     },
     "previous_completed_utc_week": {
       "from": "2026-10-19",
@@ -63,14 +71,14 @@
     "sd": "Daily trade-size-weighted standard deviation of execution price, not candle SD; daily only.",
     "limitations": "Aggregated trades combine executions; volume is preserved. Binance Spot only. Archive for UTC day available next day. No live order book and no intraday developing session. Value Area bucket choice and expansion are explicit methodology choices."
   },
-  "report_reference_date_utc": "2026-10-27",
+  "report_reference_date_utc": "2026-10-28",
   "daily_poc_migration": {
-    "from_day_utc": "2026-10-25",
-    "to_day_utc": "2026-10-26",
-    "previous_poc_usdt": 80810.0,
-    "current_poc_usdt": 80000.0,
-    "delta_usdt": -810.0,
-    "direction": "lower",
+    "from_day_utc": "2026-10-26",
+    "to_day_utc": "2026-10-27",
+    "previous_poc_usdt": 80000.0,
+    "current_poc_usdt": 80640.0,
+    "delta_usdt": 640.0,
+    "direction": "higher",
     "method": "Same Binance spot aggTrades, same price bucket and value-area rules"
   },
   "previous_completed_week_trade_volume_profile": {
