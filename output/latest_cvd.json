@@ -1,6 +1,6 @@
 {
   "schema": "btc_binance_quote_cvd_v1",
-  "generated_at_utc": "2026-10-28T05:30:11Z",
+  "generated_at_utc": "2026-10-28T07:37:20Z",
   "provider": "Binance Data Vision",
   "symbol": "BTCUSDT",
   "quote_asset": "USDT",
@@ -10,11 +10,35 @@
   "range_start_utc": "2026-10-26T00:00:00Z",
   "freshness": {
     "source_as_of_utc": "2026-10-27T00:00:00Z",
-    "generated_at_utc": "2026-10-28T05:30:11Z",
-    "source_age_seconds_at_generation": 106211,
+    "generated_at_utc": "2026-10-28T07:37:20Z",
+    "source_age_seconds_at_generation": 113840,
     "source_closed_day_utc": "2026-10-26",
     "status_at_generation": "latest_verified_archive",
     "note": "Freshness is measured from the completed source-day boundary, never from file generation time."
+  },
+  "archive_selection": {
+    "strategy": "newest checksum-verified common completed UTC day with 1440 synchronized closed one-minute klines",
+    "latest_completed_day_utc": "2026-10-27",
+    "selected_day_utc": "2026-10-26",
+    "days_behind_latest_completed": 1,
+    "attempts": [
+      {
+        "day_utc": "2026-10-27",
+        "status": "unavailable",
+        "markets": {
+          "spot": "checksum_verified"
+        },
+        "error": "https://data.binance.vision/data/futures/um/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-10-27.zip.CHECKSUM"
+      },
+      {
+        "day_utc": "2026-10-26",
+        "status": "selected",
+        "markets": {
+          "spot": "checksum_verified",
+          "usd_m_futures": "checksum_verified"
+        }
+      }
+    ]
   },
   "data_freshness": "Completed UTC-day archives are published by Binance on the following day; this is verified closed-session data, not live intraday data.",
   "window_semantics": "Half-open UTC intervals [start_utc, end_utc_exclusive) using only checksum-verified closed one-minute Binance klines; both markets share the same boundaries.",
