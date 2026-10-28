@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'calculate_archive_cvd.py'
+      - 'validate_outputs.py'
       - 'tests/test_archive_cvd.py'
       - '.github/workflows/cvd-hourly.yml'
   schedule:
@@ -33,25 +34,8 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Calculate latest checksum-verified closed-day CVD
         run: python calculate_archive_cvd.py --output output/latest_cvd.json
-      - name: Validate latest CVD
-        run: |
-          python - <<'PY'
-          import json
-          import pathlib
-
-          path = pathlib.Path('output/latest_cvd.json')
-          data = json.loads(path.read_text(encoding='utf-8'))
-          assert data['schema'] == 'btc_binance_quote_cvd_v1'
-          assert data['provider'] == 'Binance Data Vision'
-          assert data['quote_asset'] == 'USDT'
-          assert data['integrity']['status'] == 'passed'
-          assert data['integrity']['synchronized_utc_boundary'] is True
-          assert data['integrity']['archive_sha256_verified'] is True
-          for market in ('spot', 'usd_m_futures'):
-              assert data['markets'][market]['validated_closed_1m_klines'] == 1440
-              assert set(data['markets'][market]['windows']) == {'1h', '4h', '24h'}
-              assert len(data['markets'][market]['source_archive']['sha256']) == 64
-          PY
+      - name: Validate archive checksums, integrity and source freshness
+        run: python validate_outputs.py archive-cvd output/latest_cvd.json --max-age-seconds 259200
       - name: Publish latest CVD on main
         if: github.ref == 'refs/heads/main'
         run: |

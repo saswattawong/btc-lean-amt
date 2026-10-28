@@ -14,7 +14,7 @@ Generates a verifiable **Binance BTCUSDT Spot** value map from *actual historica
 
 **Does NOT promise:** current intra-session or weekly VAH/VAL/POC, exact compatibility with TradingView profile, live OB absorption, multi-day VWAP SD, true exchange-wide global value or a direct live connection to ChatGPT Scheduled Tasks.
 
-## Free Spot / USD-M Futures CVD
+## Verified archive Spot / USD-M Futures CVD
 
 `calculate_archive_cvd.py` produces `output/latest_cvd.json` from the free official Binance Data Vision daily archives for BTCUSDT Spot and USD-M perpetual. It requires no API key or paid data plan. Both ZIPs and their companion `.CHECKSUM` files are downloaded directly from Binance, and the output is rejected unless each SHA-256 matches and both markets contain exactly 1,440 contiguous, closed one-minute candles on identical UTC boundaries. The output keeps the compatible schema `btc_binance_quote_cvd_v1`.
 
@@ -25,7 +25,7 @@ For each market and window:
 - `taker_buy_share = taker buy quote volume / total quote volume`
 - `normalized_cvd = cvd / total quote volume = 2 * taker_buy_share - 1`
 
-The separate **Binance Data Vision BTCUSDT CVD** workflow checks at minute 17 of every UTC hour and commits only `output/latest_cvd.json` when a newer common Spot/Futures archive is available. It shares a non-canceling publish lock with the daily value-map workflow and does not change the existing daily calculation. Binance documents that a completed day's daily files become available the next day, so this feed is intentionally delayed closed-session evidence rather than live intraday CVD. The public dashboard input is:
+The separate **Binance Data Vision BTCUSDT CVD** workflow checks at minute 17 of every UTC hour, retries automatically while the newest archives are unavailable, and commits only `output/latest_cvd.json` when a newer common Spot/Futures archive is available. It shares a non-canceling publish lock with the daily value-map workflow and does not change the existing daily calculation. Binance documents that a completed day's daily files become available the next day, so this feed is intentionally delayed closed-session evidence rather than live intraday CVD. `generated_at_utc` is never used as the source timestamp: the JSON carries `freshness.source_as_of_utc` and `freshness.source_age_seconds_at_generation`. The public dashboard input is:
 
 - `https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest_cvd.json`
 
@@ -36,6 +36,23 @@ python -m unittest discover -s tests -v
 python calculate_archive_cvd.py --output output/latest_cvd.json
 # Reproduce one exact completed UTC day:
 python calculate_archive_cvd.py --date 2026-10-26 --output output/latest_cvd.json
+```
+
+## Validated intraday snapshot
+
+`calculate_cvd.py` publishes a separate `output/latest_intraday.json`; it never replaces the checksum-verified archive `latest_cvd.json`. The **BTCUSDT validated intraday snapshot** workflow runs at minutes 7, 22, 37 and 52 of each UTC hour. It requests one synchronized trailing 24-hour range ending on a settled, closed one-minute boundary and calculates 1H/4H/24H quote-volume CVD, normalized CVD and taker-buy share only after all 1,440 candles for a market validate.
+
+Each market contains provider, endpoint, source timestamp, requested coverage, validated candle count and completeness. Binance Spot also supplies the close of the latest validated closed 1m candle as `btc_spot_price`. Binance USD-M funding and open interest are collected as point-in-time metrics only when their official endpoints are reachable. If Futures, funding or OI endpoints are blocked (GitHub-hosted runners have returned HTTP 451), the current Spot snapshot can still publish, while every unavailable metric is explicitly `N/A` with provider, coverage and a bounded error. The freshness gate requires validated Spot data and rejects a source boundary older than 20 minutes.
+
+Public intraday input:
+
+- `https://raw.githubusercontent.com/saswattawong/btc-lean-amt/main/output/latest_intraday.json`
+
+Run and validate it locally with:
+
+```bash
+python calculate_cvd.py --output output/latest_intraday.json
+python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 1200
 ```
 
 ## Run locally
@@ -49,7 +66,7 @@ python calculate.py --output output/latest.json
 python calculate.py --date 2026-10-24 --bucket 10 --output output/2026-10-24.json
 ```
 
-Data files for BTCUSDT can be substantial; download size and runtime vary, and execution may fail on unavailable/blocked archives. ZIP files are cached in `.cache` and are ignored by Git. Every cached or newly downloaded ZIP must match Binance's companion SHA-256 checksum. The run also fails if aggregate-trade volume/VWAP do not match the corresponding closed daily kline. If an archive is missing or inconsistent, the tool fails rather than inventing or silently reusing a value. The default is yesterday UTC (today UTC minus one).
+Data files for BTCUSDT can be substantial; download size and runtime vary, and execution may fail on unavailable/blocked archives. ZIP files are cached in `.cache` and are ignored by Git. Every cached or newly downloaded ZIP must match Binance's companion SHA-256 checksum. The run also fails if aggregate-trade volume/VWAP do not match the corresponding closed daily kline. If the newest completed archive is not published, the default command selects the latest available completed UTC day within a four-day lookback and records its true source age. Integrity errors do not trigger fallback and still fail the run.
 
 ## Deploy with GitHub Actions
 

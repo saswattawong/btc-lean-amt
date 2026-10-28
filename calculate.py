@@ -2,7 +2,7 @@
 """Binance BTCUSDT spot daily trade-level volume profile and exact aggregate VWAP.
 Runs after the UTC day ends. No API key required. Std deviation is size-weighted trade-price SD.
 """
-import argparse, csv, datetime as dt, hashlib, io, json, math, pathlib, re, urllib.request, zipfile
+import argparse, csv, datetime as dt, hashlib, io, json, math, pathlib, re, time, urllib.error, urllib.request, zipfile
 from collections import defaultdict
 from decimal import Decimal, ROUND_FLOOR
 
@@ -10,9 +10,24 @@ UTC=dt.timezone.utc
 BASE='https://data-api.binance.vision/api/v3/klines'
 ARCHIVE='https://data.binance.vision/data/spot/daily/aggTrades/{symbol}/{symbol}-aggTrades-{day}.zip'
 
+class ArchiveUnavailable(Exception):
+    """The requested completed UTC archive has not been published yet."""
+
+def urlopen_retry(request,timeout,attempts=3):
+    for attempt in range(attempts):
+        try:
+            return urllib.request.urlopen(request,timeout=timeout)
+        except urllib.error.HTTPError as error:
+            if error.code==404: raise ArchiveUnavailable(request.full_url) from error
+            if error.code not in {408,425,429,500,502,503,504} or attempt+1==attempts: raise
+        except (urllib.error.URLError,TimeoutError):
+            if attempt+1==attempts: raise
+        time.sleep(2**attempt)
+    raise RuntimeError('unreachable')
+
 def request_json(url):
     req=urllib.request.Request(url, headers={'User-Agent':'btc-lean-amt/1.0'})
-    with urllib.request.urlopen(req,timeout=45) as r: return json.load(r)
+    with urlopen_retry(req,45) as r: return json.load(r)
 
 def date_utc(ms):
     return dt.datetime.fromtimestamp(int(ms)/1000,UTC).date()
@@ -50,7 +65,7 @@ def sha256_file(path):
 def expected_archive_sha256(uri):
     checksum_uri=uri+'.CHECKSUM'
     req=urllib.request.Request(checksum_uri,headers={'User-Agent':'btc-lean-amt/1.0'})
-    with urllib.request.urlopen(req,timeout=45) as response:
+    with urlopen_retry(req,45) as response:
         token=response.read().decode('ascii').strip().split()[0].lower()
     if not re.fullmatch(r'[0-9a-f]{64}',token):
         raise ValueError(f'Invalid Binance checksum response: {checksum_uri}')
@@ -67,7 +82,7 @@ def download_archive(symbol, day, cache):
         dst.unlink()
     tmp=dst.with_suffix('.partial')
     try:
-        with urllib.request.urlopen(urllib.request.Request(uri,headers={'User-Agent':'btc-lean-amt/1.0'}),timeout=120) as response, open(tmp,'wb') as out:
+        with urlopen_retry(urllib.request.Request(uri,headers={'User-Agent':'btc-lean-amt/1.0'}),120) as response, open(tmp,'wb') as out:
             while True:
                 block=response.read(1024*1024)
                 if not block:break
@@ -111,6 +126,8 @@ def range_vwap(rows):
     return round(quote/vol,5) if vol>0 else None
 
 def compute(day,symbol='BTCUSDT',step=10,cache=pathlib.Path('.cache')):
+    generated_at=dt.datetime.now(UTC)
+    source_as_of=dt.datetime.combine(day+dt.timedelta(days=1),dt.time(),UTC)
     zip_path,archive_source=download_archive(symbol,day,cache)
     with zipfile.ZipFile(zip_path) as z:
         csv_names=[n for n in z.namelist() if n.endswith('.csv')]
@@ -138,10 +155,15 @@ def compute(day,symbol='BTCUSDT',step=10,cache=pathlib.Path('.cache')):
     prev_week=[r for r in klines if prev_week_start<=r['date']<prev_week_start+dt.timedelta(days=7)]
     assert len(prev_week)==7
     prev_day=klines[-2]
-    return {'schema':'btc_lean_amt_value_map_v1','generated_at_utc':dt.datetime.now(UTC).isoformat(),
+    return {'schema':'btc_lean_amt_value_map_v1','generated_at_utc':generated_at.isoformat(),
       'exchange':'Binance','market':'Spot','symbol':symbol,'price_quote':'USDT','session_tz':'UTC',
       'as_of_closed_day_utc':day.isoformat(),'session_start_utc':day.isoformat()+'T00:00:00Z',
       'session_end_utc_exclusive':(day+dt.timedelta(days=1)).isoformat()+'T00:00:00Z',
+      'freshness':{'source_as_of_utc':source_as_of.isoformat(timespec='seconds').replace('+00:00','Z'),
+          'generated_at_utc':generated_at.isoformat(),
+          'source_age_seconds_at_generation':max(0,int((generated_at-source_as_of).total_seconds())),
+          'source_closed_day_utc':day.isoformat(),'status_at_generation':'latest_verified_archive',
+          'note':'Freshness is measured from the completed source-day boundary, never from file generation time.'},
       'evidence':'A for Binance archived aggregated executions verified by the official companion checksum and cross-checked against the closed daily kline; value area is derived with the documented bucket rule (not identical to TradingView settings)',
       'sources':archive_source | {'kline_api_url':kline_url},
       'integrity_cross_check':{'daily_kline_base_volume_btc':day_kline['volume_btc'],'daily_kline_quote_volume_usdt':day_kline['quote_usdt'],
@@ -159,14 +181,42 @@ def compute(day,symbol='BTCUSDT',step=10,cache=pathlib.Path('.cache')):
                 'sd':'Daily trade-size-weighted standard deviation of execution price, not candle SD; daily only.',
                 'limitations':'Aggregated trades combine executions; volume is preserved. Binance Spot only. Archive for UTC day available next day. No live order book and no intraday developing session. Value Area bucket choice and expansion are explicit methodology choices.'}}
 
+def compute_latest_available(today,symbol='BTCUSDT',step=10,cache=pathlib.Path('.cache'),lookback_days=4,calculator=compute):
+    for days_ago in range(1,lookback_days+1):
+        day=today-dt.timedelta(days=days_ago)
+        try:
+            return day,calculator(day,symbol,step,cache)
+        except ArchiveUnavailable:
+            continue
+    raise ArchiveUnavailable(f'No Binance Spot aggTrades archive found in the last {lookback_days} completed UTC days')
+
+def write_if_new_source(data,destination,force=False):
+    if destination.exists() and not force:
+        try:
+            current=json.loads(destination.read_text(encoding='utf-8'))
+            if (current.get('schema')==data['schema']
+                and current.get('as_of_closed_day_utc')==data['as_of_closed_day_utc']
+                and current.get('integrity_cross_check',{}).get('status')=='passed'
+                and current.get('freshness',{}).get('source_as_of_utc')==data['freshness']['source_as_of_utc']):
+                return current,False
+        except (OSError,ValueError):
+            pass
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    destination.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf8')
+    return data,True
+
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--date',help='UTC closed day YYYY-MM-DD; default yesterday');ap.add_argument('--symbol',default='BTCUSDT');ap.add_argument('--bucket',type=float,default=10);ap.add_argument('--cache',default='.cache');ap.add_argument('--output',default='output/latest.json');args=ap.parse_args()
-    day=dt.date.fromisoformat(args.date) if args.date else dt.datetime.now(UTC).date()-dt.timedelta(days=1)
-    if day>=dt.datetime.now(UTC).date(): raise SystemExit('Date must be a completed UTC day')
-    data=compute(day,args.symbol,args.bucket,pathlib.Path(args.cache))
-    dest=pathlib.Path(args.output);dest.parent.mkdir(parents=True,exist_ok=True)
-    dest.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf8')
+    ap=argparse.ArgumentParser();ap.add_argument('--date',help='UTC closed day YYYY-MM-DD; default newest available completed archive');ap.add_argument('--symbol',default='BTCUSDT');ap.add_argument('--bucket',type=float,default=10);ap.add_argument('--cache',default='.cache');ap.add_argument('--output',default='output/latest.json');ap.add_argument('--lookback-days',type=int,default=4);ap.add_argument('--force',action='store_true');args=ap.parse_args()
+    today=dt.datetime.now(UTC).date()
+    if args.date:
+        day=dt.date.fromisoformat(args.date)
+        if day>=today: raise SystemExit('Date must be a completed UTC day')
+        data=compute(day,args.symbol,args.bucket,pathlib.Path(args.cache))
+    else:
+        day,data=compute_latest_available(today,args.symbol,args.bucket,pathlib.Path(args.cache),args.lookback_days)
+    dest=pathlib.Path(args.output)
+    data,changed=write_if_new_source(data,dest,args.force)
     print(json.dumps({'day':day.isoformat(),'output':str(dest),'vwap':data['daily_trade_volume_profile']['vwap_usdt'],
-                      'poc':data['daily_trade_volume_profile']['poc_usdt'],'integrity':data['integrity_cross_check']['status']}))
+                      'poc':data['daily_trade_volume_profile']['poc_usdt'],'integrity':data['integrity_cross_check']['status'],'changed':changed}))
 if __name__=='__main__':main()
 

@@ -25,6 +25,7 @@ from calculate_archive_cvd import (
     window_stats,
     write_if_changed,
 )
+from validate_outputs import validate_archive_cvd
 
 
 DAY = dt.date(2026, 10, 26)
@@ -163,6 +164,7 @@ class ArchiveCvdTest(unittest.TestCase):
             )
             self.assertEqual(result["schema"], "btc_binance_quote_cvd_v1")
             self.assertEqual(result["as_of_utc"], "2026-10-27T00:00:00Z")
+            self.assertEqual(result["freshness"]["source_as_of_utc"], result["as_of_utc"])
             self.assertTrue(result["integrity"]["archive_sha256_verified"])
             self.assertEqual(result["markets"]["spot"]["validated_closed_1m_klines"], 1_440)
             self.assertEqual(result["markets"]["spot"]["windows"]["24h"]["normalized_cvd"], 0.1)
@@ -171,6 +173,13 @@ class ArchiveCvdTest(unittest.TestCase):
                 result["markets"]["spot"]["windows"]["1h"]["end_utc_exclusive"],
                 result["markets"]["usd_m_futures"]["windows"]["1h"]["end_utc_exclusive"],
             )
+            generated = dt.datetime.fromisoformat(result["generated_at_utc"].replace("Z", "+00:00"))
+            summary = validate_archive_cvd(
+                result,
+                now=generated + dt.timedelta(minutes=1),
+                max_age_seconds=500_000,
+            )
+            self.assertEqual(summary["integrity"], "passed")
 
     def test_write_if_changed_does_not_churn_same_verified_day(self):
         with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:

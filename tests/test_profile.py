@@ -1,7 +1,7 @@
-import sys, pathlib, tempfile, unittest
+import datetime as dt, json, sys, pathlib, tempfile, unittest
 from decimal import Decimal
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]))
-from calculate import sha256_file, volume_profile
+from calculate import ArchiveUnavailable, compute_latest_available, sha256_file, volume_profile, write_if_new_source
 from render_brief import render
 class ProfileTest(unittest.TestCase):
     def test_bucket_vwap_and_70percent(self):
@@ -21,6 +21,27 @@ class ProfileTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path=pathlib.Path(directory)/'sample.bin';path.write_bytes(b'abc')
             self.assertEqual(sha256_file(path),'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad')
+    def test_latest_value_map_falls_back_only_for_unavailable_archive(self):
+        calls=[]
+        def calculator(day,symbol,step,cache):
+            calls.append(day)
+            if day==dt.date(2026,10,27): raise ArchiveUnavailable('not published')
+            return {'as_of_closed_day_utc':day.isoformat()}
+        day,data=compute_latest_available(dt.date(2026,10,28),calculator=calculator)
+        self.assertEqual(day,dt.date(2026,10,26))
+        self.assertEqual(data['as_of_closed_day_utc'],'2026-10-26')
+        self.assertEqual(calls,[dt.date(2026,10,27),dt.date(2026,10,26)])
+    def test_same_value_map_source_preserves_original_generation_time(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=pathlib.Path(directory)/'latest.json'
+            base={'schema':'btc_lean_amt_value_map_v1','generated_at_utc':'first','as_of_closed_day_utc':'2026-10-26',
+                  'session_end_utc_exclusive':'2026-10-27T00:00:00Z','freshness':{'source_as_of_utc':'2026-10-27T00:00:00Z'},
+                  'integrity_cross_check':{'status':'passed'}}
+            path.write_text(json.dumps(base),encoding='utf-8')
+            updated=dict(base,generated_at_utc='second')
+            current,changed=write_if_new_source(updated,path)
+            self.assertFalse(changed)
+            self.assertEqual(current['generated_at_utc'],'first')
     def test_dashboard_brief_rejects_misaligned_dates(self):
         data={
           'as_of_closed_day_utc':'2026-10-25','report_reference_date_utc':'2026-10-26',

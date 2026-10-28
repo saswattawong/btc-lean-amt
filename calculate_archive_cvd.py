@@ -240,6 +240,8 @@ def find_latest_common_day(today, symbol, cache, lookback_days=4, downloader=dow
 
 def compute(day, downloaded, symbol="BTCUSDT"):
     end_utc = day_boundary(day)
+    generated_at = dt.datetime.now(UTC)
+    source_age_seconds = max(0, int((generated_at - end_utc).total_seconds()))
     markets = {}
     open_sequences = {}
     for key, config in ARCHIVES.items():
@@ -260,7 +262,7 @@ def compute(day, downloaded, symbol="BTCUSDT"):
 
     return {
         "schema": "btc_binance_quote_cvd_v1",
-        "generated_at_utc": iso_utc(dt.datetime.now(UTC)),
+        "generated_at_utc": iso_utc(generated_at),
         "provider": "Binance Data Vision",
         "symbol": symbol,
         "quote_asset": "USDT",
@@ -268,6 +270,14 @@ def compute(day, downloaded, symbol="BTCUSDT"):
         "source_closed_day_utc": day.isoformat(),
         "as_of_utc": iso_utc(end_utc),
         "range_start_utc": iso_utc(end_utc - dt.timedelta(days=1)),
+        "freshness": {
+            "source_as_of_utc": iso_utc(end_utc),
+            "generated_at_utc": iso_utc(generated_at),
+            "source_age_seconds_at_generation": source_age_seconds,
+            "source_closed_day_utc": day.isoformat(),
+            "status_at_generation": "latest_verified_archive",
+            "note": "Freshness is measured from the completed source-day boundary, never from file generation time.",
+        },
         "data_freshness": "Completed UTC-day archives are published by Binance on the following day; this is verified closed-session data, not live intraday data.",
         "window_semantics": "Half-open UTC intervals [start_utc, end_utc_exclusive) using only checksum-verified closed one-minute Binance klines; both markets share the same boundaries.",
         "definitions": {
