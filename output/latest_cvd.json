@@ -1,6 +1,6 @@
 {
   "schema": "btc_binance_quote_cvd_v1",
-  "generated_at_utc": "2026-10-27T20:52:37Z",
+  "generated_at_utc": "2026-10-28T05:30:11Z",
   "provider": "Binance Data Vision",
   "symbol": "BTCUSDT",
   "quote_asset": "USDT",
@@ -8,6 +8,14 @@
   "source_closed_day_utc": "2026-10-26",
   "as_of_utc": "2026-10-27T00:00:00Z",
   "range_start_utc": "2026-10-26T00:00:00Z",
+  "freshness": {
+    "source_as_of_utc": "2026-10-27T00:00:00Z",
+    "generated_at_utc": "2026-10-28T05:30:11Z",
+    "source_age_seconds_at_generation": 106211,
+    "source_closed_day_utc": "2026-10-26",
+    "status_at_generation": "latest_verified_archive",
+    "note": "Freshness is measured from the completed source-day boundary, never from file generation time."
+  },
   "data_freshness": "Completed UTC-day archives are published by Binance on the following day; this is verified closed-session data, not live intraday data.",
   "window_semantics": "Half-open UTC intervals [start_utc, end_utc_exclusive) using only checksum-verified closed one-minute Binance klines; both markets share the same boundaries.",
   "definitions": {
