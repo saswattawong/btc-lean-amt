@@ -39,6 +39,49 @@ def kline(open_ms, quote="100", buy="60", close="80000"):
     ]
 
 
+def gate_perp_market(as_of, count=1_440):
+    start = as_of - dt.timedelta(minutes=count)
+    rows = [
+        {"open_ms": index, "quote_volume": Decimal("100"), "taker_buy_quote": Decimal("55")}
+        for index in range(count)
+    ]
+    windows = {}
+    for name, minutes in {"1h": 60, "4h": 240, "24h": 1_440}.items():
+        if count >= minutes:
+            windows[name] = window_stats(rows, minutes, as_of)
+        else:
+            windows[name] = {
+                "status": "unavailable",
+                "start_utc": (as_of - dt.timedelta(minutes=minutes)).isoformat().replace("+00:00", "Z"),
+                "end_utc_exclusive": as_of.isoformat().replace("+00:00", "Z"),
+                **{field: "N/A" for field in (
+                    "closed_klines", "quote_volume_usdt", "taker_buy_quote_volume_usdt",
+                    "taker_sell_quote_volume_usdt", "cvd_quote_usdt", "taker_buy_share",
+                    "taker_buy_share_pct", "normalized_cvd",
+                )},
+                "error": "insufficient verified rolling coverage",
+            }
+    return {
+        "status": "available" if count == 1_440 else "partial",
+        "market": "Gate BTC_USDT USDT-settled perpetual",
+        "exchange": "Gate",
+        "provider": "Gate API v4",
+        "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/trades",
+        "contract_metadata_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
+        "source_timestamp_utc": (as_of - dt.timedelta(seconds=1)).isoformat().replace("+00:00", "Z"),
+        "coverage": {
+            "start_utc": start.isoformat().replace("+00:00", "Z"),
+            "end_utc_exclusive": as_of.isoformat().replace("+00:00", "Z"),
+            "expected_closed_1m_klines": 1_440,
+            "validated_closed_1m_klines": count,
+            "candle_completeness_pct": round(count / 1_440 * 100, 8),
+        },
+        "windows": windows,
+        "fetch_integrity": {"status": "passed", "time_range_untruncated": True},
+        "error": None,
+    }
+
+
 class CvdTest(unittest.TestCase):
     def test_closed_minute_boundary_allows_settlement(self):
         self.assertEqual(
@@ -91,10 +134,16 @@ class CvdTest(unittest.TestCase):
             calls.append((endpoint, symbol, start_ms, end_ms))
             return [kline(value) for value in range(start_ms, end_ms, MINUTE_MS)]
 
-        result = compute(as_of, fetcher=fake_fetch, generated_at=generated)
-        self.assertEqual(len(calls), 2)
-        self.assertEqual(calls[0][2:], calls[1][2:])
+        result = compute(
+            as_of,
+            fetcher=fake_fetch,
+            generated_at=generated,
+            perp_market=gate_perp_market(as_of),
+        )
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(result["schema"], "btc_multi_provider_intraday_v2")
         self.assertEqual(result["integrity"]["status"], "passed")
+        self.assertTrue(result["integrity"]["cross_provider_values_not_merged"])
         self.assertEqual(result["freshness"]["source_age_seconds_at_generation"], 60)
         self.assertEqual(result["btc_spot_price"]["price_usdt"], 80000)
         for market in ("spot", "usd_m_futures"):
@@ -108,11 +157,17 @@ class CvdTest(unittest.TestCase):
         generated = dt.datetime(2026, 10, 27, 12, 4, tzinfo=UTC)
 
         def fake_fetch(endpoint, symbol, start_ms, end_ms):
-            if "fapi" in endpoint:
-                raise ValueError("HTTP 451")
             return [kline(value) for value in range(start_ms, end_ms, MINUTE_MS)]
 
-        result = compute(as_of, fetcher=fake_fetch, generated_at=generated)
+        def inaccessible_perp(*args, **kwargs):
+            raise ValueError("HTTP 451")
+
+        result = compute(
+            as_of,
+            fetcher=fake_fetch,
+            generated_at=generated,
+            perp_collector=inaccessible_perp,
+        )
         self.assertEqual(result["integrity"]["status"], "partial")
         self.assertEqual(result["markets"]["usd_m_futures"]["status"], "unavailable")
         self.assertEqual(
@@ -149,7 +204,7 @@ class CvdTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=pathlib.Path(__file__).resolve().parent) as directory:
             output = pathlib.Path(directory) / "intraday.json"
             base = {
-                "schema": "btc_binance_intraday_v1",
+            "schema": "btc_multi_provider_intraday_v2",
                 "as_of_utc": "2026-10-27T12:03:00Z",
                 "generated_at_utc": "2026-10-27T12:04:00Z",
                 "markets": {"spot": {"status": "available"}},

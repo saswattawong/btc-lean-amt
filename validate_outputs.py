@@ -48,35 +48,63 @@ def _validate_freshness(data, now, max_age_seconds):
     return {"source_as_of_utc": block["source_as_of_utc"], "source_age_seconds_now": age_now}
 
 
-def validate_intraday(data, now=None, max_age_seconds=1_200):
+def validate_intraday(data, now=None, max_age_seconds=900):
     now = (now or dt.datetime.now(UTC)).astimezone(UTC)
-    _assert(data.get("schema") == "btc_binance_intraday_v1", "unexpected intraday schema")
+    schema = data.get("schema")
+    _assert(
+        schema in {"btc_binance_intraday_v1", "btc_multi_provider_intraday_v2"},
+        "unexpected intraday schema",
+    )
     _assert(data.get("symbol") == "BTCUSDT", "unexpected symbol")
     _assert(data.get("interval") == "1m", "unexpected interval")
     freshness = _validate_freshness(data, now, max_age_seconds)
     _assert(data["as_of_utc"] == data["freshness"]["source_as_of_utc"], "as-of/freshness mismatch")
     _assert(data.get("integrity", {}).get("requested_synchronized_utc_boundary") is True, "boundary is not synchronized")
+    if schema == "btc_multi_provider_intraday_v2":
+        _assert(data["integrity"].get("providers_are_separate") is True, "provider separation missing")
+        _assert(data["integrity"].get("cross_provider_values_not_merged") is True, "cross-provider merge guard missing")
 
     markets = data.get("markets", {})
     _assert(set(markets) == {"spot", "usd_m_futures"}, "market set is incomplete")
     _assert(markets["spot"].get("status") == "available", "validated Spot market is required")
+    if schema == "btc_multi_provider_intraday_v2":
+        _assert(markets["spot"].get("provider") != markets["usd_m_futures"].get("provider"), "providers are not distinct")
     for name, market in markets.items():
         _assert(bool(market.get("provider")), f"{name}: provider missing")
         _assert(set(market.get("windows", {})) == set(WINDOWS), f"{name}: window set mismatch")
-        if market.get("status") == "available":
+        status = market.get("status")
+        if status in {"available", "partial"}:
             coverage = market.get("coverage", {})
-            _assert(coverage.get("validated_closed_1m_klines") == 1_440, f"{name}: incomplete candles")
-            _assert(coverage.get("candle_completeness_pct") == 100.0, f"{name}: completeness mismatch")
+            count = coverage.get("validated_closed_1m_klines")
+            _assert(isinstance(count, int) and 0 < count <= 1_440, f"{name}: invalid candle coverage")
+            expected_pct = round(count / 1_440 * 100, 8)
+            _assert(abs(coverage.get("candle_completeness_pct") - expected_pct) < 1e-7, f"{name}: completeness mismatch")
             _assert(coverage.get("end_utc_exclusive") == data["as_of_utc"], f"{name}: boundary mismatch")
             for window, minutes in WINDOWS.items():
                 values = market["windows"][window]
-                _assert(values.get("status") == "available", f"{name}/{window}: unavailable")
-                _assert(values.get("closed_klines") == minutes, f"{name}/{window}: candle count mismatch")
                 _assert(values.get("end_utc_exclusive") == data["as_of_utc"], f"{name}/{window}: end mismatch")
-                _assert(-1 <= values.get("normalized_cvd") <= 1, f"{name}/{window}: normalized CVD invalid")
-                _assert(0 <= values.get("taker_buy_share") <= 1, f"{name}/{window}: buy share invalid")
+                if values.get("status") == "available":
+                    _assert(count >= minutes, f"{name}/{window}: window exceeds coverage")
+                    _assert(values.get("closed_klines") == minutes, f"{name}/{window}: candle count mismatch")
+                    _assert(-1 <= values.get("normalized_cvd") <= 1, f"{name}/{window}: normalized CVD invalid")
+                    _assert(0 <= values.get("taker_buy_share") <= 1, f"{name}/{window}: buy share invalid")
+                else:
+                    _assert(values.get("status") == "unavailable", f"{name}/{window}: invalid status")
+                    _assert(all(values.get(field) == "N/A" for field in NA_FIELDS), f"{name}/{window}: N/A fields missing")
+            if status == "available":
+                _assert(count == 1_440, f"{name}: available market is incomplete")
+                _assert(all(item.get("status") == "available" for item in market["windows"].values()), f"{name}: available market has missing windows")
+            else:
+                _assert(count < 1_440, f"{name}: partial market is unexpectedly complete")
+            source_timestamp = parse_utc(market["source_timestamp_utc"])
+            _assert(source_timestamp <= parse_utc(data["as_of_utc"]), f"{name}: source timestamp is after boundary")
+            _assert(source_timestamp >= parse_utc(data["as_of_utc"]) - dt.timedelta(minutes=2), f"{name}: source timestamp is stale")
+            if name == "usd_m_futures" and schema == "btc_multi_provider_intraday_v2":
+                _assert(market.get("fetch_integrity", {}).get("status") == "passed", "perpetual fetch integrity failed")
+                _assert(market["fetch_integrity"].get("time_range_untruncated") is True, "perpetual trade range may be truncated")
+                _assert(bool(market.get("contract_metadata_endpoint")), "perpetual contract provenance missing")
         else:
-            _assert(market.get("status") == "unavailable", f"{name}: invalid status")
+            _assert(status == "unavailable", f"{name}: invalid status")
             _assert(bool(market.get("error")), f"{name}: unavailable without error")
             for window in WINDOWS:
                 values = market["windows"][window]
@@ -110,12 +138,28 @@ def validate_archive_cvd(data, now=None, max_age_seconds=259_200):
     _assert(data["integrity"].get("archive_sha256_verified") is True, "archive checksum not verified")
     freshness = _validate_freshness(data, now, max_age_seconds)
     _assert(data["as_of_utc"] == data["freshness"]["source_as_of_utc"], "archive as-of/freshness mismatch")
+    source_day = dt.date.fromisoformat(data["source_closed_day_utc"])
+    expected_as_of = dt.datetime.combine(source_day + dt.timedelta(days=1), dt.time(), UTC)
+    _assert(parse_utc(data["as_of_utc"]) == expected_as_of, "archive source day/as-of mismatch")
+    selection = data.get("archive_selection", {})
+    _assert(selection.get("selected_day_utc") == source_day.isoformat(), "archive selection day mismatch")
+    _assert(any(item.get("day_utc") == source_day.isoformat() and item.get("status") == "selected" for item in selection.get("attempts", [])), "archive selection evidence missing")
+    boundary_sets = {}
     for name in ("spot", "usd_m_futures"):
         market = data.get("markets", {}).get(name, {})
         _assert(market.get("validated_closed_1m_klines") == 1_440, f"{name}: incomplete archive")
         source = market.get("source_archive", {})
         _assert(re.fullmatch(r"[0-9a-f]{64}", source.get("sha256", "")) is not None, f"{name}: invalid sha256")
         _assert(source.get("checksum_url", "").endswith(".CHECKSUM"), f"{name}: checksum URL missing")
+        _assert(f"-{source_day.isoformat()}.zip" in source.get("archive_url", ""), f"{name}: archive URL day mismatch")
+        boundary_sets[name] = []
+        for window, minutes in WINDOWS.items():
+            values = market.get("windows", {}).get(window, {})
+            _assert(values.get("closed_klines") == minutes, f"{name}/{window}: candle count mismatch")
+            _assert(values.get("end_utc_exclusive") == data["as_of_utc"], f"{name}/{window}: end mismatch")
+            _assert(parse_utc(values["start_utc"]) == expected_as_of - dt.timedelta(minutes=minutes), f"{name}/{window}: start mismatch")
+            boundary_sets[name].append((values["start_utc"], values["end_utc_exclusive"]))
+    _assert(boundary_sets["spot"] == boundary_sets["usd_m_futures"], "archive market windows are not synchronized")
     return {"kind": "archive-cvd", **freshness, "integrity": "passed"}
 
 
@@ -141,7 +185,7 @@ def main():
     args = parser.parse_args()
     data = json.loads(pathlib.Path(args.path).read_text(encoding="utf-8"))
     validators = {
-        "intraday": (validate_intraday, 1_200),
+        "intraday": (validate_intraday, 900),
         "archive-cvd": (validate_archive_cvd, 259_200),
         "value-map": (validate_value_map, 259_200),
     }

@@ -134,17 +134,43 @@ class ArchiveCvdTest(unittest.TestCase):
     def test_latest_common_day_falls_back_only_when_archive_unavailable(self):
         today = dt.date(2026, 10, 28)
         calls = []
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
+            root = pathlib.Path(directory)
 
-        def downloader(market, symbol, day, cache):
-            calls.append((market, day))
-            if day == dt.date(2026, 10, 27) and market == "usd_m_futures":
-                raise ArchiveUnavailable("not published")
-            return pathlib.Path(f"{market}.zip"), {"sha256": "a" * 64}
+            def downloader(market, symbol, day, cache):
+                calls.append((market, day))
+                if day == dt.date(2026, 10, 27) and market == "usd_m_futures":
+                    raise ArchiveUnavailable("not published")
+                path = root / f"{market}-{day}.zip"
+                make_zip(path, raw_rows(day=day))
+                return path, {"sha256": "a" * 64}
 
-        day, downloaded = find_latest_common_day(today, "BTCUSDT", pathlib.Path("cache"), downloader=downloader)
-        self.assertEqual(day, dt.date(2026, 10, 26))
-        self.assertEqual(set(downloaded), set(ARCHIVES))
-        self.assertIn(("usd_m_futures", dt.date(2026, 10, 27)), calls)
+            day, downloaded, selection = find_latest_common_day(
+                today, "BTCUSDT", root / "cache", downloader=downloader
+            )
+            self.assertEqual(day, dt.date(2026, 10, 26))
+            self.assertEqual(set(downloaded), set(ARCHIVES))
+            self.assertEqual(selection["selected_day_utc"], "2026-10-26")
+            self.assertEqual(selection["attempts"][0]["status"], "unavailable")
+            self.assertIn(("usd_m_futures", dt.date(2026, 10, 27)), calls)
+
+    def test_latest_common_day_rejects_incomplete_published_candidate(self):
+        today = dt.date(2026, 10, 28)
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
+            root = pathlib.Path(directory)
+
+            def downloader(market, symbol, day, cache):
+                path = root / f"{market}-{day}.zip"
+                count = 1_439 if day == dt.date(2026, 10, 27) and market == "spot" else 1_440
+                make_zip(path, raw_rows(day=day, count=count))
+                return path, {"sha256": "a" * 64}
+
+            day, _, selection = find_latest_common_day(
+                today, "BTCUSDT", root / "cache", downloader=downloader
+            )
+            self.assertEqual(day, dt.date(2026, 10, 26))
+            self.assertEqual(selection["attempts"][0]["status"], "invalid")
+            self.assertIn("expected 1440", selection["attempts"][0]["error"])
 
     def test_compute_produces_compatible_schema_and_synchronized_windows(self):
         with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
@@ -154,8 +180,8 @@ class ArchiveCvdTest(unittest.TestCase):
             make_zip(spot, raw_rows(microseconds=True, buy="55"))
             make_zip(futures, raw_rows(buy="45"))
             evidence = {
-                "archive_url": "https://data.binance.vision/example.zip",
-                "checksum_url": "https://data.binance.vision/example.zip.CHECKSUM",
+                "archive_url": f"https://data.binance.vision/BTCUSDT-1m-{DAY}.zip",
+                "checksum_url": f"https://data.binance.vision/BTCUSDT-1m-{DAY}.zip.CHECKSUM",
                 "sha256": "a" * 64,
             }
             result = compute(
@@ -166,6 +192,7 @@ class ArchiveCvdTest(unittest.TestCase):
             self.assertEqual(result["as_of_utc"], "2026-10-27T00:00:00Z")
             self.assertEqual(result["freshness"]["source_as_of_utc"], result["as_of_utc"])
             self.assertTrue(result["integrity"]["archive_sha256_verified"])
+            self.assertEqual(result["archive_selection"]["selected_day_utc"], DAY.isoformat())
             self.assertEqual(result["markets"]["spot"]["validated_closed_1m_klines"], 1_440)
             self.assertEqual(result["markets"]["spot"]["windows"]["24h"]["normalized_cvd"], 0.1)
             self.assertEqual(result["markets"]["usd_m_futures"]["windows"]["24h"]["normalized_cvd"], -0.1)
