@@ -401,6 +401,8 @@ def compute(
     perp_collector=collect_gate_perpetual,
     perp_state_path="output/perp_cvd_state.json",
     perp_bootstrap_minutes=60,
+    perp_backfill_minutes=210,
+    perp_max_incremental_gap_minutes=60,
 ):
     if as_of_utc.tzinfo is None:
         raise ValueError("as_of_utc must be timezone-aware")
@@ -424,6 +426,8 @@ def compute(
                 as_of_utc,
                 pathlib.Path(perp_state_path),
                 bootstrap_minutes=perp_bootstrap_minutes,
+                backfill_minutes=perp_backfill_minutes,
+                max_incremental_gap_minutes=perp_max_incremental_gap_minutes,
             )
         except (KeyError, InvalidOperation, OSError, RuntimeError, ValueError, TimeoutError) as error:
             perp_market = unavailable_market(
@@ -559,6 +563,18 @@ def main():
         default=60,
         help="Closed minutes fetched when no verified Gate rolling state exists",
     )
+    parser.add_argument(
+        "--perp-backfill-minutes",
+        type=int,
+        default=210,
+        help="Older verified closed minutes backfilled per run until 24H is complete",
+    )
+    parser.add_argument(
+        "--perp-max-incremental-gap-minutes",
+        type=int,
+        default=60,
+        help="Reset a discontinuous rolling tail when the scheduler gap exceeds this many minutes",
+    )
     args = parser.parse_args()
 
     as_of = parse_as_of(args.as_of) if args.as_of else closed_minute_boundary(dt.datetime.now(UTC))
@@ -569,6 +585,8 @@ def main():
         derivatives=derivatives,
         perp_state_path=args.perp_state,
         perp_bootstrap_minutes=args.perp_bootstrap_minutes,
+        perp_backfill_minutes=args.perp_backfill_minutes,
+        perp_max_incremental_gap_minutes=args.perp_max_incremental_gap_minutes,
     )
     destination = pathlib.Path(args.output)
     changed = write_if_fresher(data, destination)
@@ -591,6 +609,7 @@ def main():
                     if window.get("status") == "available"
                 ],
                 "perp_fetch_requests": perp_integrity.get("request_count", "N/A"),
+                "perp_backfill_status": perp_integrity.get("historical_backfill", {}).get("status", "N/A"),
                 "changed": changed,
             }
         )

@@ -16,7 +16,8 @@ on:
       - 'validate_outputs.py'
       - '.github/workflows/cvd-hourly.yml'
   schedule:
-    - cron: '17 * * * *'
+    # Offset and touch the registration after scheduled delivery stopped.
+    - cron: '19 * * * *'
 
 permissions:
   contents: write

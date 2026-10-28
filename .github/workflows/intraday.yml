@@ -20,7 +20,9 @@ on:
       - 'validate_outputs.py'
       - '.github/workflows/intraday.yml'
   schedule:
-    - cron: '*/5 * * * *' # GitHub-hosted schedules are best effort, not an SLA
+    # Offset from the top of the hour and touch the trigger registration after
+    # the original schedule produced no events. GitHub schedules remain best effort.
+    - cron: '2-59/5 * * * *'
 
 permissions:
   contents: write
@@ -53,6 +55,8 @@ jobs:
           --output output/latest_intraday.json
           --perp-state output/perp_cvd_state.json
           --perp-bootstrap-minutes 60
+          --perp-backfill-minutes 210
+          --perp-max-incremental-gap-minutes 60
       - name: Validate structure, completeness and source freshness
         run: python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 900
       - name: Initialize freshness ledger when no previous snapshot existed
