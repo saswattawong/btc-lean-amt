@@ -304,6 +304,8 @@ def write_if_changed(data, destination):
                 and current.get("as_of_utc") == data["as_of_utc"]
                 and current.get("integrity", {}).get("status") == "passed"
                 and current.get("integrity", {}).get("archive_sha256_verified") is True
+                and current.get("freshness", {}).get("source_as_of_utc")
+                == data.get("freshness", {}).get("source_as_of_utc")
             ):
                 return False
         except (OSError, ValueError):

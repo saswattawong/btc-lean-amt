@@ -188,12 +188,22 @@ class ArchiveCvdTest(unittest.TestCase):
                 "schema": "btc_binance_quote_cvd_v1",
                 "as_of_utc": "2026-10-27T00:00:00Z",
                 "generated_at_utc": "first",
+                "freshness": {"source_as_of_utc": "2026-10-27T00:00:00Z"},
                 "integrity": {"status": "passed", "archive_sha256_verified": True},
             }
             self.assertTrue(write_if_changed(data, output))
             updated = dict(data, generated_at_utc="second")
             self.assertFalse(write_if_changed(updated, output))
             self.assertEqual(json.loads(output.read_text())["generated_at_utc"], "first")
+
+            legacy = dict(data)
+            legacy.pop("freshness")
+            output.write_text(json.dumps(legacy), encoding="utf-8")
+            self.assertTrue(write_if_changed(data, output))
+            self.assertEqual(
+                json.loads(output.read_text())["freshness"]["source_as_of_utc"],
+                "2026-10-27T00:00:00Z",
+            )
 
 
 if __name__ == "__main__":
