@@ -33,7 +33,7 @@ def contract_payload():
 
 
 class GatePerpCvdTest(unittest.TestCase):
-    def test_recursive_time_slicing_proves_untruncated_trade_range(self):
+    def test_offset_pagination_proves_untruncated_trade_range(self):
         start = dt.datetime(2026, 10, 28, 0, 0, tzinfo=UTC)
         trades = [
             {
@@ -51,8 +51,9 @@ class GatePerpCvdTest(unittest.TestCase):
             left = int(query["from"][0])
             right = int(query["to"][0])
             limit = int(query["limit"][0])
+            offset = int(query["offset"][0])
             matches = [row for row in trades if left <= row["create_time_ms"] < right]
-            return list(reversed(matches))[:limit]
+            return list(reversed(matches))[offset:offset + limit]
 
         result, evidence = fetch_trades_range(
             start,
@@ -62,8 +63,9 @@ class GatePerpCvdTest(unittest.TestCase):
             max_requests=40,
         )
         self.assertEqual(len(result), len(trades))
-        self.assertGreater(evidence["request_count"], 1)
+        self.assertEqual(evidence["request_count"], 5)
         self.assertEqual(evidence["unique_trades"], 12)
+        self.assertEqual(evidence["pagination_method"], "offset_until_short_page")
 
     def test_quote_notional_and_taker_sign_are_explicit(self):
         start = dt.datetime(2026, 10, 28, 0, 0, tzinfo=UTC)
@@ -103,6 +105,7 @@ class GatePerpCvdTest(unittest.TestCase):
                 as_of,
                 state_path,
                 bootstrap_minutes=60,
+                backfill_minutes=0,
                 requester=requester,
             )
             self.assertEqual(market["status"], "partial")
@@ -117,10 +120,139 @@ class GatePerpCvdTest(unittest.TestCase):
                 as_of + dt.timedelta(minutes=10),
                 state_path,
                 bootstrap_minutes=60,
+                backfill_minutes=0,
                 requester=requester,
             )
             self.assertEqual(later["coverage"]["validated_closed_1m_klines"], 70)
             self.assertEqual(later["coverage"]["end_utc_exclusive"], "2026-10-28T01:10:00Z")
+
+    def test_incremental_backfill_reaches_4h_immediately_and_24h_in_seven_rounds(self):
+        as_of = dt.datetime(2026, 10, 28, 12, 0, tzinfo=UTC)
+
+        def requester(url):
+            if url == CONTRACT_ENDPOINT:
+                return contract_payload()
+            query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+            left = int(query["from"][0])
+            right = int(query["to"][0])
+            return [
+                {
+                    "id": second,
+                    "contract": "BTC_USDT",
+                    "create_time_ms": second + 30.0,
+                    "size": "1" if (second // 60) % 2 == 0 else "-1",
+                    "price": "80000",
+                }
+                for second in range(left, right, 60)
+            ]
+
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
+            state_path = pathlib.Path(directory) / "state.json"
+            market = None
+            for round_index in range(7):
+                market = collect_gate_perpetual(
+                    as_of + dt.timedelta(minutes=5 * round_index),
+                    state_path,
+                    bootstrap_minutes=60,
+                    backfill_minutes=210,
+                    requester=requester,
+                )
+                if round_index == 0:
+                    self.assertEqual(market["coverage"]["validated_closed_1m_klines"], 270)
+                    self.assertEqual(market["windows"]["4h"]["status"], "available")
+                    self.assertEqual(market["windows"]["24h"]["status"], "unavailable")
+                    self.assertEqual(
+                        market["fetch_integrity"]["historical_backfill"]["status"],
+                        "passed",
+                    )
+
+            self.assertIsNotNone(market)
+            self.assertEqual(market["coverage"]["validated_closed_1m_klines"], 1_440)
+            self.assertEqual(market["windows"]["24h"]["status"], "available")
+            self.assertEqual(market["status"], "available")
+
+    def test_large_scheduler_gap_rebuilds_current_tail_before_backfill(self):
+        first_as_of = dt.datetime(2026, 10, 28, 1, 0, tzinfo=UTC)
+
+        def requester(url):
+            if url == CONTRACT_ENDPOINT:
+                return contract_payload()
+            query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+            left = int(query["from"][0])
+            right = int(query["to"][0])
+            return [
+                {
+                    "id": second,
+                    "contract": "BTC_USDT",
+                    "create_time_ms": second + 30.0,
+                    "size": "1",
+                    "price": "80000",
+                }
+                for second in range(left, right, 60)
+            ]
+
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
+            state_path = pathlib.Path(directory) / "state.json"
+            collect_gate_perpetual(
+                first_as_of,
+                state_path,
+                bootstrap_minutes=60,
+                backfill_minutes=0,
+                requester=requester,
+            )
+            recovered = collect_gate_perpetual(
+                first_as_of + dt.timedelta(hours=3),
+                state_path,
+                bootstrap_minutes=60,
+                backfill_minutes=210,
+                max_incremental_gap_minutes=60,
+                requester=requester,
+            )
+            self.assertEqual(recovered["coverage"]["validated_closed_1m_klines"], 270)
+            self.assertEqual(recovered["windows"]["4h"]["status"], "available")
+            self.assertIn("state gap 180m", recovered["fetch_integrity"]["state_reset_reason"])
+
+    def test_failed_backfill_is_explicit_and_never_merged(self):
+        as_of = dt.datetime(2026, 10, 28, 1, 0, tzinfo=UTC)
+        refresh_start = int((as_of - dt.timedelta(minutes=60)).timestamp())
+
+        def requester(url):
+            if url == CONTRACT_ENDPOINT:
+                return contract_payload()
+            query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+            left = int(query["from"][0])
+            right = int(query["to"][0])
+            if right <= refresh_start:
+                raise ValueError("historical provider failure")
+            return [
+                {
+                    "id": second,
+                    "contract": "BTC_USDT",
+                    "create_time_ms": second + 30.0,
+                    "size": "1",
+                    "price": "80000",
+                }
+                for second in range(left, right, 60)
+            ]
+
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
+            market = collect_gate_perpetual(
+                as_of,
+                pathlib.Path(directory) / "state.json",
+                bootstrap_minutes=60,
+                backfill_minutes=210,
+                requester=requester,
+            )
+            self.assertEqual(market["coverage"]["validated_closed_1m_klines"], 60)
+            self.assertEqual(market["windows"]["4h"]["status"], "unavailable")
+            self.assertEqual(
+                market["fetch_integrity"]["historical_backfill"]["status"],
+                "failed",
+            )
+            self.assertIn(
+                "historical provider failure",
+                market["fetch_integrity"]["historical_backfill"]["error"],
+            )
 
 
 if __name__ == "__main__":

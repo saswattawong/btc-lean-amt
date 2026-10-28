@@ -102,6 +102,9 @@ def validate_intraday(data, now=None, max_age_seconds=900):
             if name == "usd_m_futures" and schema == "btc_multi_provider_intraday_v2":
                 _assert(market.get("fetch_integrity", {}).get("status") == "passed", "perpetual fetch integrity failed")
                 _assert(market["fetch_integrity"].get("time_range_untruncated") is True, "perpetual trade range may be truncated")
+                _assert(market["fetch_integrity"].get("state_continuity_verified") is True, "perpetual state continuity failed")
+                backfill_status = market["fetch_integrity"].get("historical_backfill", {}).get("status")
+                _assert(backfill_status in {"passed", "partial", "not_needed", "disabled", "deferred", "failed"}, "perpetual backfill evidence missing")
                 _assert(bool(market.get("contract_metadata_endpoint")), "perpetual contract provenance missing")
         else:
             _assert(status == "unavailable", f"{name}: invalid status")

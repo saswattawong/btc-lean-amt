@@ -77,7 +77,12 @@ def gate_perp_market(as_of, count=1_440):
             "candle_completeness_pct": round(count / 1_440 * 100, 8),
         },
         "windows": windows,
-        "fetch_integrity": {"status": "passed", "time_range_untruncated": True},
+        "fetch_integrity": {
+            "status": "passed",
+            "time_range_untruncated": True,
+            "state_continuity_verified": True,
+            "historical_backfill": {"status": "not_needed" if count == 1_440 else "passed"},
+        },
         "error": None,
     }
 

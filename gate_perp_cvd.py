@@ -29,6 +29,10 @@ CONTRACT_ENDPOINT = "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USD
 TRADES_ENDPOINT = "https://api.gateio.ws/api/v4/futures/usdt/trades"
 PROVIDER_DOCUMENTATION = "https://www.gate.com/docs/developers/apiv4/en/futures/"
 TRADE_PAGE_LIMIT = 1_000
+DEFAULT_BACKFILL_MINUTES = 210
+DEFAULT_MAX_INCREMENTAL_GAP_MINUTES = 60
+DEFAULT_BACKFILL_CHUNK_MINUTES = 30
+DEFAULT_MAX_REQUESTS = 400
 
 
 def iso_utc(value):
@@ -138,13 +142,13 @@ def fetch_trades_range(
     end_utc,
     requester=request_json,
     page_limit=TRADE_PAGE_LIMIT,
-    max_requests=160,
+    max_requests=DEFAULT_MAX_REQUESTS,
 ):
-    """Fetch a provably untruncated half-open range by recursively time-slicing.
+    """Fetch a provably untruncated half-open range with offset pagination.
 
-    Gate truncates a range when more than ``limit`` records match.  A segment is
-    accepted only when fewer than ``limit`` rows are returned; full pages are
-    split until the response is untruncated or the safety limits are reached.
+    Gate truncates a range when more than ``limit`` records match and documents
+    ``offset`` for this endpoint.  The closed historical range is paged until a
+    short page proves exhaustion; duplicate trade ids are filtered defensively.
     """
     if start_utc.tzinfo is None or end_utc.tzinfo is None or end_utc <= start_utc:
         raise ValueError("trade range must be a positive timezone-aware interval")
@@ -153,30 +157,27 @@ def fetch_trades_range(
     if start_utc.second or start_utc.microsecond or end_utc.second or end_utc.microsecond:
         raise ValueError("trade range must use exact second boundaries")
 
-    pending = [(start_second, end_second)]
-    accepted_segments = []
     trades = {}
     requests = 0
     duplicates = 0
-    while pending:
-        left, right = pending.pop()
+    offset = 0
+    while True:
         requests += 1
         if requests > max_requests:
             raise RuntimeError(f"Gate trade pagination exceeded {max_requests} requests")
         query = urllib.parse.urlencode(
-            {"contract": CONTRACT, "from": left, "to": right, "limit": page_limit}
+            {
+                "contract": CONTRACT,
+                "from": start_second,
+                "to": end_second,
+                "limit": page_limit,
+                "offset": offset,
+            }
         )
         page = requester(f"{TRADES_ENDPOINT}?{query}")
         if not isinstance(page, list):
             raise ValueError("unexpected Gate trades response")
-        if len(page) >= page_limit:
-            if right - left <= 1:
-                raise RuntimeError("Gate trade range exceeds the page limit within one second")
-            midpoint = left + (right - left) // 2
-            pending.extend(((midpoint, right), (left, midpoint)))
-            continue
-
-        accepted_segments.append((left, right))
+        page_new_ids = 0
         for raw in page:
             trade = _validate_trade(raw)
             timestamp = trade["timestamp_seconds"]
@@ -184,15 +185,23 @@ def fetch_trades_range(
                 continue
             if trade["id"] in trades:
                 duplicates += 1
+            else:
+                page_new_ids += 1
             trades[trade["id"]] = trade
+        if len(page) < page_limit:
+            break
+        if page_new_ids == 0:
+            raise RuntimeError("Gate offset pagination made no progress")
+        offset += len(page)
 
     ordered = sorted(trades.values(), key=lambda item: (item["timestamp_seconds"], item["id"]))
     return ordered, {
         "request_count": requests,
-        "verified_untruncated_segments": len(accepted_segments),
+        "verified_untruncated_segments": 1,
         "unique_trades": len(ordered),
         "duplicate_trade_ids_filtered": duplicates,
         "page_limit": page_limit,
+        "pagination_method": "offset_until_short_page",
         "range_start_utc": iso_utc(start_utc),
         "range_end_utc_exclusive": iso_utc(end_utc),
     }
@@ -336,9 +345,12 @@ def collect_gate_perpetual(
     as_of_utc,
     state_path,
     bootstrap_minutes=60,
+    backfill_minutes=DEFAULT_BACKFILL_MINUTES,
+    max_incremental_gap_minutes=DEFAULT_MAX_INCREMENTAL_GAP_MINUTES,
+    backfill_chunk_minutes=DEFAULT_BACKFILL_CHUNK_MINUTES,
     overlap_minutes=10,
     requester=request_json,
-    max_requests=160,
+    max_requests=DEFAULT_MAX_REQUESTS,
 ):
     if as_of_utc.tzinfo is None or as_of_utc.second or as_of_utc.microsecond:
         raise ValueError("as_of_utc must be an exact timezone-aware minute boundary")
@@ -348,25 +360,50 @@ def collect_gate_perpetual(
     multiplier = _decimal(contract["quanto_multiplier_btc_per_contract"], "contract multiplier")
     buckets = load_state(state_path, multiplier)
     desired_start = as_of_utc - dt.timedelta(minutes=1_440)
+    if not 1 <= bootstrap_minutes <= 1_440:
+        raise ValueError("bootstrap_minutes must be in [1, 1440]")
+    if not 0 <= backfill_minutes <= 1_440:
+        raise ValueError("backfill_minutes must be in [0, 1440]")
+    if max_incremental_gap_minutes < 1:
+        raise ValueError("max_incremental_gap_minutes must be positive")
+    if not 1 <= backfill_chunk_minutes <= 1_440:
+        raise ValueError("backfill_chunk_minutes must be in [1, 1440]")
+    if overlap_minutes < 1:
+        raise ValueError("overlap_minutes must be positive")
+
+    state_reset_reason = None
 
     if buckets:
         latest_open = max(parse_utc(key) for key in buckets)
-        fetch_start = max(desired_start, latest_open - dt.timedelta(minutes=overlap_minutes - 1))
+        gap_minutes = int((as_of_utc - (latest_open + MINUTE)).total_seconds() // 60)
+        if gap_minutes > max_incremental_gap_minutes:
+            # A large scheduler gap makes the persisted tail discontinuous.  Do
+            # not spend the whole request budget chasing the gap: rebuild a
+            # fresh tail, then backfill older closed minutes in bounded chunks.
+            fetch_start = max(desired_start, as_of_utc - dt.timedelta(minutes=bootstrap_minutes))
+            retained = {}
+            state_reset_reason = (
+                f"state gap {gap_minutes}m exceeded {max_incremental_gap_minutes}m; "
+                "rebuilt latest verified tail"
+            )
+        else:
+            fetch_start = max(desired_start, latest_open - dt.timedelta(minutes=overlap_minutes - 1))
+            retained = {
+                key: value
+                for key, value in buckets.items()
+                if desired_start <= parse_utc(key) < fetch_start
+            }
     else:
         fetch_start = max(desired_start, as_of_utc - dt.timedelta(minutes=bootstrap_minutes))
+        retained = {}
 
-    trades, fetch_evidence = fetch_trades_range(
+    trades, refresh_evidence = fetch_trades_range(
         fetch_start,
         as_of_utc,
         requester=requester,
         max_requests=max_requests,
     )
     replacement = aggregate_minutes(trades, fetch_start, as_of_utc, multiplier)
-    retained = {
-        key: value
-        for key, value in buckets.items()
-        if desired_start <= parse_utc(key) < fetch_start
-    }
     retained.update(replacement)
     rows = trailing_buckets(retained, as_of_utc)
     if not rows:
@@ -380,6 +417,104 @@ def collect_gate_perpetual(
         raise ValueError("Gate source trade is not inside the requested closed range")
     if latest_trade_utc < as_of_utc - dt.timedelta(minutes=2):
         raise ValueError("Gate latest trade is too old for the requested intraday boundary")
+
+    missing_minutes = 1_440 - len(rows)
+    backfill_evidence = {
+        "status": "not_needed" if missing_minutes == 0 else "disabled",
+        "requested_minutes": 0,
+        "error": None,
+    }
+    if missing_minutes > 0 and backfill_minutes > 0:
+        requested_minutes = min(backfill_minutes, missing_minutes)
+        completed_minutes = 0
+        verified_chunks = []
+        backfill_error = None
+        remaining_requests = max_requests - refresh_evidence["request_count"]
+        while completed_minutes < requested_minutes and remaining_requests > 0:
+            chunk_minutes = min(
+                backfill_chunk_minutes,
+                requested_minutes - completed_minutes,
+            )
+            chunk_end = parse_utc(rows[0]["open_utc"])
+            chunk_start = max(
+                desired_start,
+                chunk_end - dt.timedelta(minutes=chunk_minutes),
+            )
+            if chunk_start >= chunk_end:
+                break
+            try:
+                chunk_trades, chunk_evidence = fetch_trades_range(
+                    chunk_start,
+                    chunk_end,
+                    requester=requester,
+                    max_requests=remaining_requests,
+                )
+                retained.update(
+                    aggregate_minutes(
+                        chunk_trades,
+                        chunk_start,
+                        chunk_end,
+                        multiplier,
+                    )
+                )
+                rows = trailing_buckets(retained, as_of_utc)
+                completed_minutes += int((chunk_end - chunk_start).total_seconds() // 60)
+                remaining_requests -= chunk_evidence["request_count"]
+                verified_chunks.append(chunk_evidence)
+            except (KeyError, OSError, RuntimeError, ValueError, TimeoutError) as error:
+                backfill_error = _safe_error(error)
+                break
+
+        backfill_requests = sum(item["request_count"] for item in verified_chunks)
+        if completed_minutes == requested_minutes:
+            backfill_status = "passed"
+        elif completed_minutes > 0:
+            backfill_status = "partial"
+        elif remaining_requests < 1:
+            backfill_status = "deferred"
+        else:
+            backfill_status = "failed"
+        backfill_evidence = {
+            "status": backfill_status,
+            "requested_minutes": requested_minutes,
+            "completed_minutes": completed_minutes,
+            "error": backfill_error or (
+                "per-run request budget exhausted" if completed_minutes < requested_minutes else None
+            ),
+            "request_count": backfill_requests,
+            "verified_untruncated_segments": sum(
+                item["verified_untruncated_segments"] for item in verified_chunks
+            ),
+            "unique_trades": sum(item["unique_trades"] for item in verified_chunks),
+            "duplicate_trade_ids_filtered": sum(
+                item["duplicate_trade_ids_filtered"] for item in verified_chunks
+            ),
+            "page_limit": TRADE_PAGE_LIMIT,
+            "pagination_method": "offset_until_short_page",
+            "range_start_utc": rows[0]["open_utc"] if completed_minutes else None,
+            "range_end_utc_exclusive": (
+                verified_chunks[0]["range_end_utc_exclusive"] if verified_chunks else None
+            ),
+            "chunks": verified_chunks,
+        }
+
+    total_requests = refresh_evidence["request_count"] + int(
+        backfill_evidence.get("request_count", 0)
+    )
+    total_segments = refresh_evidence["verified_untruncated_segments"] + int(
+        backfill_evidence.get("verified_untruncated_segments", 0)
+    )
+    total_unique_trades = refresh_evidence["unique_trades"] + int(
+        backfill_evidence.get("unique_trades", 0)
+    )
+    total_duplicates = refresh_evidence["duplicate_trade_ids_filtered"] + int(
+        backfill_evidence.get("duplicate_trade_ids_filtered", 0)
+    )
+    included_range_start = (
+        backfill_evidence.get("range_start_utc")
+        if backfill_evidence.get("status") in {"passed", "partial"}
+        else refresh_evidence["range_start_utc"]
+    )
 
     serialized = [_serialized_bucket(row) for row in rows]
     state = {
@@ -431,7 +566,17 @@ def collect_gate_perpetual(
             "status": "passed",
             "state_schema": STATE_SCHEMA,
             "time_range_untruncated": True,
-            **fetch_evidence,
+            "state_continuity_verified": True,
+            "state_reset_reason": state_reset_reason,
+            "request_count": total_requests,
+            "verified_untruncated_segments": total_segments,
+            "unique_trades": total_unique_trades,
+            "duplicate_trade_ids_filtered": total_duplicates,
+            "page_limit": TRADE_PAGE_LIMIT,
+            "range_start_utc": included_range_start,
+            "range_end_utc_exclusive": iso_utc(as_of_utc),
+            "current_refresh": refresh_evidence,
+            "historical_backfill": backfill_evidence,
         },
         "error": None,
     }
@@ -440,6 +585,10 @@ def collect_gate_perpetual(
 __all__ = [
     "CONTRACT",
     "CONTRACT_ENDPOINT",
+    "DEFAULT_BACKFILL_MINUTES",
+    "DEFAULT_BACKFILL_CHUNK_MINUTES",
+    "DEFAULT_MAX_INCREMENTAL_GAP_MINUTES",
+    "DEFAULT_MAX_REQUESTS",
     "MARKET",
     "PROVIDER",
     "PROVIDER_DOCUMENTATION",
