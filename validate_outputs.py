@@ -100,10 +100,29 @@ def validate_intraday(data, now=None, max_age_seconds=900):
             _assert(source_timestamp <= parse_utc(data["as_of_utc"]), f"{name}: source timestamp is after boundary")
             _assert(source_timestamp >= parse_utc(data["as_of_utc"]) - dt.timedelta(minutes=2), f"{name}: source timestamp is stale")
             if name == "usd_m_futures" and schema == "btc_multi_provider_intraday_v2":
-                _assert(market.get("fetch_integrity", {}).get("status") == "passed", "perpetual fetch integrity failed")
-                _assert(market["fetch_integrity"].get("time_range_untruncated") is True, "perpetual trade range may be truncated")
-                _assert(market["fetch_integrity"].get("state_continuity_verified") is True, "perpetual state continuity failed")
-                backfill_status = market["fetch_integrity"].get("historical_backfill", {}).get("status")
+                fetch_integrity = market.get("fetch_integrity", {})
+                _assert(fetch_integrity.get("status") == "passed", "perpetual fetch integrity failed")
+                _assert(fetch_integrity.get("time_range_untruncated") is True, "perpetual trade range may be truncated")
+                _assert(fetch_integrity.get("state_continuity_verified") is True, "perpetual state continuity failed")
+                expected_continuity = "passed" if count == 1_440 else "incomplete"
+                _assert(
+                    fetch_integrity.get("target_window_continuity") == expected_continuity,
+                    "perpetual target-window continuity mismatch",
+                )
+                _assert(fetch_integrity.get("state_reset_reason") is None, "perpetual state was unnecessarily reset")
+                stored = fetch_integrity.get("stored_verified_minutes")
+                missing = fetch_integrity.get("missing_verified_minutes")
+                _assert(
+                    isinstance(stored, int) and isinstance(missing, int)
+                    and stored >= count and stored + missing == 1_440,
+                    "perpetual state coverage diagnostics mismatch",
+                )
+                if count < 1_440:
+                    _assert(
+                        market["windows"]["24h"].get("status") == "unavailable",
+                        "partial perpetual coverage exposed a 24H window",
+                    )
+                backfill_status = fetch_integrity.get("historical_backfill", {}).get("status")
                 _assert(backfill_status in {"passed", "partial", "not_needed", "disabled", "deferred", "failed"}, "perpetual backfill evidence missing")
                 _assert(bool(market.get("contract_metadata_endpoint")), "perpetual contract provenance missing")
         else:
