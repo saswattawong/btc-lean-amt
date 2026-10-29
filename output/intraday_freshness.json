@@ -1,6 +1,6 @@
 {
   "schema": "btc_intraday_freshness_slo_v1",
-  "updated_at_utc": "2026-10-29T08:21:46Z",
+  "updated_at_utc": "2026-10-29T12:13:31Z",
   "measurement": "Age of the previously published source_as_of timestamp at collector start.",
   "target": {
     "source_age_seconds_lte": 900,
@@ -8,21 +8,21 @@
     "rolling_observations": 288
   },
   "rolling_24h": {
-    "observations": 7,
+    "observations": 8,
     "passed": 1,
-    "failed": 6,
-    "pass_rate_pct": 14.285714,
+    "failed": 7,
+    "pass_rate_pct": 12.5,
     "target_met": "insufficient_observations"
   },
   "latest_observation": {
-    "observed_at_utc": "2026-10-29T08:21:46Z",
-    "source_as_of_utc": "2026-10-29T02:00:00Z",
-    "snapshot_generated_at_utc": "2026-10-29T02:03:47Z",
-    "source_age_seconds": 22906,
+    "observed_at_utc": "2026-10-29T12:13:31Z",
+    "source_as_of_utc": "2026-10-29T11:58:00Z",
+    "snapshot_generated_at_utc": "2026-10-29T11:59:43Z",
+    "source_age_seconds": 931,
     "target_age_seconds": 900,
     "within_target": false,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
-    "snapshot_integrity": "partial"
+    "snapshot_integrity": "passed"
   },
   "observations": [
     {
@@ -94,6 +94,16 @@
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
       "snapshot_integrity": "partial"
+    },
+    {
+      "observed_at_utc": "2026-10-29T12:13:31Z",
+      "source_as_of_utc": "2026-10-29T11:58:00Z",
+      "snapshot_generated_at_utc": "2026-10-29T11:59:43Z",
+      "source_age_seconds": 931,
+      "target_age_seconds": 900,
+      "within_target": false,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "passed"
     }
   ]
 }
