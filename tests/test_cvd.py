@@ -81,6 +81,10 @@ def gate_perp_market(as_of, count=1_440):
             "status": "passed",
             "time_range_untruncated": True,
             "state_continuity_verified": True,
+            "target_window_continuity": "passed" if count == 1_440 else "incomplete",
+            "state_reset_reason": None,
+            "stored_verified_minutes": count,
+            "missing_verified_minutes": 1_440 - count,
             "historical_backfill": {"status": "not_needed" if count == 1_440 else "passed"},
         },
         "error": None,
@@ -156,6 +160,29 @@ class CvdTest(unittest.TestCase):
             self.assertEqual(windows["1h"]["closed_klines"], 60)
             self.assertEqual(windows["4h"]["closed_klines"], 240)
             self.assertEqual(windows["24h"]["closed_klines"], 1440)
+
+    def test_dashboard_freshness_interpretation_accepts_up_to_four_hours(self):
+        as_of = dt.datetime(2026, 10, 27, 12, 0, tzinfo=UTC)
+
+        def fake_fetch(endpoint, symbol, start_ms, end_ms):
+            return [kline(value) for value in range(start_ms, end_ms, MINUTE_MS)]
+
+        current = compute(
+            as_of,
+            fetcher=fake_fetch,
+            generated_at=as_of + dt.timedelta(hours=4),
+            perp_market=gate_perp_market(as_of),
+        )
+        stale = compute(
+            as_of,
+            fetcher=fake_fetch,
+            generated_at=as_of + dt.timedelta(hours=4, seconds=1),
+            perp_market=gate_perp_market(as_of),
+        )
+        self.assertEqual(current["freshness"]["max_source_age_seconds"], 14_400)
+        self.assertEqual(current["freshness"]["source_age_seconds_at_generation"], 14_400)
+        self.assertEqual(current["freshness"]["status_at_generation"], "fresh")
+        self.assertEqual(stale["freshness"]["status_at_generation"], "stale")
 
     def test_inaccessible_futures_is_explicit_na_but_spot_validates(self):
         as_of = dt.datetime(2026, 10, 27, 12, 3, tzinfo=UTC)

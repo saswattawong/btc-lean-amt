@@ -19,6 +19,9 @@ from decimal import Decimal, InvalidOperation
 
 from gate_perp_cvd import (
     CONTRACT_ENDPOINT as GATE_CONTRACT_ENDPOINT,
+    DEFAULT_BACKFILL_MINUTES as GATE_DEFAULT_BACKFILL_MINUTES,
+    DEFAULT_MAX_REQUESTS as GATE_DEFAULT_MAX_REQUESTS,
+    DEFAULT_RUNTIME_BUDGET_SECONDS as GATE_DEFAULT_RUNTIME_BUDGET_SECONDS,
     PROVIDER as GATE_PROVIDER,
     TRADES_ENDPOINT as GATE_TRADES_ENDPOINT,
     collect_gate_perpetual,
@@ -28,7 +31,9 @@ from gate_perp_cvd import (
 UTC = dt.timezone.utc
 MINUTE_MS = 60_000
 WINDOWS = {"1h": 60, "4h": 240, "24h": 1_440}
-MAX_SOURCE_AGE_SECONDS = 15 * 60
+# Dashboard interpretation accepts an intraday snapshot up to four hours old.
+# The workflow separately retains its stricter 15-minute operational SLO.
+MAX_SOURCE_AGE_SECONDS = 4 * 60 * 60
 SPOT_KLINE_ENDPOINTS = (
     "https://data-api.binance.vision/api/v3/klines",
     "https://api.binance.com/api/v3/klines",
@@ -401,8 +406,10 @@ def compute(
     perp_collector=collect_gate_perpetual,
     perp_state_path="output/perp_cvd_state.json",
     perp_bootstrap_minutes=60,
-    perp_backfill_minutes=210,
+    perp_backfill_minutes=GATE_DEFAULT_BACKFILL_MINUTES,
     perp_max_incremental_gap_minutes=60,
+    perp_max_requests=GATE_DEFAULT_MAX_REQUESTS,
+    perp_runtime_budget_seconds=GATE_DEFAULT_RUNTIME_BUDGET_SECONDS,
 ):
     if as_of_utc.tzinfo is None:
         raise ValueError("as_of_utc must be timezone-aware")
@@ -428,6 +435,8 @@ def compute(
                 bootstrap_minutes=perp_bootstrap_minutes,
                 backfill_minutes=perp_backfill_minutes,
                 max_incremental_gap_minutes=perp_max_incremental_gap_minutes,
+                max_requests=perp_max_requests,
+                runtime_budget_seconds=perp_runtime_budget_seconds,
             )
         except (KeyError, InvalidOperation, OSError, RuntimeError, ValueError, TimeoutError) as error:
             perp_market = unavailable_market(
@@ -480,7 +489,7 @@ def compute(
             "source_age_seconds_at_generation": source_age,
             "max_source_age_seconds": MAX_SOURCE_AGE_SECONDS,
             "status_at_generation": "fresh" if source_age <= MAX_SOURCE_AGE_SECONDS else "stale",
-            "note": "Freshness is measured from the last closed source candle, never from file generation time.",
+            "note": "Dashboard interpretation treats snapshots up to 4 hours old as current. Actual age is measured from the last closed source candle, never from file generation time.",
         },
         "window_semantics": "Trailing half-open UTC intervals [start_utc, end_utc_exclusive). Binance Spot uses validated closed 1m klines; Gate perpetual uses separately validated closed-minute trade aggregates on the same requested boundary.",
         "definitions": {
@@ -566,14 +575,26 @@ def main():
     parser.add_argument(
         "--perp-backfill-minutes",
         type=int,
-        default=210,
-        help="Older verified closed minutes backfilled per run until 24H is complete",
+        default=GATE_DEFAULT_BACKFILL_MINUTES,
+        help="Maximum missing closed minutes reconciled per run until 24H is complete",
     )
     parser.add_argument(
         "--perp-max-incremental-gap-minutes",
         type=int,
         default=60,
-        help="Reset a discontinuous rolling tail when the scheduler gap exceeds this many minutes",
+        help="Use gap-recovery mode above this threshold without discarding verified state",
+    )
+    parser.add_argument(
+        "--perp-max-requests",
+        type=int,
+        default=GATE_DEFAULT_MAX_REQUESTS,
+        help="Maximum logical Gate API requests in one collector run",
+    )
+    parser.add_argument(
+        "--perp-runtime-budget-seconds",
+        type=int,
+        default=GATE_DEFAULT_RUNTIME_BUDGET_SECONDS,
+        help="Collector deadline that leaves workflow time to validate and publish checkpoints",
     )
     args = parser.parse_args()
 
@@ -587,6 +608,8 @@ def main():
         perp_bootstrap_minutes=args.perp_bootstrap_minutes,
         perp_backfill_minutes=args.perp_backfill_minutes,
         perp_max_incremental_gap_minutes=args.perp_max_incremental_gap_minutes,
+        perp_max_requests=args.perp_max_requests,
+        perp_runtime_budget_seconds=args.perp_runtime_budget_seconds,
     )
     destination = pathlib.Path(args.output)
     changed = write_if_fresher(data, destination)

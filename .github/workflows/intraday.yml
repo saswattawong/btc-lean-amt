@@ -55,8 +55,10 @@ jobs:
           --output output/latest_intraday.json
           --perp-state output/perp_cvd_state.json
           --perp-bootstrap-minutes 60
-          --perp-backfill-minutes 210
+          --perp-backfill-minutes 1440
           --perp-max-incremental-gap-minutes 60
+          --perp-max-requests 400
+          --perp-runtime-budget-seconds 210
       - name: Validate structure, completeness and source freshness
         run: python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 900
       - name: Initialize freshness ledger when no previous snapshot existed
