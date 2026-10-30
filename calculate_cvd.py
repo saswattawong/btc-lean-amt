@@ -20,6 +20,8 @@ from decimal import Decimal, InvalidOperation
 from gate_perp_cvd import (
     CONTRACT_ENDPOINT as GATE_CONTRACT_ENDPOINT,
     DEFAULT_BACKFILL_MINUTES as GATE_DEFAULT_BACKFILL_MINUTES,
+    DEFAULT_BACKFILL_CHUNK_MINUTES as GATE_DEFAULT_BACKFILL_CHUNK_MINUTES,
+    DEFAULT_BACKFILL_WORKERS as GATE_DEFAULT_BACKFILL_WORKERS,
     DEFAULT_MAX_REQUESTS as GATE_DEFAULT_MAX_REQUESTS,
     DEFAULT_RUNTIME_BUDGET_SECONDS as GATE_DEFAULT_RUNTIME_BUDGET_SECONDS,
     PROVIDER as GATE_PROVIDER,
@@ -407,6 +409,8 @@ def compute(
     perp_state_path="output/perp_cvd_state.json",
     perp_bootstrap_minutes=60,
     perp_backfill_minutes=GATE_DEFAULT_BACKFILL_MINUTES,
+    perp_backfill_chunk_minutes=GATE_DEFAULT_BACKFILL_CHUNK_MINUTES,
+    perp_backfill_workers=GATE_DEFAULT_BACKFILL_WORKERS,
     perp_max_incremental_gap_minutes=60,
     perp_max_requests=GATE_DEFAULT_MAX_REQUESTS,
     perp_runtime_budget_seconds=GATE_DEFAULT_RUNTIME_BUDGET_SECONDS,
@@ -434,6 +438,8 @@ def compute(
                 pathlib.Path(perp_state_path),
                 bootstrap_minutes=perp_bootstrap_minutes,
                 backfill_minutes=perp_backfill_minutes,
+                backfill_chunk_minutes=perp_backfill_chunk_minutes,
+                backfill_workers=perp_backfill_workers,
                 max_incremental_gap_minutes=perp_max_incremental_gap_minutes,
                 max_requests=perp_max_requests,
                 runtime_budget_seconds=perp_runtime_budget_seconds,
@@ -579,6 +585,18 @@ def main():
         help="Maximum missing closed minutes reconciled per run until 24H is complete",
     )
     parser.add_argument(
+        "--perp-backfill-chunk-minutes",
+        type=int,
+        default=GATE_DEFAULT_BACKFILL_CHUNK_MINUTES,
+        help="Maximum size of each independently verified and checkpointed Gate gap segment",
+    )
+    parser.add_argument(
+        "--perp-backfill-workers",
+        type=int,
+        default=GATE_DEFAULT_BACKFILL_WORKERS,
+        help="Concurrent disjoint Gate missing-range workers under one shared rate/request budget",
+    )
+    parser.add_argument(
         "--perp-max-incremental-gap-minutes",
         type=int,
         default=60,
@@ -607,6 +625,8 @@ def main():
         perp_state_path=args.perp_state,
         perp_bootstrap_minutes=args.perp_bootstrap_minutes,
         perp_backfill_minutes=args.perp_backfill_minutes,
+        perp_backfill_chunk_minutes=args.perp_backfill_chunk_minutes,
+        perp_backfill_workers=args.perp_backfill_workers,
         perp_max_incremental_gap_minutes=args.perp_max_incremental_gap_minutes,
         perp_max_requests=args.perp_max_requests,
         perp_runtime_budget_seconds=args.perp_runtime_budget_seconds,
