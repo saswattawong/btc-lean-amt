@@ -12,6 +12,7 @@ from publish_outputs import validate_paths
 
 UTC = dt.timezone.utc
 TEMP_ROOT = pathlib.Path(__file__).resolve().parent
+REPO_ROOT = TEMP_ROOT.parent
 
 
 def snapshot(source, generated):
@@ -48,6 +49,17 @@ class OperationsTest(unittest.TestCase):
             self.assertEqual(len(validate_paths(["output.json"], root)), 1)
             with self.assertRaisesRegex(ValueError, "inside the repository"):
                 validate_paths(["../outside.json"], root)
+
+    def test_intraday_workflow_preserves_bounded_recovery_checkpoint(self):
+        workflow = (REPO_ROOT / ".github" / "workflows" / "intraday.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("cancel-in-progress: false", workflow)
+        self.assertIn("timeout-minutes: 6", workflow)
+        self.assertIn("--perp-backfill-chunk-minutes 5", workflow)
+        self.assertIn("--perp-backfill-workers 12", workflow)
+        self.assertIn("--perp-max-requests 1600", workflow)
+        self.assertIn("--perp-runtime-budget-seconds 150", workflow)
 
 
 if __name__ == "__main__":

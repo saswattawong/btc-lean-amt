@@ -8,10 +8,14 @@ only verified, closed one-minute aggregates and is never combined with Binance
 Spot observations.
 """
 
+import concurrent.futures
 import datetime as dt
 import hashlib
 import json
+import os
 import pathlib
+import tempfile
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -31,11 +35,16 @@ CONTRACT_ENDPOINT = "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USD
 TRADES_ENDPOINT = "https://api.gateio.ws/api/v4/futures/usdt/trades"
 PROVIDER_DOCUMENTATION = "https://www.gate.com/docs/developers/apiv4/en/futures/"
 TRADE_PAGE_LIMIT = 1_000
+# Gate accepts offset pagination for futures trades but returned HTTP 400 at a
+# six-figure offset in a high-density production range.  Split the time range
+# before issuing that offset, then prove each leaf range with a short page.
+MAX_SAFE_PAGE_OFFSET = 100_000
 DEFAULT_BACKFILL_MINUTES = 1_440
 DEFAULT_MAX_INCREMENTAL_GAP_MINUTES = 60
 DEFAULT_BACKFILL_CHUNK_MINUTES = 30
+DEFAULT_BACKFILL_WORKERS = 4
 DEFAULT_MAX_REQUESTS = 400
-DEFAULT_RUNTIME_BUDGET_SECONDS = 210
+DEFAULT_RUNTIME_BUDGET_SECONDS = 150
 DEFAULT_REQUEST_INTERVAL_SECONDS = 0.075
 RETRYABLE_HTTP_CODES = {408, 425, 429, 500, 502, 503, 504}
 
@@ -57,6 +66,7 @@ class CollectionBudget:
         self.max_requests = max_requests
         self.runtime_seconds = runtime_seconds
         self._monotonic = monotonic
+        self._lock = threading.Lock()
         self.started = monotonic()
         self.requests = 0
 
@@ -66,7 +76,8 @@ class CollectionBudget:
 
     @property
     def remaining_requests(self):
-        return max(0, self.max_requests - self.requests)
+        with self._lock:
+            return max(0, self.max_requests - self.requests)
 
     @property
     def deadline_monotonic(self):
@@ -75,18 +86,20 @@ class CollectionBudget:
         return self.started + self.runtime_seconds
 
     def consume_request(self):
-        if self.requests >= self.max_requests:
-            raise RequestBudgetExceeded(
-                f"Gate request budget exhausted at {self.max_requests} requests"
-            )
-        if self.runtime_seconds is not None and self.elapsed_seconds >= self.runtime_seconds:
-            raise RuntimeBudgetExceeded(
-                f"Gate runtime budget exhausted at {self.runtime_seconds}s"
-            )
-        self.requests += 1
+        with self._lock:
+            if self.requests >= self.max_requests:
+                raise RequestBudgetExceeded(
+                    f"Gate request budget exhausted at {self.max_requests} requests"
+                )
+            if self.runtime_seconds is not None and self.elapsed_seconds >= self.runtime_seconds:
+                raise RuntimeBudgetExceeded(
+                    f"Gate runtime budget exhausted at {self.runtime_seconds}s"
+                )
+            self.requests += 1
 
 
 _last_request_started = 0.0
+_request_pacing_lock = threading.Lock()
 
 
 def iso_utc(value):
@@ -142,13 +155,19 @@ def request_json(
         headers={"Accept": "application/json", "User-Agent": "btc-lean-amt-gate-perp/1.0"},
     )
     for attempt in range(attempts):
-        now = monotonic()
-        if deadline_monotonic is not None and now >= deadline_monotonic:
-            raise RuntimeBudgetExceeded("Gate runtime budget exhausted before HTTP request")
-        delay = max(0.0, min_interval_seconds - (now - _last_request_started))
-        if delay:
-            sleeper(delay)
-        _last_request_started = monotonic()
+        # Concurrent missing-range workers share one start-time limiter.  The
+        # lock covers the wait and timestamp update so aggregate request starts
+        # cannot exceed the configured rate even when network waits overlap.
+        with _request_pacing_lock:
+            now = monotonic()
+            if deadline_monotonic is not None and now >= deadline_monotonic:
+                raise RuntimeBudgetExceeded("Gate runtime budget exhausted before HTTP request")
+            delay = max(0.0, min_interval_seconds - (now - _last_request_started))
+            if deadline_monotonic is not None and now + delay >= deadline_monotonic:
+                raise RuntimeBudgetExceeded("Gate runtime budget exhausted before request pacing")
+            if delay:
+                sleeper(delay)
+            _last_request_started = monotonic()
         try:
             effective_timeout = timeout
             if deadline_monotonic is not None:
@@ -237,6 +256,7 @@ def fetch_trades_range(
     end_utc,
     requester=request_json,
     page_limit=TRADE_PAGE_LIMIT,
+    max_page_offset=MAX_SAFE_PAGE_OFFSET,
     max_requests=DEFAULT_MAX_REQUESTS,
     budget=None,
 ):
@@ -250,62 +270,96 @@ def fetch_trades_range(
         raise ValueError("trade range must be a positive timezone-aware interval")
     if not 1 <= page_limit <= TRADE_PAGE_LIMIT:
         raise ValueError(f"page_limit must be in [1, {TRADE_PAGE_LIMIT}]")
+    if max_page_offset < page_limit:
+        raise ValueError("max_page_offset must be at least one page")
     start_second = int(start_utc.timestamp())
     end_second = int(end_utc.timestamp())
     if start_utc.second or start_utc.microsecond or end_utc.second or end_utc.microsecond:
         raise ValueError("trade range must use exact second boundaries")
 
-    trades = {}
     owned_budget = budget is None
     budget = budget or CollectionBudget(max_requests)
     requests_before = budget.requests
     duplicates = 0
-    offset = 0
-    while True:
-        if owned_budget and budget.requests - requests_before >= max_requests:
-            raise RequestBudgetExceeded(
-                f"Gate trade pagination exceeded {max_requests} requests"
+    split_count = 0
+    terminal_offsets = []
+
+    def fetch_partition(left_second, right_second):
+        nonlocal duplicates, split_count
+        partition = {}
+        offset = 0
+        while True:
+            if owned_budget and budget.requests - requests_before >= max_requests:
+                raise RequestBudgetExceeded(
+                    f"Gate trade pagination exceeded {max_requests} requests"
+                )
+            budget.consume_request()
+            query = urllib.parse.urlencode(
+                {
+                    "contract": CONTRACT,
+                    "from": left_second,
+                    "to": right_second,
+                    "limit": page_limit,
+                    "offset": offset,
+                }
             )
-        budget.consume_request()
-        query = urllib.parse.urlencode(
-            {
-                "contract": CONTRACT,
-                "from": start_second,
-                "to": end_second,
-                "limit": page_limit,
-                "offset": offset,
-            }
-        )
-        page = requester(f"{TRADES_ENDPOINT}?{query}")
-        if not isinstance(page, list):
-            raise ValueError("unexpected Gate trades response")
-        page_new_ids = 0
-        for raw in page:
-            trade = _validate_trade(raw)
-            timestamp = trade["timestamp_seconds"]
-            if timestamp < start_second or timestamp >= end_second:
-                continue
-            if trade["id"] in trades:
-                duplicates += 1
-            else:
-                page_new_ids += 1
-            trades[trade["id"]] = trade
-        if len(page) < page_limit:
-            break
-        if page_new_ids == 0:
-            raise RuntimeError("Gate offset pagination made no progress")
-        offset += len(page)
+            page = requester(f"{TRADES_ENDPOINT}?{query}")
+            if not isinstance(page, list):
+                raise ValueError("unexpected Gate trades response")
+            page_new_ids = 0
+            for raw in page:
+                trade = _validate_trade(raw)
+                timestamp = trade["timestamp_seconds"]
+                if timestamp < left_second or timestamp >= right_second:
+                    continue
+                if trade["id"] in partition:
+                    duplicates += 1
+                else:
+                    page_new_ids += 1
+                partition[trade["id"]] = trade
+            if len(page) < page_limit:
+                terminal_offsets.append(offset)
+                return partition
+            if page_new_ids == 0:
+                raise RuntimeError("Gate offset pagination made no progress")
+            offset += len(page)
+            if offset >= max_page_offset:
+                midpoint = left_second + (right_second - left_second) // 2
+                if midpoint <= left_second or midpoint >= right_second:
+                    raise RuntimeError(
+                        "Gate trade density exceeds provable offset pagination for one second"
+                    )
+                # Discard the unproven prefix and verify two disjoint time
+                # partitions independently.  Request accounting still includes
+                # the abandoned pages so the shared cap remains conservative.
+                split_count += 1
+                left = fetch_partition(left_second, midpoint)
+                right = fetch_partition(midpoint, right_second)
+                overlap = set(left).intersection(right)
+                if overlap:
+                    raise ValueError("adaptive Gate trade partitions overlap")
+                left.update(right)
+                return left
+
+    trades = fetch_partition(start_second, end_second)
 
     ordered = sorted(trades.values(), key=lambda item: (item["timestamp_seconds"], item["id"]))
     return ordered, {
         "request_count": budget.requests - requests_before,
-        "verified_untruncated_segments": 1,
+        "verified_untruncated_segments": len(terminal_offsets),
         "unique_trades": len(ordered),
         "duplicate_trade_ids_filtered": duplicates,
         "page_limit": page_limit,
-        "pagination_method": "offset_until_short_page",
+        "max_safe_page_offset": max_page_offset,
+        "pagination_method": (
+            "adaptive_time_split_offset_until_short_page"
+            if split_count
+            else "offset_until_short_page"
+        ),
+        "time_split_count": split_count,
         "terminal_short_page_observed": True,
-        "terminal_offset": offset,
+        "terminal_offset": max(terminal_offsets),
+        "terminal_offsets": terminal_offsets,
         "range_start_utc": iso_utc(start_utc),
         "range_end_utc_exclusive": iso_utc(end_utc),
     }
@@ -509,10 +563,60 @@ def _write_state(path, buckets, multiplier, target_start, target_end):
         "closed_minute_buckets": serialized,
     }
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(path)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary = pathlib.Path(handle.name)
+            json.dump(state, handle, indent=2)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        temporary = None
+        # Persist the directory entry where supported.  Windows does not allow
+        # opening directories this way, so the atomic replace above remains the
+        # available guarantee there.
+        try:
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+        except OSError:
+            directory_fd = None
+        if directory_fd is not None:
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
     return state
+
+
+def _missing_chunks(buckets, start_utc, end_utc, chunk_minutes, requested_minutes):
+    """Plan disjoint missing segments newest-first without touching verified buckets."""
+    chunks = []
+    remaining = requested_minutes
+    for range_start, range_end in reversed(_missing_ranges(buckets, start_utc, end_utc)):
+        cursor = range_end
+        while cursor > range_start and remaining > 0:
+            minutes = min(
+                chunk_minutes,
+                remaining,
+                int((cursor - range_start).total_seconds() // 60),
+            )
+            chunk_start = cursor - dt.timedelta(minutes=minutes)
+            chunks.append((chunk_start, cursor))
+            cursor = chunk_start
+            remaining -= minutes
+        if remaining == 0:
+            break
+    return chunks
 
 
 def _unavailable_window(minutes, end_utc, reason):
@@ -570,6 +674,7 @@ def collect_gate_perpetual(
     backfill_minutes=DEFAULT_BACKFILL_MINUTES,
     max_incremental_gap_minutes=DEFAULT_MAX_INCREMENTAL_GAP_MINUTES,
     backfill_chunk_minutes=DEFAULT_BACKFILL_CHUNK_MINUTES,
+    backfill_workers=DEFAULT_BACKFILL_WORKERS,
     overlap_minutes=10,
     requester=request_json,
     max_requests=DEFAULT_MAX_REQUESTS,
@@ -588,6 +693,8 @@ def collect_gate_perpetual(
         raise ValueError("max_incremental_gap_minutes must be positive")
     if not 1 <= backfill_chunk_minutes <= 1_440:
         raise ValueError("backfill_chunk_minutes must be in [1, 1440]")
+    if not 1 <= backfill_workers <= 16:
+        raise ValueError("backfill_workers must be in [1, 16]")
     if overlap_minutes < 1:
         raise ValueError("overlap_minutes must be positive")
     budget = CollectionBudget(max_requests, runtime_budget_seconds)
@@ -664,68 +771,84 @@ def collect_gate_perpetual(
         "verified_untruncated_segments": 0,
         "unique_trades": 0,
         "duplicate_trade_ids_filtered": 0,
+        "time_split_count": 0,
         "chunks": [],
     }
     if missing_minutes > 0 and backfill_minutes > 0:
         requested_minutes = min(backfill_minutes, missing_minutes)
         completed_minutes = 0
         verified_chunks = []
-        backfill_error = None
-        backfill_exception = None
+        backfill_errors = []
+        backfill_exceptions = []
         requests_before_backfill = budget.requests
-        while completed_minutes < requested_minutes:
-            missing_ranges = _missing_ranges(retained, desired_start, as_of_utc)
-            if not missing_ranges:
-                break
-            range_start, range_end = missing_ranges[-1]
-            chunk_end = range_end
-            chunk_start = max(
-                range_start,
-                chunk_end - dt.timedelta(
-                    minutes=min(
-                        backfill_chunk_minutes,
-                        requested_minutes - completed_minutes,
-                    )
-                ),
+        planned_chunks = _missing_chunks(
+            retained,
+            desired_start,
+            as_of_utc,
+            backfill_chunk_minutes,
+            requested_minutes,
+        )
+
+        def fetch_missing_chunk(chunk):
+            chunk_start, chunk_end = chunk
+            chunk_trades, chunk_evidence = fetch_trades_range(
+                chunk_start,
+                chunk_end,
+                requester=active_requester,
+                max_requests=max_requests,
+                budget=budget,
             )
-            try:
-                chunk_trades, chunk_evidence = fetch_trades_range(
-                    chunk_start,
-                    chunk_end,
-                    requester=active_requester,
-                    max_requests=max_requests,
-                    budget=budget,
-                )
-                retained.update(
-                    aggregate_minutes(
-                        chunk_trades,
-                        chunk_start,
-                        chunk_end,
+            chunk_buckets = aggregate_minutes(
+                chunk_trades,
+                chunk_start,
+                chunk_end,
+                multiplier,
+            )
+            return chunk_start, chunk_end, chunk_buckets, chunk_evidence
+
+        # Network waits, not CPU work, dominated the observed 210-second run.
+        # Fetch independent missing segments concurrently while the shared
+        # budget and start-time limiter enforce one global cap and rate.
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(backfill_workers, len(planned_chunks))
+        ) as executor:
+            futures = {
+                executor.submit(fetch_missing_chunk, chunk): chunk
+                for chunk in planned_chunks
+            }
+            for future in concurrent.futures.as_completed(futures):
+                chunk_start, chunk_end = futures[future]
+                try:
+                    _, _, chunk_buckets, chunk_evidence = future.result()
+                    # The plan was derived exclusively from missing ranges.  A
+                    # second guard prevents a future refactor from overwriting
+                    # an already verified minute during recovery.
+                    if any(key in retained for key in chunk_buckets):
+                        raise ValueError("backfill segment overlaps a verified state bucket")
+                    retained.update(chunk_buckets)
+                    state = _write_state(
+                        state_path,
+                        retained,
                         multiplier,
+                        desired_start,
+                        as_of_utc,
                     )
-                )
-                state = _write_state(
-                    state_path,
-                    retained,
-                    multiplier,
-                    desired_start,
-                    as_of_utc,
-                )
-                checkpoint_count += 1
-                rows = trailing_buckets(retained, as_of_utc)
-                _validate_contiguous_tail(rows, as_of_utc)
-                completed_minutes += int((chunk_end - chunk_start).total_seconds() // 60)
-                verified_chunks.append(chunk_evidence)
-            except (
-                KeyError,
-                OSError,
-                RuntimeError,
-                ValueError,
-                TimeoutError,
-            ) as error:
-                backfill_exception = error
-                backfill_error = _safe_error(error)
-                break
+                    checkpoint_count += 1
+                    completed_minutes += int((chunk_end - chunk_start).total_seconds() // 60)
+                    verified_chunks.append(chunk_evidence)
+                except (
+                    KeyError,
+                    OSError,
+                    RuntimeError,
+                    ValueError,
+                    TimeoutError,
+                ) as error:
+                    backfill_exceptions.append(error)
+                    backfill_errors.append(_safe_error(error))
+
+        verified_chunks.sort(key=lambda item: item["range_start_utc"], reverse=True)
+        rows = trailing_buckets(retained, as_of_utc)
+        _validate_contiguous_tail(rows, as_of_utc)
 
         backfill_requests = budget.requests - requests_before_backfill
         if completed_minutes == requested_minutes:
@@ -733,7 +856,7 @@ def collect_gate_perpetual(
         elif completed_minutes > 0:
             backfill_status = "partial"
         elif budget.remaining_requests < 1 or isinstance(
-            backfill_exception,
+            backfill_exceptions[0] if backfill_exceptions else None,
             (RuntimeBudgetExceeded, RequestBudgetExceeded),
         ):
             backfill_status = "deferred"
@@ -743,7 +866,7 @@ def collect_gate_perpetual(
             "status": backfill_status,
             "requested_minutes": requested_minutes,
             "completed_minutes": completed_minutes,
-            "error": backfill_error or (
+            "error": backfill_errors[0] if backfill_errors else (
                 "per-run collection budget exhausted"
                 if completed_minutes < requested_minutes
                 else None
@@ -756,8 +879,15 @@ def collect_gate_perpetual(
             "duplicate_trade_ids_filtered": sum(
                 item["duplicate_trade_ids_filtered"] for item in verified_chunks
             ),
+            "time_split_count": sum(item["time_split_count"] for item in verified_chunks),
             "page_limit": TRADE_PAGE_LIMIT,
-            "pagination_method": "offset_until_short_page",
+            "pagination_method": (
+                "adaptive_time_split_offset_until_short_page"
+                if any(item["time_split_count"] for item in verified_chunks)
+                else "offset_until_short_page"
+            ),
+            "worker_count": min(backfill_workers, len(planned_chunks)),
+            "planned_segments": len(planned_chunks),
             "range_start_utc": rows[0]["open_utc"] if completed_minutes else None,
             "range_end_utc_exclusive": (
                 verified_chunks[0]["range_end_utc_exclusive"] if verified_chunks else None
@@ -776,6 +906,9 @@ def collect_gate_perpetual(
     )
     total_duplicates = refresh_evidence["duplicate_trade_ids_filtered"] + int(
         backfill_evidence.get("duplicate_trade_ids_filtered", 0)
+    )
+    total_time_splits = refresh_evidence["time_split_count"] + int(
+        backfill_evidence.get("time_split_count", 0)
     )
     included_range_start = rows[0]["open_utc"]
 
@@ -827,9 +960,11 @@ def collect_gate_perpetual(
             "request_budget_remaining": budget.remaining_requests,
             "runtime_budget_seconds": runtime_budget_seconds,
             "runtime_elapsed_seconds": round(budget.elapsed_seconds, 3),
+            "backfill_workers": backfill_workers,
             "verified_untruncated_segments": total_segments,
             "unique_trades": total_unique_trades,
             "duplicate_trade_ids_filtered": total_duplicates,
+            "time_split_count": total_time_splits,
             "page_limit": TRADE_PAGE_LIMIT,
             "range_start_utc": included_range_start,
             "range_end_utc_exclusive": iso_utc(as_of_utc),
@@ -845,6 +980,7 @@ __all__ = [
     "CONTRACT_ENDPOINT",
     "DEFAULT_BACKFILL_MINUTES",
     "DEFAULT_BACKFILL_CHUNK_MINUTES",
+    "DEFAULT_BACKFILL_WORKERS",
     "DEFAULT_MAX_INCREMENTAL_GAP_MINUTES",
     "DEFAULT_MAX_REQUESTS",
     "DEFAULT_RUNTIME_BUDGET_SECONDS",

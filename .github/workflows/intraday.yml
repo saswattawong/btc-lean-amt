@@ -29,12 +29,14 @@ permissions:
 
 concurrency:
   group: btc-lean-amt-intraday-publisher
-  cancel-in-progress: true
+  # A cancelled runner cannot publish its locally fsynced recovery checkpoint.
+  # Let the active bounded run finish; a later run then resumes the committed state.
+  cancel-in-progress: false
 
 jobs:
   publish-intraday:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,9 +58,11 @@ jobs:
           --perp-state output/perp_cvd_state.json
           --perp-bootstrap-minutes 60
           --perp-backfill-minutes 1440
+          --perp-backfill-chunk-minutes 5
+          --perp-backfill-workers 12
           --perp-max-incremental-gap-minutes 60
-          --perp-max-requests 400
-          --perp-runtime-budget-seconds 210
+          --perp-max-requests 1600
+          --perp-runtime-budget-seconds 150
       - name: Validate structure, completeness and source freshness
         run: python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 900
       - name: Initialize freshness ledger when no previous snapshot existed
