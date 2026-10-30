@@ -4,1336 +4,27 @@
   "provider_documentation": "https://www.gate.com/docs/developers/apiv4/en/futures/",
   "contract": "BTC_USDT",
   "contract_multiplier_btc": "0.0001",
-  "updated_at_utc": "2026-10-29T20:25:42Z",
-  "target_start_utc": "2026-10-28T20:22:00Z",
-  "target_end_utc_exclusive": "2026-10-29T20:22:00Z",
-  "stored_closed_1m_buckets": 1221,
-  "bucket_payload_sha256": "04790b4366631e087ab0c2b97cea19f28b6f164295a00717f9dc7f33a5ba15a0",
-  "contiguous_tail_closed_1m_buckets": 270,
-  "missing_closed_1m_buckets": 219,
+  "updated_at_utc": "2026-10-30T00:05:03Z",
+  "target_start_utc": "2026-10-29T00:01:00Z",
+  "target_end_utc_exclusive": "2026-10-30T00:01:00Z",
+  "stored_closed_1m_buckets": 1152,
+  "bucket_payload_sha256": "802bbc9ab65cf3c846bd4943ef5810286c7c468886a8adae4f0e27fa465881c9",
+  "contiguous_tail_closed_1m_buckets": 150,
+  "missing_closed_1m_buckets": 288,
   "target_window_continuity": "incomplete",
   "missing_ranges": [
     {
       "start_utc": "2026-10-29T12:13:00Z",
       "end_utc_exclusive": "2026-10-29T15:52:00Z",
       "minutes": 219
+    },
+    {
+      "start_utc": "2026-10-29T20:22:00Z",
+      "end_utc_exclusive": "2026-10-29T21:31:00Z",
+      "minutes": 69
     }
   ],
   "closed_minute_buckets": [
-    {
-      "open_utc": "2026-10-28T20:22:00Z",
-      "quote_volume_usdt": "2526333.95346",
-      "taker_buy_quote_volume_usdt": "928625.17854",
-      "trade_count": 620
-    },
-    {
-      "open_utc": "2026-10-28T20:23:00Z",
-      "quote_volume_usdt": "3123140.17511",
-      "taker_buy_quote_volume_usdt": "1321107.65645",
-      "trade_count": 580
-    },
-    {
-      "open_utc": "2026-10-28T20:24:00Z",
-      "quote_volume_usdt": "2677844.76514",
-      "taker_buy_quote_volume_usdt": "990400.41319",
-      "trade_count": 430
-    },
-    {
-      "open_utc": "2026-10-28T20:25:00Z",
-      "quote_volume_usdt": "5750823.94914",
-      "taker_buy_quote_volume_usdt": "2771482.82589",
-      "trade_count": 602
-    },
-    {
-      "open_utc": "2026-10-28T20:26:00Z",
-      "quote_volume_usdt": "4334372.03599",
-      "taker_buy_quote_volume_usdt": "2681646.62803",
-      "trade_count": 411
-    },
-    {
-      "open_utc": "2026-10-28T20:27:00Z",
-      "quote_volume_usdt": "3266963.59814",
-      "taker_buy_quote_volume_usdt": "1652143.09957",
-      "trade_count": 458
-    },
-    {
-      "open_utc": "2026-10-28T20:28:00Z",
-      "quote_volume_usdt": "4243606.67360",
-      "taker_buy_quote_volume_usdt": "1545821.26623",
-      "trade_count": 1059
-    },
-    {
-      "open_utc": "2026-10-28T20:29:00Z",
-      "quote_volume_usdt": "6098817.22689",
-      "taker_buy_quote_volume_usdt": "3849178.31064",
-      "trade_count": 1028
-    },
-    {
-      "open_utc": "2026-10-28T20:30:00Z",
-      "quote_volume_usdt": "8660175.64082",
-      "taker_buy_quote_volume_usdt": "4769427.89558",
-      "trade_count": 908
-    },
-    {
-      "open_utc": "2026-10-28T20:31:00Z",
-      "quote_volume_usdt": "9457004.56070",
-      "taker_buy_quote_volume_usdt": "3726749.15069",
-      "trade_count": 772
-    },
-    {
-      "open_utc": "2026-10-28T20:32:00Z",
-      "quote_volume_usdt": "7762064.03832",
-      "taker_buy_quote_volume_usdt": "2651971.89054",
-      "trade_count": 855
-    },
-    {
-      "open_utc": "2026-10-28T20:33:00Z",
-      "quote_volume_usdt": "4767679.48631",
-      "taker_buy_quote_volume_usdt": "2906481.37333",
-      "trade_count": 438
-    },
-    {
-      "open_utc": "2026-10-28T20:34:00Z",
-      "quote_volume_usdt": "5240605.04225",
-      "taker_buy_quote_volume_usdt": "3119327.49695",
-      "trade_count": 387
-    },
-    {
-      "open_utc": "2026-10-28T20:35:00Z",
-      "quote_volume_usdt": "2249028.20988",
-      "taker_buy_quote_volume_usdt": "946960.53323",
-      "trade_count": 321
-    },
-    {
-      "open_utc": "2026-10-28T20:36:00Z",
-      "quote_volume_usdt": "2147799.51218",
-      "taker_buy_quote_volume_usdt": "794427.40683",
-      "trade_count": 405
-    },
-    {
-      "open_utc": "2026-10-28T20:37:00Z",
-      "quote_volume_usdt": "1734937.55335",
-      "taker_buy_quote_volume_usdt": "1023939.27905",
-      "trade_count": 232
-    },
-    {
-      "open_utc": "2026-10-28T20:38:00Z",
-      "quote_volume_usdt": "1836138.38185",
-      "taker_buy_quote_volume_usdt": "1053073.02689",
-      "trade_count": 381
-    },
-    {
-      "open_utc": "2026-10-28T20:39:00Z",
-      "quote_volume_usdt": "2836137.32228",
-      "taker_buy_quote_volume_usdt": "1267792.46548",
-      "trade_count": 525
-    },
-    {
-      "open_utc": "2026-10-28T20:40:00Z",
-      "quote_volume_usdt": "3279551.67326",
-      "taker_buy_quote_volume_usdt": "1500944.50776",
-      "trade_count": 427
-    },
-    {
-      "open_utc": "2026-10-28T20:41:00Z",
-      "quote_volume_usdt": "4768423.43438",
-      "taker_buy_quote_volume_usdt": "2449103.76480",
-      "trade_count": 875
-    },
-    {
-      "open_utc": "2026-10-28T20:42:00Z",
-      "quote_volume_usdt": "5143919.94177",
-      "taker_buy_quote_volume_usdt": "2687756.50066",
-      "trade_count": 401
-    },
-    {
-      "open_utc": "2026-10-28T20:43:00Z",
-      "quote_volume_usdt": "2433340.96880",
-      "taker_buy_quote_volume_usdt": "1002642.69449",
-      "trade_count": 359
-    },
-    {
-      "open_utc": "2026-10-28T20:44:00Z",
-      "quote_volume_usdt": "2400542.36457",
-      "taker_buy_quote_volume_usdt": "1444654.17650",
-      "trade_count": 321
-    },
-    {
-      "open_utc": "2026-10-28T20:45:00Z",
-      "quote_volume_usdt": "2831116.40680",
-      "taker_buy_quote_volume_usdt": "1781381.92676",
-      "trade_count": 395
-    },
-    {
-      "open_utc": "2026-10-28T20:46:00Z",
-      "quote_volume_usdt": "8853238.47329",
-      "taker_buy_quote_volume_usdt": "1695973.16663",
-      "trade_count": 1602
-    },
-    {
-      "open_utc": "2026-10-28T20:47:00Z",
-      "quote_volume_usdt": "5166445.30037",
-      "taker_buy_quote_volume_usdt": "2437630.43577",
-      "trade_count": 636
-    },
-    {
-      "open_utc": "2026-10-28T20:48:00Z",
-      "quote_volume_usdt": "10546636.52119",
-      "taker_buy_quote_volume_usdt": "5773761.67427",
-      "trade_count": 523
-    },
-    {
-      "open_utc": "2026-10-28T20:49:00Z",
-      "quote_volume_usdt": "5055520.70207",
-      "taker_buy_quote_volume_usdt": "2275932.34306",
-      "trade_count": 449
-    },
-    {
-      "open_utc": "2026-10-28T20:50:00Z",
-      "quote_volume_usdt": "4158012.42373",
-      "taker_buy_quote_volume_usdt": "2295616.39330",
-      "trade_count": 448
-    },
-    {
-      "open_utc": "2026-10-28T20:51:00Z",
-      "quote_volume_usdt": "1920158.78970",
-      "taker_buy_quote_volume_usdt": "1186832.68819",
-      "trade_count": 328
-    },
-    {
-      "open_utc": "2026-10-28T20:52:00Z",
-      "quote_volume_usdt": "1666226.80093",
-      "taker_buy_quote_volume_usdt": "1012449.33614",
-      "trade_count": 302
-    },
-    {
-      "open_utc": "2026-10-28T20:53:00Z",
-      "quote_volume_usdt": "1440386.95170",
-      "taker_buy_quote_volume_usdt": "773606.72522",
-      "trade_count": 229
-    },
-    {
-      "open_utc": "2026-10-28T20:54:00Z",
-      "quote_volume_usdt": "1437386.42634",
-      "taker_buy_quote_volume_usdt": "787123.61807",
-      "trade_count": 299
-    },
-    {
-      "open_utc": "2026-10-28T20:55:00Z",
-      "quote_volume_usdt": "987980.44454",
-      "taker_buy_quote_volume_usdt": "531282.28413",
-      "trade_count": 207
-    },
-    {
-      "open_utc": "2026-10-28T20:56:00Z",
-      "quote_volume_usdt": "5421820.06836",
-      "taker_buy_quote_volume_usdt": "4021010.67783",
-      "trade_count": 1128
-    },
-    {
-      "open_utc": "2026-10-28T20:57:00Z",
-      "quote_volume_usdt": "3862778.43181",
-      "taker_buy_quote_volume_usdt": "2509244.50411",
-      "trade_count": 524
-    },
-    {
-      "open_utc": "2026-10-28T20:58:00Z",
-      "quote_volume_usdt": "8690073.07218",
-      "taker_buy_quote_volume_usdt": "4612784.36907",
-      "trade_count": 687
-    },
-    {
-      "open_utc": "2026-10-28T20:59:00Z",
-      "quote_volume_usdt": "2740324.49732",
-      "taker_buy_quote_volume_usdt": "1624212.92188",
-      "trade_count": 419
-    },
-    {
-      "open_utc": "2026-10-28T21:00:00Z",
-      "quote_volume_usdt": "4331337.49373",
-      "taker_buy_quote_volume_usdt": "2515351.89166",
-      "trade_count": 550
-    },
-    {
-      "open_utc": "2026-10-28T21:01:00Z",
-      "quote_volume_usdt": "3805887.72595",
-      "taker_buy_quote_volume_usdt": "2266537.35139",
-      "trade_count": 519
-    },
-    {
-      "open_utc": "2026-10-28T21:02:00Z",
-      "quote_volume_usdt": "4076477.51739",
-      "taker_buy_quote_volume_usdt": "2211487.60577",
-      "trade_count": 482
-    },
-    {
-      "open_utc": "2026-10-28T21:03:00Z",
-      "quote_volume_usdt": "3726320.52088",
-      "taker_buy_quote_volume_usdt": "1933455.02605",
-      "trade_count": 535
-    },
-    {
-      "open_utc": "2026-10-28T21:04:00Z",
-      "quote_volume_usdt": "6710758.20232",
-      "taker_buy_quote_volume_usdt": "4627750.84520",
-      "trade_count": 1296
-    },
-    {
-      "open_utc": "2026-10-28T21:05:00Z",
-      "quote_volume_usdt": "8389631.78982",
-      "taker_buy_quote_volume_usdt": "4209804.45074",
-      "trade_count": 612
-    },
-    {
-      "open_utc": "2026-10-28T21:06:00Z",
-      "quote_volume_usdt": "4532661.03188",
-      "taker_buy_quote_volume_usdt": "2141796.45232",
-      "trade_count": 314
-    },
-    {
-      "open_utc": "2026-10-28T21:07:00Z",
-      "quote_volume_usdt": "2353400.97522",
-      "taker_buy_quote_volume_usdt": "861134.23369",
-      "trade_count": 310
-    },
-    {
-      "open_utc": "2026-10-28T21:08:00Z",
-      "quote_volume_usdt": "1685945.07798",
-      "taker_buy_quote_volume_usdt": "658974.37707",
-      "trade_count": 217
-    },
-    {
-      "open_utc": "2026-10-28T21:09:00Z",
-      "quote_volume_usdt": "1244143.06682",
-      "taker_buy_quote_volume_usdt": "549822.99164",
-      "trade_count": 204
-    },
-    {
-      "open_utc": "2026-10-28T21:10:00Z",
-      "quote_volume_usdt": "1690856.68797",
-      "taker_buy_quote_volume_usdt": "1059019.69140",
-      "trade_count": 254
-    },
-    {
-      "open_utc": "2026-10-28T21:11:00Z",
-      "quote_volume_usdt": "1430582.94467",
-      "taker_buy_quote_volume_usdt": "436991.03051",
-      "trade_count": 415
-    },
-    {
-      "open_utc": "2026-10-28T21:12:00Z",
-      "quote_volume_usdt": "2476516.32671",
-      "taker_buy_quote_volume_usdt": "1815157.13555",
-      "trade_count": 453
-    },
-    {
-      "open_utc": "2026-10-28T21:13:00Z",
-      "quote_volume_usdt": "2606611.40724",
-      "taker_buy_quote_volume_usdt": "1672305.11336",
-      "trade_count": 416
-    },
-    {
-      "open_utc": "2026-10-28T21:14:00Z",
-      "quote_volume_usdt": "4078663.39777",
-      "taker_buy_quote_volume_usdt": "2426589.88152",
-      "trade_count": 281
-    },
-    {
-      "open_utc": "2026-10-28T21:15:00Z",
-      "quote_volume_usdt": "2129648.14279",
-      "taker_buy_quote_volume_usdt": "1280734.23274",
-      "trade_count": 151
-    },
-    {
-      "open_utc": "2026-10-28T21:16:00Z",
-      "quote_volume_usdt": "2321794.34418",
-      "taker_buy_quote_volume_usdt": "1503494.59792",
-      "trade_count": 599
-    },
-    {
-      "open_utc": "2026-10-28T21:17:00Z",
-      "quote_volume_usdt": "2493457.82496",
-      "taker_buy_quote_volume_usdt": "1119576.58926",
-      "trade_count": 254
-    },
-    {
-      "open_utc": "2026-10-28T21:18:00Z",
-      "quote_volume_usdt": "2663066.52170",
-      "taker_buy_quote_volume_usdt": "2111422.41594",
-      "trade_count": 188
-    },
-    {
-      "open_utc": "2026-10-28T21:19:00Z",
-      "quote_volume_usdt": "1762766.53161",
-      "taker_buy_quote_volume_usdt": "1161994.69445",
-      "trade_count": 271
-    },
-    {
-      "open_utc": "2026-10-28T21:20:00Z",
-      "quote_volume_usdt": "1758395.28768",
-      "taker_buy_quote_volume_usdt": "597717.69535",
-      "trade_count": 291
-    },
-    {
-      "open_utc": "2026-10-28T21:21:00Z",
-      "quote_volume_usdt": "1649233.75509",
-      "taker_buy_quote_volume_usdt": "1195525.86671",
-      "trade_count": 304
-    },
-    {
-      "open_utc": "2026-10-28T21:22:00Z",
-      "quote_volume_usdt": "1521266.12064",
-      "taker_buy_quote_volume_usdt": "837311.75919",
-      "trade_count": 230
-    },
-    {
-      "open_utc": "2026-10-28T21:23:00Z",
-      "quote_volume_usdt": "1321987.55616",
-      "taker_buy_quote_volume_usdt": "532096.76395",
-      "trade_count": 211
-    },
-    {
-      "open_utc": "2026-10-28T21:24:00Z",
-      "quote_volume_usdt": "1069070.23766",
-      "taker_buy_quote_volume_usdt": "104576.21057",
-      "trade_count": 179
-    },
-    {
-      "open_utc": "2026-10-28T21:25:00Z",
-      "quote_volume_usdt": "2803298.34708",
-      "taker_buy_quote_volume_usdt": "876622.64529",
-      "trade_count": 290
-    },
-    {
-      "open_utc": "2026-10-28T21:26:00Z",
-      "quote_volume_usdt": "2189070.05000",
-      "taker_buy_quote_volume_usdt": "274208.93791",
-      "trade_count": 312
-    },
-    {
-      "open_utc": "2026-10-28T21:27:00Z",
-      "quote_volume_usdt": "3581842.61821",
-      "taker_buy_quote_volume_usdt": "1459273.65918",
-      "trade_count": 755
-    },
-    {
-      "open_utc": "2026-10-28T21:28:00Z",
-      "quote_volume_usdt": "2641377.16470",
-      "taker_buy_quote_volume_usdt": "1474974.56885",
-      "trade_count": 762
-    },
-    {
-      "open_utc": "2026-10-28T21:29:00Z",
-      "quote_volume_usdt": "2326685.36322",
-      "taker_buy_quote_volume_usdt": "851854.59087",
-      "trade_count": 231
-    },
-    {
-      "open_utc": "2026-10-28T21:30:00Z",
-      "quote_volume_usdt": "2336136.27723",
-      "taker_buy_quote_volume_usdt": "1632497.23767",
-      "trade_count": 352
-    },
-    {
-      "open_utc": "2026-10-28T21:31:00Z",
-      "quote_volume_usdt": "2552905.77634",
-      "taker_buy_quote_volume_usdt": "888596.36978",
-      "trade_count": 401
-    },
-    {
-      "open_utc": "2026-10-28T21:32:00Z",
-      "quote_volume_usdt": "2009279.64133",
-      "taker_buy_quote_volume_usdt": "1094410.37159",
-      "trade_count": 211
-    },
-    {
-      "open_utc": "2026-10-28T21:33:00Z",
-      "quote_volume_usdt": "759544.06691",
-      "taker_buy_quote_volume_usdt": "148377.40978",
-      "trade_count": 76
-    },
-    {
-      "open_utc": "2026-10-28T21:34:00Z",
-      "quote_volume_usdt": "762004.86632",
-      "taker_buy_quote_volume_usdt": "493329.85353",
-      "trade_count": 232
-    },
-    {
-      "open_utc": "2026-10-28T21:35:00Z",
-      "quote_volume_usdt": "735598.91555",
-      "taker_buy_quote_volume_usdt": "434112.10713",
-      "trade_count": 132
-    },
-    {
-      "open_utc": "2026-10-28T21:36:00Z",
-      "quote_volume_usdt": "1514519.56223",
-      "taker_buy_quote_volume_usdt": "996671.83390",
-      "trade_count": 120
-    },
-    {
-      "open_utc": "2026-10-28T21:37:00Z",
-      "quote_volume_usdt": "1362514.92830",
-      "taker_buy_quote_volume_usdt": "1007990.45940",
-      "trade_count": 218
-    },
-    {
-      "open_utc": "2026-10-28T21:38:00Z",
-      "quote_volume_usdt": "1837821.27833",
-      "taker_buy_quote_volume_usdt": "776252.40626",
-      "trade_count": 491
-    },
-    {
-      "open_utc": "2026-10-28T21:39:00Z",
-      "quote_volume_usdt": "2234448.10458",
-      "taker_buy_quote_volume_usdt": "536733.50591",
-      "trade_count": 304
-    },
-    {
-      "open_utc": "2026-10-28T21:40:00Z",
-      "quote_volume_usdt": "2751814.71472",
-      "taker_buy_quote_volume_usdt": "1077735.78066",
-      "trade_count": 471
-    },
-    {
-      "open_utc": "2026-10-28T21:41:00Z",
-      "quote_volume_usdt": "2498793.23741",
-      "taker_buy_quote_volume_usdt": "1174380.89597",
-      "trade_count": 180
-    },
-    {
-      "open_utc": "2026-10-28T21:42:00Z",
-      "quote_volume_usdt": "2195394.51343",
-      "taker_buy_quote_volume_usdt": "737840.06621",
-      "trade_count": 321
-    },
-    {
-      "open_utc": "2026-10-28T21:43:00Z",
-      "quote_volume_usdt": "896877.66115",
-      "taker_buy_quote_volume_usdt": "553934.74597",
-      "trade_count": 287
-    },
-    {
-      "open_utc": "2026-10-28T21:44:00Z",
-      "quote_volume_usdt": "1282711.47881",
-      "taker_buy_quote_volume_usdt": "668690.39322",
-      "trade_count": 256
-    },
-    {
-      "open_utc": "2026-10-28T21:45:00Z",
-      "quote_volume_usdt": "1397786.51959",
-      "taker_buy_quote_volume_usdt": "1034393.84613",
-      "trade_count": 304
-    },
-    {
-      "open_utc": "2026-10-28T21:46:00Z",
-      "quote_volume_usdt": "1030346.73072",
-      "taker_buy_quote_volume_usdt": "898339.67506",
-      "trade_count": 157
-    },
-    {
-      "open_utc": "2026-10-28T21:47:00Z",
-      "quote_volume_usdt": "1270552.43403",
-      "taker_buy_quote_volume_usdt": "367954.84729",
-      "trade_count": 384
-    },
-    {
-      "open_utc": "2026-10-28T21:48:00Z",
-      "quote_volume_usdt": "948246.89348",
-      "taker_buy_quote_volume_usdt": "434679.27885",
-      "trade_count": 293
-    },
-    {
-      "open_utc": "2026-10-28T21:49:00Z",
-      "quote_volume_usdt": "1445561.08088",
-      "taker_buy_quote_volume_usdt": "1022873.11164",
-      "trade_count": 202
-    },
-    {
-      "open_utc": "2026-10-28T21:50:00Z",
-      "quote_volume_usdt": "621309.46097",
-      "taker_buy_quote_volume_usdt": "514380.07298",
-      "trade_count": 84
-    },
-    {
-      "open_utc": "2026-10-28T21:51:00Z",
-      "quote_volume_usdt": "356060.26645",
-      "taker_buy_quote_volume_usdt": "280607.69053",
-      "trade_count": 75
-    },
-    {
-      "open_utc": "2026-10-28T21:52:00Z",
-      "quote_volume_usdt": "1693198.31567",
-      "taker_buy_quote_volume_usdt": "666347.73189",
-      "trade_count": 277
-    },
-    {
-      "open_utc": "2026-10-28T21:53:00Z",
-      "quote_volume_usdt": "929430.66266",
-      "taker_buy_quote_volume_usdt": "421715.03799",
-      "trade_count": 233
-    },
-    {
-      "open_utc": "2026-10-28T21:54:00Z",
-      "quote_volume_usdt": "1627237.61623",
-      "taker_buy_quote_volume_usdt": "688042.36301",
-      "trade_count": 167
-    },
-    {
-      "open_utc": "2026-10-28T21:55:00Z",
-      "quote_volume_usdt": "627174.43605",
-      "taker_buy_quote_volume_usdt": "25226.68771",
-      "trade_count": 140
-    },
-    {
-      "open_utc": "2026-10-28T21:56:00Z",
-      "quote_volume_usdt": "1227479.44126",
-      "taker_buy_quote_volume_usdt": "841372.67111",
-      "trade_count": 201
-    },
-    {
-      "open_utc": "2026-10-28T21:57:00Z",
-      "quote_volume_usdt": "1156206.11512",
-      "taker_buy_quote_volume_usdt": "344433.12870",
-      "trade_count": 192
-    },
-    {
-      "open_utc": "2026-10-28T21:58:00Z",
-      "quote_volume_usdt": "813916.96299",
-      "taker_buy_quote_volume_usdt": "298431.49881",
-      "trade_count": 74
-    },
-    {
-      "open_utc": "2026-10-28T21:59:00Z",
-      "quote_volume_usdt": "724123.09193",
-      "taker_buy_quote_volume_usdt": "262461.21573",
-      "trade_count": 129
-    },
-    {
-      "open_utc": "2026-10-28T22:00:00Z",
-      "quote_volume_usdt": "566538.65886",
-      "taker_buy_quote_volume_usdt": "242582.95631",
-      "trade_count": 365
-    },
-    {
-      "open_utc": "2026-10-28T22:01:00Z",
-      "quote_volume_usdt": "950123.34366",
-      "taker_buy_quote_volume_usdt": "425723.17098",
-      "trade_count": 386
-    },
-    {
-      "open_utc": "2026-10-28T22:02:00Z",
-      "quote_volume_usdt": "2573964.58952",
-      "taker_buy_quote_volume_usdt": "839949.69522",
-      "trade_count": 793
-    },
-    {
-      "open_utc": "2026-10-28T22:03:00Z",
-      "quote_volume_usdt": "2560734.87081",
-      "taker_buy_quote_volume_usdt": "1545991.88386",
-      "trade_count": 495
-    },
-    {
-      "open_utc": "2026-10-28T22:04:00Z",
-      "quote_volume_usdt": "2261941.51560",
-      "taker_buy_quote_volume_usdt": "1317630.49934",
-      "trade_count": 270
-    },
-    {
-      "open_utc": "2026-10-28T22:05:00Z",
-      "quote_volume_usdt": "1623008.16750",
-      "taker_buy_quote_volume_usdt": "661167.85349",
-      "trade_count": 305
-    },
-    {
-      "open_utc": "2026-10-28T22:06:00Z",
-      "quote_volume_usdt": "786008.54543",
-      "taker_buy_quote_volume_usdt": "511489.99991",
-      "trade_count": 256
-    },
-    {
-      "open_utc": "2026-10-28T22:07:00Z",
-      "quote_volume_usdt": "917763.09252",
-      "taker_buy_quote_volume_usdt": "526570.03418",
-      "trade_count": 242
-    },
-    {
-      "open_utc": "2026-10-28T22:08:00Z",
-      "quote_volume_usdt": "999599.53075",
-      "taker_buy_quote_volume_usdt": "384086.80478",
-      "trade_count": 325
-    },
-    {
-      "open_utc": "2026-10-28T22:09:00Z",
-      "quote_volume_usdt": "989305.68166",
-      "taker_buy_quote_volume_usdt": "585669.14953",
-      "trade_count": 151
-    },
-    {
-      "open_utc": "2026-10-28T22:10:00Z",
-      "quote_volume_usdt": "1284746.28704",
-      "taker_buy_quote_volume_usdt": "672788.37730",
-      "trade_count": 406
-    },
-    {
-      "open_utc": "2026-10-28T22:11:00Z",
-      "quote_volume_usdt": "1093285.98723",
-      "taker_buy_quote_volume_usdt": "707235.01424",
-      "trade_count": 132
-    },
-    {
-      "open_utc": "2026-10-28T22:12:00Z",
-      "quote_volume_usdt": "1411547.66629",
-      "taker_buy_quote_volume_usdt": "842602.86111",
-      "trade_count": 200
-    },
-    {
-      "open_utc": "2026-10-28T22:13:00Z",
-      "quote_volume_usdt": "1546351.60027",
-      "taker_buy_quote_volume_usdt": "818544.91558",
-      "trade_count": 323
-    },
-    {
-      "open_utc": "2026-10-28T22:14:00Z",
-      "quote_volume_usdt": "1081163.24366",
-      "taker_buy_quote_volume_usdt": "257938.36433",
-      "trade_count": 258
-    },
-    {
-      "open_utc": "2026-10-28T22:15:00Z",
-      "quote_volume_usdt": "1662437.28215",
-      "taker_buy_quote_volume_usdt": "247430.77870",
-      "trade_count": 245
-    },
-    {
-      "open_utc": "2026-10-28T22:16:00Z",
-      "quote_volume_usdt": "858894.68136",
-      "taker_buy_quote_volume_usdt": "300511.37174",
-      "trade_count": 232
-    },
-    {
-      "open_utc": "2026-10-28T22:17:00Z",
-      "quote_volume_usdt": "760046.52621",
-      "taker_buy_quote_volume_usdt": "558183.56745",
-      "trade_count": 89
-    },
-    {
-      "open_utc": "2026-10-28T22:18:00Z",
-      "quote_volume_usdt": "672357.06276",
-      "taker_buy_quote_volume_usdt": "294726.38340",
-      "trade_count": 144
-    },
-    {
-      "open_utc": "2026-10-28T22:19:00Z",
-      "quote_volume_usdt": "738363.73003",
-      "taker_buy_quote_volume_usdt": "332893.70402",
-      "trade_count": 126
-    },
-    {
-      "open_utc": "2026-10-28T22:20:00Z",
-      "quote_volume_usdt": "624589.31701",
-      "taker_buy_quote_volume_usdt": "215096.69808",
-      "trade_count": 122
-    },
-    {
-      "open_utc": "2026-10-28T22:21:00Z",
-      "quote_volume_usdt": "202732.49913",
-      "taker_buy_quote_volume_usdt": "41616.85036",
-      "trade_count": 116
-    },
-    {
-      "open_utc": "2026-10-28T22:22:00Z",
-      "quote_volume_usdt": "501478.62772",
-      "taker_buy_quote_volume_usdt": "331707.93769",
-      "trade_count": 154
-    },
-    {
-      "open_utc": "2026-10-28T22:23:00Z",
-      "quote_volume_usdt": "1266073.62158",
-      "taker_buy_quote_volume_usdt": "146889.96469",
-      "trade_count": 218
-    },
-    {
-      "open_utc": "2026-10-28T22:24:00Z",
-      "quote_volume_usdt": "898367.89574",
-      "taker_buy_quote_volume_usdt": "558507.14924",
-      "trade_count": 85
-    },
-    {
-      "open_utc": "2026-10-28T22:25:00Z",
-      "quote_volume_usdt": "791321.94031",
-      "taker_buy_quote_volume_usdt": "191748.76051",
-      "trade_count": 150
-    },
-    {
-      "open_utc": "2026-10-28T22:26:00Z",
-      "quote_volume_usdt": "1539244.43032",
-      "taker_buy_quote_volume_usdt": "543968.30270",
-      "trade_count": 339
-    },
-    {
-      "open_utc": "2026-10-28T22:27:00Z",
-      "quote_volume_usdt": "2501915.47825",
-      "taker_buy_quote_volume_usdt": "1399516.00709",
-      "trade_count": 392
-    },
-    {
-      "open_utc": "2026-10-28T22:28:00Z",
-      "quote_volume_usdt": "3476575.47663",
-      "taker_buy_quote_volume_usdt": "1102108.01747",
-      "trade_count": 339
-    },
-    {
-      "open_utc": "2026-10-28T22:29:00Z",
-      "quote_volume_usdt": "2200369.06855",
-      "taker_buy_quote_volume_usdt": "1235831.51455",
-      "trade_count": 226
-    },
-    {
-      "open_utc": "2026-10-28T22:30:00Z",
-      "quote_volume_usdt": "825110.32386",
-      "taker_buy_quote_volume_usdt": "393737.68286",
-      "trade_count": 309
-    },
-    {
-      "open_utc": "2026-10-28T22:31:00Z",
-      "quote_volume_usdt": "2378838.16276",
-      "taker_buy_quote_volume_usdt": "1690554.96612",
-      "trade_count": 1167
-    },
-    {
-      "open_utc": "2026-10-28T22:32:00Z",
-      "quote_volume_usdt": "4556414.25351",
-      "taker_buy_quote_volume_usdt": "2718606.80818",
-      "trade_count": 924
-    },
-    {
-      "open_utc": "2026-10-28T22:33:00Z",
-      "quote_volume_usdt": "4902329.73140",
-      "taker_buy_quote_volume_usdt": "2850765.22376",
-      "trade_count": 606
-    },
-    {
-      "open_utc": "2026-10-28T22:34:00Z",
-      "quote_volume_usdt": "2609384.43064",
-      "taker_buy_quote_volume_usdt": "1338695.47043",
-      "trade_count": 213
-    },
-    {
-      "open_utc": "2026-10-28T22:35:00Z",
-      "quote_volume_usdt": "1624914.90589",
-      "taker_buy_quote_volume_usdt": "892447.67163",
-      "trade_count": 195
-    },
-    {
-      "open_utc": "2026-10-28T22:36:00Z",
-      "quote_volume_usdt": "1499568.06995",
-      "taker_buy_quote_volume_usdt": "492136.73382",
-      "trade_count": 250
-    },
-    {
-      "open_utc": "2026-10-28T22:37:00Z",
-      "quote_volume_usdt": "1100685.73546",
-      "taker_buy_quote_volume_usdt": "304901.36177",
-      "trade_count": 206
-    },
-    {
-      "open_utc": "2026-10-28T22:38:00Z",
-      "quote_volume_usdt": "1002720.97257",
-      "taker_buy_quote_volume_usdt": "644476.85449",
-      "trade_count": 142
-    },
-    {
-      "open_utc": "2026-10-28T22:39:00Z",
-      "quote_volume_usdt": "1996291.22878",
-      "taker_buy_quote_volume_usdt": "1326274.93729",
-      "trade_count": 120
-    },
-    {
-      "open_utc": "2026-10-28T22:40:00Z",
-      "quote_volume_usdt": "945351.52863",
-      "taker_buy_quote_volume_usdt": "282962.61446",
-      "trade_count": 234
-    },
-    {
-      "open_utc": "2026-10-28T22:41:00Z",
-      "quote_volume_usdt": "2076120.89108",
-      "taker_buy_quote_volume_usdt": "812928.70122",
-      "trade_count": 140
-    },
-    {
-      "open_utc": "2026-10-28T22:42:00Z",
-      "quote_volume_usdt": "1462689.73766",
-      "taker_buy_quote_volume_usdt": "474669.61188",
-      "trade_count": 272
-    },
-    {
-      "open_utc": "2026-10-28T22:43:00Z",
-      "quote_volume_usdt": "844278.39876",
-      "taker_buy_quote_volume_usdt": "361261.56143",
-      "trade_count": 327
-    },
-    {
-      "open_utc": "2026-10-28T22:44:00Z",
-      "quote_volume_usdt": "932516.17175",
-      "taker_buy_quote_volume_usdt": "543763.14424",
-      "trade_count": 131
-    },
-    {
-      "open_utc": "2026-10-28T22:45:00Z",
-      "quote_volume_usdt": "517426.79778",
-      "taker_buy_quote_volume_usdt": "347336.06231",
-      "trade_count": 225
-    },
-    {
-      "open_utc": "2026-10-28T22:46:00Z",
-      "quote_volume_usdt": "915086.66887",
-      "taker_buy_quote_volume_usdt": "760026.55394",
-      "trade_count": 175
-    },
-    {
-      "open_utc": "2026-10-28T22:47:00Z",
-      "quote_volume_usdt": "1107607.08454",
-      "taker_buy_quote_volume_usdt": "611399.53857",
-      "trade_count": 204
-    },
-    {
-      "open_utc": "2026-10-28T22:48:00Z",
-      "quote_volume_usdt": "1603607.96954",
-      "taker_buy_quote_volume_usdt": "534708.85400",
-      "trade_count": 259
-    },
-    {
-      "open_utc": "2026-10-28T22:49:00Z",
-      "quote_volume_usdt": "888475.68090",
-      "taker_buy_quote_volume_usdt": "815026.09220",
-      "trade_count": 189
-    },
-    {
-      "open_utc": "2026-10-28T22:50:00Z",
-      "quote_volume_usdt": "1063842.22868",
-      "taker_buy_quote_volume_usdt": "286376.98073",
-      "trade_count": 140
-    },
-    {
-      "open_utc": "2026-10-28T22:51:00Z",
-      "quote_volume_usdt": "1146940.16758",
-      "taker_buy_quote_volume_usdt": "585309.67908",
-      "trade_count": 128
-    },
-    {
-      "open_utc": "2026-10-28T22:52:00Z",
-      "quote_volume_usdt": "1232851.99373",
-      "taker_buy_quote_volume_usdt": "736152.32558",
-      "trade_count": 236
-    },
-    {
-      "open_utc": "2026-10-28T22:53:00Z",
-      "quote_volume_usdt": "565675.99542",
-      "taker_buy_quote_volume_usdt": "163944.43522",
-      "trade_count": 66
-    },
-    {
-      "open_utc": "2026-10-28T22:54:00Z",
-      "quote_volume_usdt": "249906.41273",
-      "taker_buy_quote_volume_usdt": "121467.02522",
-      "trade_count": 48
-    },
-    {
-      "open_utc": "2026-10-28T22:55:00Z",
-      "quote_volume_usdt": "508449.61343",
-      "taker_buy_quote_volume_usdt": "317553.38228",
-      "trade_count": 115
-    },
-    {
-      "open_utc": "2026-10-28T22:56:00Z",
-      "quote_volume_usdt": "359153.37227",
-      "taker_buy_quote_volume_usdt": "215261.29946",
-      "trade_count": 67
-    },
-    {
-      "open_utc": "2026-10-28T22:57:00Z",
-      "quote_volume_usdt": "539258.47153",
-      "taker_buy_quote_volume_usdt": "191957.84404",
-      "trade_count": 161
-    },
-    {
-      "open_utc": "2026-10-28T22:58:00Z",
-      "quote_volume_usdt": "445966.53432",
-      "taker_buy_quote_volume_usdt": "121988.28466",
-      "trade_count": 115
-    },
-    {
-      "open_utc": "2026-10-28T22:59:00Z",
-      "quote_volume_usdt": "419150.63207",
-      "taker_buy_quote_volume_usdt": "263582.02665",
-      "trade_count": 89
-    },
-    {
-      "open_utc": "2026-10-28T23:00:00Z",
-      "quote_volume_usdt": "1191725.91171",
-      "taker_buy_quote_volume_usdt": "299950.37572",
-      "trade_count": 677
-    },
-    {
-      "open_utc": "2026-10-28T23:01:00Z",
-      "quote_volume_usdt": "1042138.10553",
-      "taker_buy_quote_volume_usdt": "599035.82561",
-      "trade_count": 360
-    },
-    {
-      "open_utc": "2026-10-28T23:02:00Z",
-      "quote_volume_usdt": "2313031.36601",
-      "taker_buy_quote_volume_usdt": "946329.66759",
-      "trade_count": 320
-    },
-    {
-      "open_utc": "2026-10-28T23:03:00Z",
-      "quote_volume_usdt": "2654590.46807",
-      "taker_buy_quote_volume_usdt": "1116629.18896",
-      "trade_count": 362
-    },
-    {
-      "open_utc": "2026-10-28T23:04:00Z",
-      "quote_volume_usdt": "1669456.30998",
-      "taker_buy_quote_volume_usdt": "1042123.34978",
-      "trade_count": 282
-    },
-    {
-      "open_utc": "2026-10-28T23:05:00Z",
-      "quote_volume_usdt": "1140499.09898",
-      "taker_buy_quote_volume_usdt": "560382.57103",
-      "trade_count": 407
-    },
-    {
-      "open_utc": "2026-10-28T23:06:00Z",
-      "quote_volume_usdt": "1685133.09601",
-      "taker_buy_quote_volume_usdt": "948014.39140",
-      "trade_count": 279
-    },
-    {
-      "open_utc": "2026-10-28T23:07:00Z",
-      "quote_volume_usdt": "1830570.04787",
-      "taker_buy_quote_volume_usdt": "768313.19584",
-      "trade_count": 155
-    },
-    {
-      "open_utc": "2026-10-28T23:08:00Z",
-      "quote_volume_usdt": "1322632.04829",
-      "taker_buy_quote_volume_usdt": "756619.58939",
-      "trade_count": 173
-    },
-    {
-      "open_utc": "2026-10-28T23:09:00Z",
-      "quote_volume_usdt": "982871.54541",
-      "taker_buy_quote_volume_usdt": "489692.49531",
-      "trade_count": 267
-    },
-    {
-      "open_utc": "2026-10-28T23:10:00Z",
-      "quote_volume_usdt": "1313035.04221",
-      "taker_buy_quote_volume_usdt": "398045.36130",
-      "trade_count": 161
-    },
-    {
-      "open_utc": "2026-10-28T23:11:00Z",
-      "quote_volume_usdt": "854967.21518",
-      "taker_buy_quote_volume_usdt": "176403.91733",
-      "trade_count": 191
-    },
-    {
-      "open_utc": "2026-10-28T23:12:00Z",
-      "quote_volume_usdt": "507278.02436",
-      "taker_buy_quote_volume_usdt": "276845.63583",
-      "trade_count": 224
-    },
-    {
-      "open_utc": "2026-10-28T23:13:00Z",
-      "quote_volume_usdt": "1529065.37158",
-      "taker_buy_quote_volume_usdt": "1241303.79657",
-      "trade_count": 219
-    },
-    {
-      "open_utc": "2026-10-28T23:14:00Z",
-      "quote_volume_usdt": "995675.26928",
-      "taker_buy_quote_volume_usdt": "518392.97476",
-      "trade_count": 225
-    },
-    {
-      "open_utc": "2026-10-28T23:15:00Z",
-      "quote_volume_usdt": "812428.86707",
-      "taker_buy_quote_volume_usdt": "525970.52564",
-      "trade_count": 141
-    },
-    {
-      "open_utc": "2026-10-28T23:16:00Z",
-      "quote_volume_usdt": "847580.63437",
-      "taker_buy_quote_volume_usdt": "565167.18110",
-      "trade_count": 195
-    },
-    {
-      "open_utc": "2026-10-28T23:17:00Z",
-      "quote_volume_usdt": "1970296.10793",
-      "taker_buy_quote_volume_usdt": "1623503.47742",
-      "trade_count": 391
-    },
-    {
-      "open_utc": "2026-10-28T23:18:00Z",
-      "quote_volume_usdt": "1062215.83567",
-      "taker_buy_quote_volume_usdt": "737782.01636",
-      "trade_count": 103
-    },
-    {
-      "open_utc": "2026-10-28T23:19:00Z",
-      "quote_volume_usdt": "1009035.15081",
-      "taker_buy_quote_volume_usdt": "440233.21453",
-      "trade_count": 241
-    },
-    {
-      "open_utc": "2026-10-28T23:20:00Z",
-      "quote_volume_usdt": "1096863.46716",
-      "taker_buy_quote_volume_usdt": "627429.96906",
-      "trade_count": 275
-    },
-    {
-      "open_utc": "2026-10-28T23:21:00Z",
-      "quote_volume_usdt": "1069297.41663",
-      "taker_buy_quote_volume_usdt": "724327.07983",
-      "trade_count": 304
-    },
-    {
-      "open_utc": "2026-10-28T23:22:00Z",
-      "quote_volume_usdt": "804303.86702",
-      "taker_buy_quote_volume_usdt": "457660.82404",
-      "trade_count": 137
-    },
-    {
-      "open_utc": "2026-10-28T23:23:00Z",
-      "quote_volume_usdt": "1092860.00414",
-      "taker_buy_quote_volume_usdt": "348276.49218",
-      "trade_count": 154
-    },
-    {
-      "open_utc": "2026-10-28T23:24:00Z",
-      "quote_volume_usdt": "607772.20007",
-      "taker_buy_quote_volume_usdt": "364122.25896",
-      "trade_count": 66
-    },
-    {
-      "open_utc": "2026-10-28T23:25:00Z",
-      "quote_volume_usdt": "524817.40998",
-      "taker_buy_quote_volume_usdt": "251897.39925",
-      "trade_count": 247
-    },
-    {
-      "open_utc": "2026-10-28T23:26:00Z",
-      "quote_volume_usdt": "353448.89829",
-      "taker_buy_quote_volume_usdt": "173574.97153",
-      "trade_count": 165
-    },
-    {
-      "open_utc": "2026-10-28T23:27:00Z",
-      "quote_volume_usdt": "777533.06838",
-      "taker_buy_quote_volume_usdt": "131566.27049",
-      "trade_count": 132
-    },
-    {
-      "open_utc": "2026-10-28T23:28:00Z",
-      "quote_volume_usdt": "696893.18000",
-      "taker_buy_quote_volume_usdt": "439174.02842",
-      "trade_count": 161
-    },
-    {
-      "open_utc": "2026-10-28T23:29:00Z",
-      "quote_volume_usdt": "1122656.54045",
-      "taker_buy_quote_volume_usdt": "198984.92160",
-      "trade_count": 165
-    },
-    {
-      "open_utc": "2026-10-28T23:30:00Z",
-      "quote_volume_usdt": "1817984.12401",
-      "taker_buy_quote_volume_usdt": "603551.43567",
-      "trade_count": 192
-    },
-    {
-      "open_utc": "2026-10-28T23:31:00Z",
-      "quote_volume_usdt": "1048638.33039",
-      "taker_buy_quote_volume_usdt": "533266.46307",
-      "trade_count": 207
-    },
-    {
-      "open_utc": "2026-10-28T23:32:00Z",
-      "quote_volume_usdt": "362929.35994",
-      "taker_buy_quote_volume_usdt": "250721.66991",
-      "trade_count": 147
-    },
-    {
-      "open_utc": "2026-10-28T23:33:00Z",
-      "quote_volume_usdt": "496769.64515",
-      "taker_buy_quote_volume_usdt": "283667.19397",
-      "trade_count": 156
-    },
-    {
-      "open_utc": "2026-10-28T23:34:00Z",
-      "quote_volume_usdt": "407218.35632",
-      "taker_buy_quote_volume_usdt": "180963.43967",
-      "trade_count": 132
-    },
-    {
-      "open_utc": "2026-10-28T23:35:00Z",
-      "quote_volume_usdt": "830611.87692",
-      "taker_buy_quote_volume_usdt": "190738.41455",
-      "trade_count": 175
-    },
-    {
-      "open_utc": "2026-10-28T23:36:00Z",
-      "quote_volume_usdt": "572360.98387",
-      "taker_buy_quote_volume_usdt": "227501.57461",
-      "trade_count": 86
-    },
-    {
-      "open_utc": "2026-10-28T23:37:00Z",
-      "quote_volume_usdt": "787644.46813",
-      "taker_buy_quote_volume_usdt": "308295.66077",
-      "trade_count": 189
-    },
-    {
-      "open_utc": "2026-10-28T23:38:00Z",
-      "quote_volume_usdt": "691608.05019",
-      "taker_buy_quote_volume_usdt": "330905.16728",
-      "trade_count": 307
-    },
-    {
-      "open_utc": "2026-10-28T23:39:00Z",
-      "quote_volume_usdt": "684036.49470",
-      "taker_buy_quote_volume_usdt": "290080.26745",
-      "trade_count": 134
-    },
-    {
-      "open_utc": "2026-10-28T23:40:00Z",
-      "quote_volume_usdt": "891273.84920",
-      "taker_buy_quote_volume_usdt": "430081.43160",
-      "trade_count": 132
-    },
-    {
-      "open_utc": "2026-10-28T23:41:00Z",
-      "quote_volume_usdt": "252628.48303",
-      "taker_buy_quote_volume_usdt": "125866.46625",
-      "trade_count": 76
-    },
-    {
-      "open_utc": "2026-10-28T23:42:00Z",
-      "quote_volume_usdt": "1274263.34427",
-      "taker_buy_quote_volume_usdt": "1201436.62640",
-      "trade_count": 218
-    },
-    {
-      "open_utc": "2026-10-28T23:43:00Z",
-      "quote_volume_usdt": "363119.29039",
-      "taker_buy_quote_volume_usdt": "297669.08836",
-      "trade_count": 85
-    },
-    {
-      "open_utc": "2026-10-28T23:44:00Z",
-      "quote_volume_usdt": "609241.74707",
-      "taker_buy_quote_volume_usdt": "162003.01708",
-      "trade_count": 163
-    },
-    {
-      "open_utc": "2026-10-28T23:45:00Z",
-      "quote_volume_usdt": "374474.69999",
-      "taker_buy_quote_volume_usdt": "179348.66212",
-      "trade_count": 137
-    },
-    {
-      "open_utc": "2026-10-28T23:46:00Z",
-      "quote_volume_usdt": "421321.96118",
-      "taker_buy_quote_volume_usdt": "251390.48335",
-      "trade_count": 237
-    },
-    {
-      "open_utc": "2026-10-28T23:47:00Z",
-      "quote_volume_usdt": "874220.81234",
-      "taker_buy_quote_volume_usdt": "565928.76347",
-      "trade_count": 188
-    },
-    {
-      "open_utc": "2026-10-28T23:48:00Z",
-      "quote_volume_usdt": "918937.23499",
-      "taker_buy_quote_volume_usdt": "666880.11904",
-      "trade_count": 109
-    },
-    {
-      "open_utc": "2026-10-28T23:49:00Z",
-      "quote_volume_usdt": "1008820.44365",
-      "taker_buy_quote_volume_usdt": "693791.11740",
-      "trade_count": 234
-    },
-    {
-      "open_utc": "2026-10-28T23:50:00Z",
-      "quote_volume_usdt": "783604.91925",
-      "taker_buy_quote_volume_usdt": "504014.14151",
-      "trade_count": 418
-    },
-    {
-      "open_utc": "2026-10-28T23:51:00Z",
-      "quote_volume_usdt": "1899681.87975",
-      "taker_buy_quote_volume_usdt": "648988.75322",
-      "trade_count": 286
-    },
-    {
-      "open_utc": "2026-10-28T23:52:00Z",
-      "quote_volume_usdt": "1339153.34876",
-      "taker_buy_quote_volume_usdt": "626261.26177",
-      "trade_count": 118
-    },
-    {
-      "open_utc": "2026-10-28T23:53:00Z",
-      "quote_volume_usdt": "1417515.00733",
-      "taker_buy_quote_volume_usdt": "662309.41832",
-      "trade_count": 254
-    },
-    {
-      "open_utc": "2026-10-28T23:54:00Z",
-      "quote_volume_usdt": "845188.33713",
-      "taker_buy_quote_volume_usdt": "601639.38012",
-      "trade_count": 158
-    },
-    {
-      "open_utc": "2026-10-28T23:55:00Z",
-      "quote_volume_usdt": "806792.97365",
-      "taker_buy_quote_volume_usdt": "589881.56554",
-      "trade_count": 126
-    },
-    {
-      "open_utc": "2026-10-28T23:56:00Z",
-      "quote_volume_usdt": "628359.96252",
-      "taker_buy_quote_volume_usdt": "396461.67764",
-      "trade_count": 181
-    },
-    {
-      "open_utc": "2026-10-28T23:57:00Z",
-      "quote_volume_usdt": "527593.27912",
-      "taker_buy_quote_volume_usdt": "383511.91227",
-      "trade_count": 351
-    },
-    {
-      "open_utc": "2026-10-28T23:58:00Z",
-      "quote_volume_usdt": "695861.87215",
-      "taker_buy_quote_volume_usdt": "420487.92692",
-      "trade_count": 191
-    },
-    {
-      "open_utc": "2026-10-28T23:59:00Z",
-      "quote_volume_usdt": "1105630.79088",
-      "taker_buy_quote_volume_usdt": "490062.39661",
-      "trade_count": 237
-    },
-    {
-      "open_utc": "2026-10-29T00:00:00Z",
-      "quote_volume_usdt": "885590.81004",
-      "taker_buy_quote_volume_usdt": "238590.95512",
-      "trade_count": 211
-    },
     {
       "open_utc": "2026-10-29T00:01:00Z",
       "quote_volume_usdt": "1934237.01288",
@@ -7345,6 +6036,906 @@
       "quote_volume_usdt": "1641998.84015",
       "taker_buy_quote_volume_usdt": "679774.83405",
       "trade_count": 463
+    },
+    {
+      "open_utc": "2026-10-29T21:31:00Z",
+      "quote_volume_usdt": "8645565.20267",
+      "taker_buy_quote_volume_usdt": "3825767.47575",
+      "trade_count": 776
+    },
+    {
+      "open_utc": "2026-10-29T21:32:00Z",
+      "quote_volume_usdt": "8697355.31317",
+      "taker_buy_quote_volume_usdt": "5017151.45473",
+      "trade_count": 1025
+    },
+    {
+      "open_utc": "2026-10-29T21:33:00Z",
+      "quote_volume_usdt": "6349261.93457",
+      "taker_buy_quote_volume_usdt": "3133560.49323",
+      "trade_count": 861
+    },
+    {
+      "open_utc": "2026-10-29T21:34:00Z",
+      "quote_volume_usdt": "5496147.15460",
+      "taker_buy_quote_volume_usdt": "3059122.44554",
+      "trade_count": 497
+    },
+    {
+      "open_utc": "2026-10-29T21:35:00Z",
+      "quote_volume_usdt": "7828189.78988",
+      "taker_buy_quote_volume_usdt": "5096226.88253",
+      "trade_count": 1340
+    },
+    {
+      "open_utc": "2026-10-29T21:36:00Z",
+      "quote_volume_usdt": "5951689.45356",
+      "taker_buy_quote_volume_usdt": "2816759.59672",
+      "trade_count": 997
+    },
+    {
+      "open_utc": "2026-10-29T21:37:00Z",
+      "quote_volume_usdt": "8291016.35653",
+      "taker_buy_quote_volume_usdt": "4049592.42136",
+      "trade_count": 1064
+    },
+    {
+      "open_utc": "2026-10-29T21:38:00Z",
+      "quote_volume_usdt": "7989280.12739",
+      "taker_buy_quote_volume_usdt": "3650681.96285",
+      "trade_count": 1332
+    },
+    {
+      "open_utc": "2026-10-29T21:39:00Z",
+      "quote_volume_usdt": "9400795.59019",
+      "taker_buy_quote_volume_usdt": "6765743.29129",
+      "trade_count": 1097
+    },
+    {
+      "open_utc": "2026-10-29T21:40:00Z",
+      "quote_volume_usdt": "5313518.92067",
+      "taker_buy_quote_volume_usdt": "2334829.34516",
+      "trade_count": 932
+    },
+    {
+      "open_utc": "2026-10-29T21:41:00Z",
+      "quote_volume_usdt": "6608548.83632",
+      "taker_buy_quote_volume_usdt": "4121158.91483",
+      "trade_count": 1191
+    },
+    {
+      "open_utc": "2026-10-29T21:42:00Z",
+      "quote_volume_usdt": "7976475.89434",
+      "taker_buy_quote_volume_usdt": "4095778.48507",
+      "trade_count": 1259
+    },
+    {
+      "open_utc": "2026-10-29T21:43:00Z",
+      "quote_volume_usdt": "7882210.35948",
+      "taker_buy_quote_volume_usdt": "3350508.01733",
+      "trade_count": 1287
+    },
+    {
+      "open_utc": "2026-10-29T21:44:00Z",
+      "quote_volume_usdt": "10555178.62114",
+      "taker_buy_quote_volume_usdt": "3468190.46787",
+      "trade_count": 1904
+    },
+    {
+      "open_utc": "2026-10-29T21:45:00Z",
+      "quote_volume_usdt": "9103926.78079",
+      "taker_buy_quote_volume_usdt": "5357240.90645",
+      "trade_count": 1703
+    },
+    {
+      "open_utc": "2026-10-29T21:46:00Z",
+      "quote_volume_usdt": "9782779.08745",
+      "taker_buy_quote_volume_usdt": "4247379.89869",
+      "trade_count": 1415
+    },
+    {
+      "open_utc": "2026-10-29T21:47:00Z",
+      "quote_volume_usdt": "12906787.24909",
+      "taker_buy_quote_volume_usdt": "6060412.00272",
+      "trade_count": 2555
+    },
+    {
+      "open_utc": "2026-10-29T21:48:00Z",
+      "quote_volume_usdt": "21987330.51554",
+      "taker_buy_quote_volume_usdt": "11674450.21041",
+      "trade_count": 1794
+    },
+    {
+      "open_utc": "2026-10-29T21:49:00Z",
+      "quote_volume_usdt": "24387824.81453",
+      "taker_buy_quote_volume_usdt": "13311313.47401",
+      "trade_count": 2287
+    },
+    {
+      "open_utc": "2026-10-29T21:50:00Z",
+      "quote_volume_usdt": "15212649.89912",
+      "taker_buy_quote_volume_usdt": "6415352.85226",
+      "trade_count": 1384
+    },
+    {
+      "open_utc": "2026-10-29T21:51:00Z",
+      "quote_volume_usdt": "11935588.37538",
+      "taker_buy_quote_volume_usdt": "6875977.61883",
+      "trade_count": 1402
+    },
+    {
+      "open_utc": "2026-10-29T21:52:00Z",
+      "quote_volume_usdt": "8247656.47151",
+      "taker_buy_quote_volume_usdt": "4597647.08141",
+      "trade_count": 1145
+    },
+    {
+      "open_utc": "2026-10-29T21:53:00Z",
+      "quote_volume_usdt": "8563364.73978",
+      "taker_buy_quote_volume_usdt": "5019078.52526",
+      "trade_count": 1257
+    },
+    {
+      "open_utc": "2026-10-29T21:54:00Z",
+      "quote_volume_usdt": "10070663.92964",
+      "taker_buy_quote_volume_usdt": "6947698.16039",
+      "trade_count": 1453
+    },
+    {
+      "open_utc": "2026-10-29T21:55:00Z",
+      "quote_volume_usdt": "8180765.59534",
+      "taker_buy_quote_volume_usdt": "3074058.78277",
+      "trade_count": 1802
+    },
+    {
+      "open_utc": "2026-10-29T21:56:00Z",
+      "quote_volume_usdt": "8613387.60495",
+      "taker_buy_quote_volume_usdt": "5134568.83869",
+      "trade_count": 1237
+    },
+    {
+      "open_utc": "2026-10-29T21:57:00Z",
+      "quote_volume_usdt": "7561163.17767",
+      "taker_buy_quote_volume_usdt": "4569442.58068",
+      "trade_count": 1613
+    },
+    {
+      "open_utc": "2026-10-29T21:58:00Z",
+      "quote_volume_usdt": "6440344.92619",
+      "taker_buy_quote_volume_usdt": "4758942.13678",
+      "trade_count": 906
+    },
+    {
+      "open_utc": "2026-10-29T21:59:00Z",
+      "quote_volume_usdt": "6195170.20149",
+      "taker_buy_quote_volume_usdt": "2202292.76596",
+      "trade_count": 880
+    },
+    {
+      "open_utc": "2026-10-29T22:00:00Z",
+      "quote_volume_usdt": "8162952.79526",
+      "taker_buy_quote_volume_usdt": "3560131.12999",
+      "trade_count": 2048
+    },
+    {
+      "open_utc": "2026-10-29T22:01:00Z",
+      "quote_volume_usdt": "7360172.19848",
+      "taker_buy_quote_volume_usdt": "3647160.51726",
+      "trade_count": 1618
+    },
+    {
+      "open_utc": "2026-10-29T22:02:00Z",
+      "quote_volume_usdt": "10402474.87217",
+      "taker_buy_quote_volume_usdt": "6341623.91778",
+      "trade_count": 1791
+    },
+    {
+      "open_utc": "2026-10-29T22:03:00Z",
+      "quote_volume_usdt": "8729304.85972",
+      "taker_buy_quote_volume_usdt": "4709940.63082",
+      "trade_count": 2357
+    },
+    {
+      "open_utc": "2026-10-29T22:04:00Z",
+      "quote_volume_usdt": "14473252.29652",
+      "taker_buy_quote_volume_usdt": "5416075.85583",
+      "trade_count": 3586
+    },
+    {
+      "open_utc": "2026-10-29T22:05:00Z",
+      "quote_volume_usdt": "21592161.87821",
+      "taker_buy_quote_volume_usdt": "10998898.84693",
+      "trade_count": 3483
+    },
+    {
+      "open_utc": "2026-10-29T22:06:00Z",
+      "quote_volume_usdt": "23954208.99071",
+      "taker_buy_quote_volume_usdt": "11050095.78455",
+      "trade_count": 3076
+    },
+    {
+      "open_utc": "2026-10-29T22:07:00Z",
+      "quote_volume_usdt": "19869595.95619",
+      "taker_buy_quote_volume_usdt": "8296119.63394",
+      "trade_count": 3879
+    },
+    {
+      "open_utc": "2026-10-29T22:08:00Z",
+      "quote_volume_usdt": "21794997.28704",
+      "taker_buy_quote_volume_usdt": "13181932.16576",
+      "trade_count": 3855
+    },
+    {
+      "open_utc": "2026-10-29T22:09:00Z",
+      "quote_volume_usdt": "17910818.93639",
+      "taker_buy_quote_volume_usdt": "9795337.39290",
+      "trade_count": 2566
+    },
+    {
+      "open_utc": "2026-10-29T22:10:00Z",
+      "quote_volume_usdt": "18813240.63546",
+      "taker_buy_quote_volume_usdt": "9902529.52191",
+      "trade_count": 3014
+    },
+    {
+      "open_utc": "2026-10-29T22:11:00Z",
+      "quote_volume_usdt": "17651868.93288",
+      "taker_buy_quote_volume_usdt": "10382987.49722",
+      "trade_count": 2341
+    },
+    {
+      "open_utc": "2026-10-29T22:12:00Z",
+      "quote_volume_usdt": "21279202.69907",
+      "taker_buy_quote_volume_usdt": "9624326.56034",
+      "trade_count": 2799
+    },
+    {
+      "open_utc": "2026-10-29T22:13:00Z",
+      "quote_volume_usdt": "16059191.71350",
+      "taker_buy_quote_volume_usdt": "8650092.68283",
+      "trade_count": 2275
+    },
+    {
+      "open_utc": "2026-10-29T22:14:00Z",
+      "quote_volume_usdt": "10913932.29521",
+      "taker_buy_quote_volume_usdt": "4743403.78314",
+      "trade_count": 1822
+    },
+    {
+      "open_utc": "2026-10-29T22:15:00Z",
+      "quote_volume_usdt": "12443445.45978",
+      "taker_buy_quote_volume_usdt": "7568045.36644",
+      "trade_count": 2089
+    },
+    {
+      "open_utc": "2026-10-29T22:16:00Z",
+      "quote_volume_usdt": "8456124.63577",
+      "taker_buy_quote_volume_usdt": "4148459.03097",
+      "trade_count": 1641
+    },
+    {
+      "open_utc": "2026-10-29T22:17:00Z",
+      "quote_volume_usdt": "8627311.04660",
+      "taker_buy_quote_volume_usdt": "3975121.94607",
+      "trade_count": 1431
+    },
+    {
+      "open_utc": "2026-10-29T22:18:00Z",
+      "quote_volume_usdt": "9935168.22524",
+      "taker_buy_quote_volume_usdt": "5942898.24081",
+      "trade_count": 2162
+    },
+    {
+      "open_utc": "2026-10-29T22:19:00Z",
+      "quote_volume_usdt": "9588696.17327",
+      "taker_buy_quote_volume_usdt": "4903158.11460",
+      "trade_count": 2118
+    },
+    {
+      "open_utc": "2026-10-29T22:20:00Z",
+      "quote_volume_usdt": "9061734.35154",
+      "taker_buy_quote_volume_usdt": "4134597.97448",
+      "trade_count": 1729
+    },
+    {
+      "open_utc": "2026-10-29T22:21:00Z",
+      "quote_volume_usdt": "4515516.75789",
+      "taker_buy_quote_volume_usdt": "3362728.41590",
+      "trade_count": 1712
+    },
+    {
+      "open_utc": "2026-10-29T22:22:00Z",
+      "quote_volume_usdt": "10405481.40199",
+      "taker_buy_quote_volume_usdt": "5041431.75827",
+      "trade_count": 1885
+    },
+    {
+      "open_utc": "2026-10-29T22:23:00Z",
+      "quote_volume_usdt": "8819798.79961",
+      "taker_buy_quote_volume_usdt": "4313719.12272",
+      "trade_count": 1293
+    },
+    {
+      "open_utc": "2026-10-29T22:24:00Z",
+      "quote_volume_usdt": "12077979.32249",
+      "taker_buy_quote_volume_usdt": "5859340.90617",
+      "trade_count": 1882
+    },
+    {
+      "open_utc": "2026-10-29T22:25:00Z",
+      "quote_volume_usdt": "17805006.94817",
+      "taker_buy_quote_volume_usdt": "7954613.12768",
+      "trade_count": 1680
+    },
+    {
+      "open_utc": "2026-10-29T22:26:00Z",
+      "quote_volume_usdt": "16952824.04286",
+      "taker_buy_quote_volume_usdt": "8604048.34435",
+      "trade_count": 2035
+    },
+    {
+      "open_utc": "2026-10-29T22:27:00Z",
+      "quote_volume_usdt": "14806738.01287",
+      "taker_buy_quote_volume_usdt": "6587488.17136",
+      "trade_count": 1355
+    },
+    {
+      "open_utc": "2026-10-29T22:28:00Z",
+      "quote_volume_usdt": "15333008.09193",
+      "taker_buy_quote_volume_usdt": "6200931.46652",
+      "trade_count": 2018
+    },
+    {
+      "open_utc": "2026-10-29T22:29:00Z",
+      "quote_volume_usdt": "14388454.92162",
+      "taker_buy_quote_volume_usdt": "4831744.27394",
+      "trade_count": 1556
+    },
+    {
+      "open_utc": "2026-10-29T22:30:00Z",
+      "quote_volume_usdt": "14709461.28448",
+      "taker_buy_quote_volume_usdt": "6694782.45585",
+      "trade_count": 1711
+    },
+    {
+      "open_utc": "2026-10-29T22:31:00Z",
+      "quote_volume_usdt": "10528588.37583",
+      "taker_buy_quote_volume_usdt": "5272453.81499",
+      "trade_count": 1299
+    },
+    {
+      "open_utc": "2026-10-29T22:32:00Z",
+      "quote_volume_usdt": "9645612.22280",
+      "taker_buy_quote_volume_usdt": "4972547.04810",
+      "trade_count": 1266
+    },
+    {
+      "open_utc": "2026-10-29T22:33:00Z",
+      "quote_volume_usdt": "5638736.67822",
+      "taker_buy_quote_volume_usdt": "3245860.48656",
+      "trade_count": 1003
+    },
+    {
+      "open_utc": "2026-10-29T22:34:00Z",
+      "quote_volume_usdt": "5907167.98708",
+      "taker_buy_quote_volume_usdt": "3448825.20616",
+      "trade_count": 916
+    },
+    {
+      "open_utc": "2026-10-29T22:35:00Z",
+      "quote_volume_usdt": "5743410.18340",
+      "taker_buy_quote_volume_usdt": "2861210.66786",
+      "trade_count": 696
+    },
+    {
+      "open_utc": "2026-10-29T22:36:00Z",
+      "quote_volume_usdt": "5169091.95876",
+      "taker_buy_quote_volume_usdt": "2178747.85228",
+      "trade_count": 905
+    },
+    {
+      "open_utc": "2026-10-29T22:37:00Z",
+      "quote_volume_usdt": "4328020.08348",
+      "taker_buy_quote_volume_usdt": "2479035.74447",
+      "trade_count": 1026
+    },
+    {
+      "open_utc": "2026-10-29T22:38:00Z",
+      "quote_volume_usdt": "5239170.62128",
+      "taker_buy_quote_volume_usdt": "2897354.75184",
+      "trade_count": 1012
+    },
+    {
+      "open_utc": "2026-10-29T22:39:00Z",
+      "quote_volume_usdt": "5267046.91206",
+      "taker_buy_quote_volume_usdt": "1767548.93049",
+      "trade_count": 981
+    },
+    {
+      "open_utc": "2026-10-29T22:40:00Z",
+      "quote_volume_usdt": "4473902.82064",
+      "taker_buy_quote_volume_usdt": "1730486.82969",
+      "trade_count": 691
+    },
+    {
+      "open_utc": "2026-10-29T22:41:00Z",
+      "quote_volume_usdt": "6858292.14323",
+      "taker_buy_quote_volume_usdt": "2943226.91046",
+      "trade_count": 1147
+    },
+    {
+      "open_utc": "2026-10-29T22:42:00Z",
+      "quote_volume_usdt": "4602339.72717",
+      "taker_buy_quote_volume_usdt": "1972560.26065",
+      "trade_count": 561
+    },
+    {
+      "open_utc": "2026-10-29T22:43:00Z",
+      "quote_volume_usdt": "7079811.85492",
+      "taker_buy_quote_volume_usdt": "3660985.86573",
+      "trade_count": 934
+    },
+    {
+      "open_utc": "2026-10-29T22:44:00Z",
+      "quote_volume_usdt": "6252865.06984",
+      "taker_buy_quote_volume_usdt": "2920359.93779",
+      "trade_count": 708
+    },
+    {
+      "open_utc": "2026-10-29T22:45:00Z",
+      "quote_volume_usdt": "7968741.53627",
+      "taker_buy_quote_volume_usdt": "3693972.25105",
+      "trade_count": 1450
+    },
+    {
+      "open_utc": "2026-10-29T22:46:00Z",
+      "quote_volume_usdt": "10342713.16053",
+      "taker_buy_quote_volume_usdt": "5147172.88972",
+      "trade_count": 884
+    },
+    {
+      "open_utc": "2026-10-29T22:47:00Z",
+      "quote_volume_usdt": "15376895.52918",
+      "taker_buy_quote_volume_usdt": "8049870.59167",
+      "trade_count": 781
+    },
+    {
+      "open_utc": "2026-10-29T22:48:00Z",
+      "quote_volume_usdt": "5498738.95144",
+      "taker_buy_quote_volume_usdt": "3147870.39898",
+      "trade_count": 463
+    },
+    {
+      "open_utc": "2026-10-29T22:49:00Z",
+      "quote_volume_usdt": "5065156.17155",
+      "taker_buy_quote_volume_usdt": "2852411.90407",
+      "trade_count": 795
+    },
+    {
+      "open_utc": "2026-10-29T22:50:00Z",
+      "quote_volume_usdt": "3296386.84647",
+      "taker_buy_quote_volume_usdt": "1373465.61246",
+      "trade_count": 378
+    },
+    {
+      "open_utc": "2026-10-29T22:51:00Z",
+      "quote_volume_usdt": "3893995.86010",
+      "taker_buy_quote_volume_usdt": "1970231.72264",
+      "trade_count": 666
+    },
+    {
+      "open_utc": "2026-10-29T22:52:00Z",
+      "quote_volume_usdt": "4054228.51665",
+      "taker_buy_quote_volume_usdt": "1914341.41090",
+      "trade_count": 859
+    },
+    {
+      "open_utc": "2026-10-29T22:53:00Z",
+      "quote_volume_usdt": "4710863.77517",
+      "taker_buy_quote_volume_usdt": "2140355.76148",
+      "trade_count": 799
+    },
+    {
+      "open_utc": "2026-10-29T22:54:00Z",
+      "quote_volume_usdt": "3694086.22041",
+      "taker_buy_quote_volume_usdt": "1874874.53091",
+      "trade_count": 525
+    },
+    {
+      "open_utc": "2026-10-29T22:55:00Z",
+      "quote_volume_usdt": "3501330.82496",
+      "taker_buy_quote_volume_usdt": "1552090.51651",
+      "trade_count": 487
+    },
+    {
+      "open_utc": "2026-10-29T22:56:00Z",
+      "quote_volume_usdt": "3376034.96626",
+      "taker_buy_quote_volume_usdt": "922226.11198",
+      "trade_count": 410
+    },
+    {
+      "open_utc": "2026-10-29T22:57:00Z",
+      "quote_volume_usdt": "3224444.56696",
+      "taker_buy_quote_volume_usdt": "1163320.14336",
+      "trade_count": 539
+    },
+    {
+      "open_utc": "2026-10-29T22:58:00Z",
+      "quote_volume_usdt": "2759700.11105",
+      "taker_buy_quote_volume_usdt": "1269814.45682",
+      "trade_count": 303
+    },
+    {
+      "open_utc": "2026-10-29T22:59:00Z",
+      "quote_volume_usdt": "3372231.02347",
+      "taker_buy_quote_volume_usdt": "1499757.21167",
+      "trade_count": 629
+    },
+    {
+      "open_utc": "2026-10-29T23:00:00Z",
+      "quote_volume_usdt": "2813830.37038",
+      "taker_buy_quote_volume_usdt": "1333647.96219",
+      "trade_count": 709
+    },
+    {
+      "open_utc": "2026-10-29T23:01:00Z",
+      "quote_volume_usdt": "5118984.65194",
+      "taker_buy_quote_volume_usdt": "2654312.38958",
+      "trade_count": 913
+    },
+    {
+      "open_utc": "2026-10-29T23:02:00Z",
+      "quote_volume_usdt": "3734901.95631",
+      "taker_buy_quote_volume_usdt": "1997541.24823",
+      "trade_count": 881
+    },
+    {
+      "open_utc": "2026-10-29T23:03:00Z",
+      "quote_volume_usdt": "4684150.83697",
+      "taker_buy_quote_volume_usdt": "2352308.18830",
+      "trade_count": 1007
+    },
+    {
+      "open_utc": "2026-10-29T23:04:00Z",
+      "quote_volume_usdt": "4042489.01885",
+      "taker_buy_quote_volume_usdt": "1888534.89996",
+      "trade_count": 684
+    },
+    {
+      "open_utc": "2026-10-29T23:05:00Z",
+      "quote_volume_usdt": "5776561.28559",
+      "taker_buy_quote_volume_usdt": "2266499.54683",
+      "trade_count": 1117
+    },
+    {
+      "open_utc": "2026-10-29T23:06:00Z",
+      "quote_volume_usdt": "9687027.48674",
+      "taker_buy_quote_volume_usdt": "4717556.63804",
+      "trade_count": 1272
+    },
+    {
+      "open_utc": "2026-10-29T23:07:00Z",
+      "quote_volume_usdt": "9421863.25622",
+      "taker_buy_quote_volume_usdt": "3917238.84279",
+      "trade_count": 980
+    },
+    {
+      "open_utc": "2026-10-29T23:08:00Z",
+      "quote_volume_usdt": "10186250.39068",
+      "taker_buy_quote_volume_usdt": "4711563.76489",
+      "trade_count": 1424
+    },
+    {
+      "open_utc": "2026-10-29T23:09:00Z",
+      "quote_volume_usdt": "6988235.36125",
+      "taker_buy_quote_volume_usdt": "3676558.03418",
+      "trade_count": 969
+    },
+    {
+      "open_utc": "2026-10-29T23:10:00Z",
+      "quote_volume_usdt": "6517473.01993",
+      "taker_buy_quote_volume_usdt": "3717131.83041",
+      "trade_count": 776
+    },
+    {
+      "open_utc": "2026-10-29T23:11:00Z",
+      "quote_volume_usdt": "7746430.43972",
+      "taker_buy_quote_volume_usdt": "2890003.28700",
+      "trade_count": 566
+    },
+    {
+      "open_utc": "2026-10-29T23:12:00Z",
+      "quote_volume_usdt": "4970564.51276",
+      "taker_buy_quote_volume_usdt": "2850053.78945",
+      "trade_count": 933
+    },
+    {
+      "open_utc": "2026-10-29T23:13:00Z",
+      "quote_volume_usdt": "4512011.63266",
+      "taker_buy_quote_volume_usdt": "1603143.93441",
+      "trade_count": 587
+    },
+    {
+      "open_utc": "2026-10-29T23:14:00Z",
+      "quote_volume_usdt": "5263629.50379",
+      "taker_buy_quote_volume_usdt": "2269833.39705",
+      "trade_count": 546
+    },
+    {
+      "open_utc": "2026-10-29T23:15:00Z",
+      "quote_volume_usdt": "5132459.20091",
+      "taker_buy_quote_volume_usdt": "2933534.19449",
+      "trade_count": 830
+    },
+    {
+      "open_utc": "2026-10-29T23:16:00Z",
+      "quote_volume_usdt": "6853965.46859",
+      "taker_buy_quote_volume_usdt": "3537447.68663",
+      "trade_count": 723
+    },
+    {
+      "open_utc": "2026-10-29T23:17:00Z",
+      "quote_volume_usdt": "4654544.29397",
+      "taker_buy_quote_volume_usdt": "2830689.26403",
+      "trade_count": 1072
+    },
+    {
+      "open_utc": "2026-10-29T23:18:00Z",
+      "quote_volume_usdt": "5030966.76460",
+      "taker_buy_quote_volume_usdt": "2678667.04586",
+      "trade_count": 681
+    },
+    {
+      "open_utc": "2026-10-29T23:19:00Z",
+      "quote_volume_usdt": "4190303.65570",
+      "taker_buy_quote_volume_usdt": "1476846.10483",
+      "trade_count": 382
+    },
+    {
+      "open_utc": "2026-10-29T23:20:00Z",
+      "quote_volume_usdt": "4188862.35526",
+      "taker_buy_quote_volume_usdt": "1954575.04647",
+      "trade_count": 583
+    },
+    {
+      "open_utc": "2026-10-29T23:21:00Z",
+      "quote_volume_usdt": "2858212.54402",
+      "taker_buy_quote_volume_usdt": "1601227.38723",
+      "trade_count": 560
+    },
+    {
+      "open_utc": "2026-10-29T23:22:00Z",
+      "quote_volume_usdt": "4525735.38635",
+      "taker_buy_quote_volume_usdt": "2376217.95372",
+      "trade_count": 653
+    },
+    {
+      "open_utc": "2026-10-29T23:23:00Z",
+      "quote_volume_usdt": "5277328.74361",
+      "taker_buy_quote_volume_usdt": "2587677.79032",
+      "trade_count": 1154
+    },
+    {
+      "open_utc": "2026-10-29T23:24:00Z",
+      "quote_volume_usdt": "26730604.28264",
+      "taker_buy_quote_volume_usdt": "21489461.13045",
+      "trade_count": 2086
+    },
+    {
+      "open_utc": "2026-10-29T23:25:00Z",
+      "quote_volume_usdt": "15691653.85113",
+      "taker_buy_quote_volume_usdt": "10263040.62162",
+      "trade_count": 1057
+    },
+    {
+      "open_utc": "2026-10-29T23:26:00Z",
+      "quote_volume_usdt": "6583642.35673",
+      "taker_buy_quote_volume_usdt": "1895424.79156",
+      "trade_count": 757
+    },
+    {
+      "open_utc": "2026-10-29T23:27:00Z",
+      "quote_volume_usdt": "7146102.29740",
+      "taker_buy_quote_volume_usdt": "2980452.64575",
+      "trade_count": 1223
+    },
+    {
+      "open_utc": "2026-10-29T23:28:00Z",
+      "quote_volume_usdt": "3953557.24735",
+      "taker_buy_quote_volume_usdt": "1410891.94200",
+      "trade_count": 505
+    },
+    {
+      "open_utc": "2026-10-29T23:29:00Z",
+      "quote_volume_usdt": "3975390.35956",
+      "taker_buy_quote_volume_usdt": "1875016.92618",
+      "trade_count": 491
+    },
+    {
+      "open_utc": "2026-10-29T23:30:00Z",
+      "quote_volume_usdt": "4680491.38007",
+      "taker_buy_quote_volume_usdt": "1273737.16478",
+      "trade_count": 588
+    },
+    {
+      "open_utc": "2026-10-29T23:31:00Z",
+      "quote_volume_usdt": "3640583.46484",
+      "taker_buy_quote_volume_usdt": "1152587.28626",
+      "trade_count": 639
+    },
+    {
+      "open_utc": "2026-10-29T23:32:00Z",
+      "quote_volume_usdt": "4322791.09859",
+      "taker_buy_quote_volume_usdt": "2469436.99636",
+      "trade_count": 633
+    },
+    {
+      "open_utc": "2026-10-29T23:33:00Z",
+      "quote_volume_usdt": "8011229.50313",
+      "taker_buy_quote_volume_usdt": "3530718.79675",
+      "trade_count": 1303
+    },
+    {
+      "open_utc": "2026-10-29T23:34:00Z",
+      "quote_volume_usdt": "5868513.48693",
+      "taker_buy_quote_volume_usdt": "2920670.95279",
+      "trade_count": 733
+    },
+    {
+      "open_utc": "2026-10-29T23:35:00Z",
+      "quote_volume_usdt": "3804321.17183",
+      "taker_buy_quote_volume_usdt": "1624667.50120",
+      "trade_count": 501
+    },
+    {
+      "open_utc": "2026-10-29T23:36:00Z",
+      "quote_volume_usdt": "2474113.74272",
+      "taker_buy_quote_volume_usdt": "884438.81099",
+      "trade_count": 489
+    },
+    {
+      "open_utc": "2026-10-29T23:37:00Z",
+      "quote_volume_usdt": "5358916.51424",
+      "taker_buy_quote_volume_usdt": "2281681.46252",
+      "trade_count": 1137
+    },
+    {
+      "open_utc": "2026-10-29T23:38:00Z",
+      "quote_volume_usdt": "9701673.34325",
+      "taker_buy_quote_volume_usdt": "3826474.73615",
+      "trade_count": 2020
+    },
+    {
+      "open_utc": "2026-10-29T23:39:00Z",
+      "quote_volume_usdt": "12133876.86003",
+      "taker_buy_quote_volume_usdt": "6889105.80923",
+      "trade_count": 1116
+    },
+    {
+      "open_utc": "2026-10-29T23:40:00Z",
+      "quote_volume_usdt": "18620597.47650",
+      "taker_buy_quote_volume_usdt": "6901968.65639",
+      "trade_count": 1570
+    },
+    {
+      "open_utc": "2026-10-29T23:41:00Z",
+      "quote_volume_usdt": "12210101.80079",
+      "taker_buy_quote_volume_usdt": "5128271.68357",
+      "trade_count": 1660
+    },
+    {
+      "open_utc": "2026-10-29T23:42:00Z",
+      "quote_volume_usdt": "19978267.00262",
+      "taker_buy_quote_volume_usdt": "10180886.28288",
+      "trade_count": 2885
+    },
+    {
+      "open_utc": "2026-10-29T23:43:00Z",
+      "quote_volume_usdt": "18413534.68542",
+      "taker_buy_quote_volume_usdt": "11641526.90033",
+      "trade_count": 1797
+    },
+    {
+      "open_utc": "2026-10-29T23:44:00Z",
+      "quote_volume_usdt": "22571128.90938",
+      "taker_buy_quote_volume_usdt": "8839906.91893",
+      "trade_count": 1779
+    },
+    {
+      "open_utc": "2026-10-29T23:45:00Z",
+      "quote_volume_usdt": "38993185.71418",
+      "taker_buy_quote_volume_usdt": "15302358.44609",
+      "trade_count": 7010
+    },
+    {
+      "open_utc": "2026-10-29T23:46:00Z",
+      "quote_volume_usdt": "50298537.10558",
+      "taker_buy_quote_volume_usdt": "21634168.43510",
+      "trade_count": 8447
+    },
+    {
+      "open_utc": "2026-10-29T23:47:00Z",
+      "quote_volume_usdt": "60435073.91445",
+      "taker_buy_quote_volume_usdt": "33525517.73866",
+      "trade_count": 6932
+    },
+    {
+      "open_utc": "2026-10-29T23:48:00Z",
+      "quote_volume_usdt": "47398754.17593",
+      "taker_buy_quote_volume_usdt": "25043331.12095",
+      "trade_count": 4688
+    },
+    {
+      "open_utc": "2026-10-29T23:49:00Z",
+      "quote_volume_usdt": "33776397.79854",
+      "taker_buy_quote_volume_usdt": "19773585.73598",
+      "trade_count": 2625
+    },
+    {
+      "open_utc": "2026-10-29T23:50:00Z",
+      "quote_volume_usdt": "27979405.02762",
+      "taker_buy_quote_volume_usdt": "12850498.44590",
+      "trade_count": 1955
+    },
+    {
+      "open_utc": "2026-10-29T23:51:00Z",
+      "quote_volume_usdt": "20836082.37504",
+      "taker_buy_quote_volume_usdt": "9673371.37485",
+      "trade_count": 3489
+    },
+    {
+      "open_utc": "2026-10-29T23:52:00Z",
+      "quote_volume_usdt": "12145525.81117",
+      "taker_buy_quote_volume_usdt": "6673007.42516",
+      "trade_count": 2035
+    },
+    {
+      "open_utc": "2026-10-29T23:53:00Z",
+      "quote_volume_usdt": "25024598.59666",
+      "taker_buy_quote_volume_usdt": "12295187.21143",
+      "trade_count": 2465
+    },
+    {
+      "open_utc": "2026-10-29T23:54:00Z",
+      "quote_volume_usdt": "15272115.69947",
+      "taker_buy_quote_volume_usdt": "8432179.61321",
+      "trade_count": 1686
+    },
+    {
+      "open_utc": "2026-10-29T23:55:00Z",
+      "quote_volume_usdt": "11255095.75714",
+      "taker_buy_quote_volume_usdt": "4623143.83747",
+      "trade_count": 1482
+    },
+    {
+      "open_utc": "2026-10-29T23:56:00Z",
+      "quote_volume_usdt": "12901068.51992",
+      "taker_buy_quote_volume_usdt": "5455720.13628",
+      "trade_count": 1555
+    },
+    {
+      "open_utc": "2026-10-29T23:57:00Z",
+      "quote_volume_usdt": "11983181.28494",
+      "taker_buy_quote_volume_usdt": "7420504.24945",
+      "trade_count": 1517
+    },
+    {
+      "open_utc": "2026-10-29T23:58:00Z",
+      "quote_volume_usdt": "7732408.70618",
+      "taker_buy_quote_volume_usdt": "3056303.17163",
+      "trade_count": 1180
+    },
+    {
+      "open_utc": "2026-10-29T23:59:00Z",
+      "quote_volume_usdt": "6238532.89763",
+      "taker_buy_quote_volume_usdt": "3264574.84372",
+      "trade_count": 1075
+    },
+    {
+      "open_utc": "2026-10-30T00:00:00Z",
+      "quote_volume_usdt": "11211291.47982",
+      "taker_buy_quote_volume_usdt": "4844556.47202",
+      "trade_count": 3599
     }
   ]
 }
