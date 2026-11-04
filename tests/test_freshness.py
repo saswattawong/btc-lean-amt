@@ -34,6 +34,7 @@ class FreshnessTest(unittest.TestCase):
             "schema": "btc_lean_amt_value_map_v1",
             "generated_at_utc": generated.isoformat(),
             "as_of_closed_day_utc": "2026-10-26",
+            "report_reference_date_utc": "2026-10-27",
             "session_end_utc_exclusive": "2026-10-27T00:00:00Z",
             "freshness": {
                 "source_as_of_utc": "2026-10-27T00:00:00Z",
@@ -41,7 +42,11 @@ class FreshnessTest(unittest.TestCase):
                 "source_age_seconds_at_generation": 8 * 60 * 60,
             },
             "integrity_cross_check": {"status": "passed"},
-            "previous_completed_week_trade_volume_profile": {"integrity_status": "passed"},
+            "previous_completed_week_trade_volume_profile": {
+                "integrity_status": "passed",
+                "from_utc": "2026-10-19",
+                "to_utc": "2026-10-25",
+            },
             "daily_poc_migration": {"to_day_utc": "2026-10-26"},
             "sources": {
                 "sha256": "a" * 64,
@@ -54,6 +59,44 @@ class FreshnessTest(unittest.TestCase):
             max_age_seconds=100_000,
         )
         self.assertEqual(result["source_as_of_utc"], source.isoformat().replace("+00:00", "Z"))
+
+    def test_value_map_rejects_stale_source_day_and_wrong_previous_week(self):
+        generated = dt.datetime(2026, 10, 27, 8, 0, tzinfo=UTC)
+        data = {
+            "schema": "btc_lean_amt_value_map_v1",
+            "generated_at_utc": generated.isoformat(),
+            "as_of_closed_day_utc": "2026-10-26",
+            "report_reference_date_utc": "2026-10-27",
+            "session_end_utc_exclusive": "2026-10-27T00:00:00Z",
+            "freshness": {
+                "source_as_of_utc": "2026-10-27T00:00:00Z",
+                "generated_at_utc": generated.isoformat(),
+                "source_age_seconds_at_generation": 8 * 60 * 60,
+            },
+            "integrity_cross_check": {"status": "passed"},
+            "previous_completed_week_trade_volume_profile": {
+                "integrity_status": "passed",
+                "from_utc": "2026-10-12",
+                "to_utc": "2026-10-18",
+            },
+            "daily_poc_migration": {"to_day_utc": "2026-10-26"},
+            "sources": {
+                "sha256": "a" * 64,
+                "checksum_url": "https://data.binance.vision/example.zip.CHECKSUM",
+            },
+        }
+        with self.assertRaisesRegex(ValueError, "weekly profile"):
+            validate_value_map(data, now=generated, max_age_seconds=100_000)
+        data["previous_completed_week_trade_volume_profile"].update(
+            from_utc="2026-10-19", to_utc="2026-10-25"
+        )
+        with self.assertRaisesRegex(ValueError, "expected 2026-10-27"):
+            validate_value_map(
+                data,
+                now=generated,
+                max_age_seconds=100_000,
+                expected_source_day="2026-10-27",
+            )
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@ import urllib.parse
 import urllib.request
 from decimal import Decimal, InvalidOperation
 
+from derivatives import collect_derivatives, unavailable_derivatives
 from gate_perp_cvd import (
     CONTRACT_ENDPOINT as GATE_CONTRACT_ENDPOINT,
     DEFAULT_BACKFILL_MINUTES as GATE_DEFAULT_BACKFILL_MINUTES,
@@ -40,16 +41,6 @@ SPOT_KLINE_ENDPOINTS = (
     "https://data-api.binance.vision/api/v3/klines",
     "https://api.binance.com/api/v3/klines",
 )
-FUNDING_ENDPOINTS = (
-    "https://fapi.binance.com/fapi/v1/premiumIndex",
-    "https://fapi1.binance.com/fapi/v1/premiumIndex",
-)
-OPEN_INTEREST_ENDPOINTS = (
-    "https://fapi.binance.com/fapi/v1/openInterest",
-    "https://fapi1.binance.com/fapi/v1/openInterest",
-)
-
-
 def iso_utc(value):
     return value.astimezone(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -304,100 +295,6 @@ def collect_market(label, provider, endpoints, symbol, start_utc, end_utc, fetch
         )
 
 
-def _point_unavailable(provider, coverage, reason, endpoints):
-    return {
-        "status": "unavailable",
-        "provider": provider,
-        "coverage": coverage,
-        "source_endpoint": "N/A",
-        "source_timestamp_utc": "N/A",
-        "value": "N/A",
-        "error": reason,
-        "endpoints_attempted": list(endpoints),
-    }
-
-
-def _request_point_with_failover(endpoints, symbol, requester=request_json):
-    errors = []
-    for endpoint in endpoints:
-        separator = "&" if "?" in endpoint else "?"
-        url = f"{endpoint}{separator}{urllib.parse.urlencode({'symbol': symbol})}"
-        try:
-            payload = requester(url)
-            if not isinstance(payload, dict):
-                raise ValueError("unexpected object response")
-            return payload, endpoint, errors
-        except (OSError, ValueError, TimeoutError) as error:
-            errors.append(f"{endpoint}: {_safe_error(error)}")
-    raise RuntimeError("all endpoints failed; " + "; ".join(errors))
-
-
-def collect_derivatives(symbol="BTCUSDT", generated_at=None, requester=request_json):
-    generated_at = generated_at or dt.datetime.now(UTC)
-    provider = "Binance USD-M Futures REST API"
-    result = {}
-
-    try:
-        payload, endpoint, failover_errors = _request_point_with_failover(
-            FUNDING_ENDPOINTS, symbol, requester
-        )
-        timestamp = dt.datetime.fromtimestamp(int(payload["time"]) / 1000, UTC)
-        rate = Decimal(str(payload["lastFundingRate"]))
-        result["funding"] = {
-            "status": "available",
-            "provider": provider,
-            "coverage": "point-in-time current perpetual funding snapshot",
-            "source_endpoint": endpoint,
-            "source_timestamp_utc": iso_utc(timestamp),
-            "age_seconds_at_generation": max(0, int((generated_at - timestamp).total_seconds())),
-            "value": {
-                "last_funding_rate": float(rate),
-                "last_funding_rate_pct": float(rate * 100),
-                "mark_price_usdt": float(Decimal(str(payload["markPrice"]))),
-                "index_price_usdt": float(Decimal(str(payload["indexPrice"]))),
-                "next_funding_time_utc": iso_utc(
-                    dt.datetime.fromtimestamp(int(payload["nextFundingTime"]) / 1000, UTC)
-                ),
-            },
-            "failover_errors": failover_errors,
-            "error": None,
-        }
-    except (KeyError, InvalidOperation, OSError, RuntimeError, ValueError, TimeoutError) as error:
-        result["funding"] = _point_unavailable(
-            provider,
-            "point-in-time current perpetual funding snapshot",
-            _safe_error(error),
-            FUNDING_ENDPOINTS,
-        )
-
-    try:
-        payload, endpoint, failover_errors = _request_point_with_failover(
-            OPEN_INTEREST_ENDPOINTS, symbol, requester
-        )
-        timestamp = dt.datetime.fromtimestamp(int(payload["time"]) / 1000, UTC)
-        result["open_interest"] = {
-            "status": "available",
-            "provider": provider,
-            "coverage": "point-in-time BTCUSDT perpetual open-interest snapshot",
-            "source_endpoint": endpoint,
-            "source_timestamp_utc": iso_utc(timestamp),
-            "age_seconds_at_generation": max(0, int((generated_at - timestamp).total_seconds())),
-            "value": {
-                "open_interest_btc": float(Decimal(str(payload["openInterest"])))
-            },
-            "failover_errors": failover_errors,
-            "error": None,
-        }
-    except (KeyError, InvalidOperation, OSError, RuntimeError, ValueError, TimeoutError) as error:
-        result["open_interest"] = _point_unavailable(
-            provider,
-            "point-in-time BTCUSDT perpetual open-interest snapshot",
-            _safe_error(error),
-            OPEN_INTEREST_ENDPOINTS,
-        )
-    return result
-
-
 def compute(
     as_of_utc,
     symbol="BTCUSDT",
@@ -515,20 +412,7 @@ def compute(
         },
         "markets": markets,
         "btc_spot_price": spot_price,
-        "derivatives": derivatives or {
-            "funding": _point_unavailable(
-                "Binance USD-M Futures REST API",
-                "point-in-time current perpetual funding snapshot",
-                "not collected",
-                FUNDING_ENDPOINTS,
-            ),
-            "open_interest": _point_unavailable(
-                "Binance USD-M Futures REST API",
-                "point-in-time BTCUSDT perpetual open-interest snapshot",
-                "not collected",
-                OPEN_INTEREST_ENDPOINTS,
-            ),
-        },
+        "derivatives": derivatives or unavailable_derivatives(),
     }
 
 
@@ -617,7 +501,9 @@ def main():
     args = parser.parse_args()
 
     as_of = parse_as_of(args.as_of) if args.as_of else closed_minute_boundary(dt.datetime.now(UTC))
-    derivatives = collect_derivatives(args.symbol, dt.datetime.now(UTC))
+    derivatives = collect_derivatives(
+        args.symbol, dt.datetime.now(UTC), requester=request_json
+    )
     data = compute(
         as_of,
         args.symbol,

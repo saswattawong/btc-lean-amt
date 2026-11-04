@@ -215,22 +215,74 @@ class CvdTest(unittest.TestCase):
     def test_derivatives_are_available_only_with_valid_provider_payloads(self):
         generated = dt.datetime(2026, 10, 27, 12, 4, tzinfo=UTC)
         source_ms = int(dt.datetime(2026, 10, 27, 12, 3, tzinfo=UTC).timestamp() * 1000)
+        settled_ms = int(dt.datetime(2026, 10, 27, 8, 0, tzinfo=UTC).timestamp() * 1000)
+        previous_ms = settled_ms - 8 * 60 * 60 * 1000
 
         def requester(url):
-            if "premiumIndex" in url:
-                return {
-                    "time": source_ms,
-                    "lastFundingRate": "0.0001",
-                    "markPrice": "80010",
-                    "indexPrice": "80000",
-                    "nextFundingTime": source_ms + 8 * 60 * 60 * 1000,
-                }
-            return {"time": source_ms, "openInterest": "12345.67"}
+            if "binance.com" in url and "fundingRate" in url:
+                return [
+                    {"symbol": "BTCUSDT", "fundingTime": previous_ms,
+                     "fundingRate": "0.0002", "markPrice": "79900"},
+                    {"symbol": "BTCUSDT", "fundingTime": settled_ms,
+                     "fundingRate": "0.0001", "markPrice": "80010"},
+                ]
+            if "binance.com" in url and "openInterest" in url:
+                return {"symbol": "BTCUSDT", "time": source_ms, "openInterest": "12345.67"}
+            if "bybit.com" in url and "funding/history" in url:
+                return {"retCode": 0, "retMsg": "OK", "result": {"list": [
+                    {"symbol": "BTCUSDT", "fundingRateTimestamp": str(settled_ms), "fundingRate": "0.0001"},
+                    {"symbol": "BTCUSDT", "fundingRateTimestamp": str(previous_ms), "fundingRate": "0.0002"},
+                ]}}
+            if "bybit.com" in url and "open-interest" in url:
+                return {"retCode": 0, "retMsg": "OK", "result": {"list": [
+                    {"timestamp": str(source_ms), "openInterest": "23456.78"}
+                ]}}
+            if "okx.com" in url and "funding-rate-history" in url:
+                return {"code": "0", "msg": "", "data": [
+                    {"fundingTime": str(settled_ms), "fundingRate": "0.00011", "realizedRate": "0.0001"},
+                    {"fundingTime": str(previous_ms), "fundingRate": "0.00021", "realizedRate": "0.0002"},
+                ]}
+            if "okx.com" in url and "open-interest" in url:
+                return {"code": "0", "msg": "", "data": [
+                    {"ts": str(source_ms), "oi": "3000000", "oiCcy": "34567.89", "oiUsd": "2800000000"}
+                ]}
+            if "funding_rate" in url:
+                return [
+                    {"t": settled_ms // 1000, "r": "0.0001"},
+                    {"t": previous_ms // 1000, "r": "0.0002"},
+                ]
+            if "contracts/BTC_USDT" in url:
+                return {"name": "BTC_USDT", "position_size": "456789000", "quanto_multiplier": "0.0001"}
+            raise AssertionError(url)
 
         result = collect_derivatives(generated_at=generated, requester=requester)
         self.assertEqual(result["funding"]["status"], "available")
-        self.assertEqual(result["funding"]["value"]["last_funding_rate_pct"], 0.01)
-        self.assertEqual(result["open_interest"]["value"]["open_interest_btc"], 12345.67)
+        funding = result["funding"]["value"]["by_exchange"]
+        self.assertEqual(set(funding), {"binance", "bybit", "okx", "gate"})
+        self.assertTrue(all(item["settled_at_utc"] == "2026-10-27T08:00:00Z" for item in funding.values()))
+        self.assertTrue(all(item["settled_funding_rate_pct"] == 0.01 for item in funding.values()))
+        open_interest = result["open_interest"]["value"]["by_exchange"]
+        self.assertEqual(open_interest["binance"]["open_interest_btc"], 12345.67)
+        self.assertEqual(open_interest["bybit"]["open_interest_btc"], 23456.78)
+        self.assertEqual(open_interest["okx"]["open_interest_btc"], 34567.89)
+        self.assertEqual(open_interest["gate"]["open_interest_btc"], 45678.9)
+        self.assertEqual(result["open_interest"]["value"]["aggregation"], "none")
+
+    def test_derivatives_do_not_present_predicted_or_wrong_interval_funding_as_settled(self):
+        generated = dt.datetime(2026, 10, 27, 12, 4, tzinfo=UTC)
+
+        def requester(url):
+            if "funding" in url:
+                return []
+            raise OSError("provider unavailable")
+
+        result = collect_derivatives(generated_at=generated, requester=requester)
+        self.assertEqual(result["funding"]["status"], "unavailable")
+        self.assertEqual(result["funding"]["value"], "N/A")
+        self.assertTrue(all(
+            item["status"] == "unavailable"
+            for item in result["funding"]["by_exchange"].values()
+        ))
 
     def test_write_if_fresher_does_not_refresh_same_source_age(self):
         with tempfile.TemporaryDirectory(dir=pathlib.Path(__file__).resolve().parent) as directory:

@@ -184,9 +184,13 @@ class ArchiveCvdTest(unittest.TestCase):
                 "checksum_url": f"https://data.binance.vision/BTCUSDT-1m-{DAY}.zip.CHECKSUM",
                 "sha256": "a" * 64,
             }
+            generated = dt.datetime.combine(
+                DAY + dt.timedelta(days=1), dt.time(), UTC
+            ) + dt.timedelta(minutes=1)
             result = compute(
                 DAY,
                 {"spot": (spot, evidence), "usd_m_futures": (futures, evidence)},
+                generated_at=generated,
             )
             self.assertEqual(result["schema"], "btc_binance_quote_cvd_v1")
             self.assertEqual(result["as_of_utc"], "2026-10-27T00:00:00Z")
@@ -200,11 +204,10 @@ class ArchiveCvdTest(unittest.TestCase):
                 result["markets"]["spot"]["windows"]["1h"]["end_utc_exclusive"],
                 result["markets"]["usd_m_futures"]["windows"]["1h"]["end_utc_exclusive"],
             )
-            generated = dt.datetime.fromisoformat(result["generated_at_utc"].replace("Z", "+00:00"))
             summary = validate_archive_cvd(
                 result,
                 now=generated + dt.timedelta(minutes=1),
-                max_age_seconds=500_000,
+                max_age_seconds=120,
             )
             self.assertEqual(summary["integrity"], "passed")
 
