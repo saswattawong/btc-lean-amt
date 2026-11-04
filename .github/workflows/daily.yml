@@ -7,14 +7,15 @@ on:
       - 'calculate.py'
       - 'enrich.py'
       - 'render_brief.py'
+      - 'publish_outputs.py'
       - 'validate_outputs.py'
       - 'tests/**'
       - '.github/workflows/daily.yml'
   schedule:
-    - cron: '30 2 * * *' # 09:30 Bangkok; archive may not be published yet
-    - cron: '30 3 * * *' # 10:30 Bangkok retry before the noon dashboard
-    - cron: '0 4 * * *'  # 11:00 Bangkok final pre-dashboard retry
-    - cron: '10 10 * * *' # 17:10 Bangkok recovery retry
+    - cron: '37 2 * * *' # 09:37 Bangkok; offset from high-load boundaries
+    - cron: '37 3 * * *' # 10:37 Bangkok retry
+    - cron: '7 4 * * *'  # 11:07 Bangkok final morning retry
+    - cron: '17 10 * * *' # 17:17 Bangkok recovery retry
 permissions:
   contents: write
 concurrency:
@@ -61,6 +62,7 @@ jobs:
           should_run = os.environ['EVENT_NAME'] != 'schedule' or not complete
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
               output.write(f'should_run={str(should_run).lower()}\n')
+              output.write(f'target={target}\n')
           print(json.dumps({'event': os.environ['EVENT_NAME'], 'target': target,
                             'current': current, 'complete': complete, 'should_run': should_run}))
           PY
@@ -78,7 +80,10 @@ jobs:
         run: python render_brief.py --input output/latest.json --output output/latest.md
       - name: Validate value-map integrity and source freshness
         if: steps.freshness.outputs.should_run == 'true'
-        run: python validate_outputs.py value-map output/latest.json --max-age-seconds 259200
+        run: >-
+          python validate_outputs.py value-map output/latest.json
+          --max-age-seconds 259200
+          --expected-source-day ${{ steps.freshness.outputs.target }}
       - name: Publish versioned JSON
         if: steps.freshness.outputs.should_run == 'true'
         run: |
@@ -90,12 +95,9 @@ jobs:
           brief=out/'latest.md'
           (out/(day+'.md')).write_text(brief.read_text(encoding='utf-8'),encoding='utf-8')
           PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add output/
-          if ! git diff --cached --quiet; then
-            git commit -m 'Update BTC Lean AMT value map'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+          day=$(python -c "import json; print(json.load(open('output/latest.json'))['as_of_closed_day_utc'])")
+          python publish_outputs.py \
+            --message 'Update BTC Lean AMT value map' \
+            output/latest.json output/latest.md \
+            "output/${day}.json" "output/${day}.md"
 

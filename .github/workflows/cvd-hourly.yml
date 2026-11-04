@@ -16,10 +16,11 @@ on:
       - 'validate_outputs.py'
       - '.github/workflows/cvd-hourly.yml'
   schedule:
-    # Offset and touch the registration after scheduled delivery stopped.
-    - cron: '19 * * * *'
+    # Four off-boundary opportunities improve archive publication recovery.
+    - cron: '7,22,37,52 * * * *'
 
 permissions:
+  actions: write
   contents: write
 
 concurrency:
@@ -29,7 +30,7 @@ concurrency:
 jobs:
   publish-cvd:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -37,13 +38,41 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Calculate latest checksum-verified closed-day CVD
-        run: python calculate_archive_cvd.py --output output/latest_cvd.json
-      - name: Validate archive checksums, integrity and source freshness
-        run: python validate_outputs.py archive-cvd output/latest_cvd.json --max-age-seconds 172800
+      - name: Collect current closed-day archive with bounded publication retry
+        id: collect_current
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          for attempt in 1 2 3; do
+            if python calculate_archive_cvd.py --output output/latest_cvd.json && \
+               python validate_outputs.py archive-cvd output/latest_cvd.json \
+                 --max-age-seconds 172800 --require-latest-completed-day; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep 300
+          done
+      - name: Calculate and validate archive smoke test
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        run: |
+          python calculate_archive_cvd.py --output output/latest_cvd.json
+          python validate_outputs.py archive-cvd output/latest_cvd.json --max-age-seconds 172800
       - name: Publish latest CVD on main
         if: github.ref == 'refs/heads/main'
         run: >-
           python publish_outputs.py
           --message 'Update verified Binance BTCUSDT CVD archive'
           output/latest_cvd.json
+      - name: Dispatch intraday collector as an independent schedule fallback
+        if: always() && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run intraday.yml --ref main -f enforce_slo=true
+      - name: Dispatch daily value map after the latest archive is verified
+        if: >-
+          github.ref == 'refs/heads/main' && github.event_name == 'schedule' &&
+          steps.collect_current.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run daily.yml --ref main

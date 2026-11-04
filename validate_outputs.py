@@ -10,6 +10,7 @@ import re
 
 UTC = dt.timezone.utc
 WINDOWS = {"1h": 60, "4h": 240, "24h": 1_440}
+DERIVATIVE_EXCHANGES = {"binance", "bybit", "okx", "gate"}
 NA_FIELDS = {
     "closed_klines",
     "quote_volume_usdt",
@@ -46,6 +47,60 @@ def _validate_freshness(data, now, max_age_seconds):
     age_now = max(0, int((now - source).total_seconds()))
     _assert(age_now <= max_age_seconds, f"source is stale: {age_now}s > {max_age_seconds}s")
     return {"source_as_of_utc": block["source_as_of_utc"], "source_age_seconds_now": age_now}
+
+
+def _validate_derivatives(derivatives):
+    _assert(set(derivatives) == {"funding", "open_interest"}, "derivatives set mismatch")
+    for kind, metric in derivatives.items():
+        _assert(bool(metric.get("provider")) and bool(metric.get("coverage")), f"{kind}: metadata missing")
+        status = metric.get("status")
+        if status == "available":
+            value = metric.get("value")
+            _assert(isinstance(value, dict), f"{kind}: value missing")
+            _assert(value.get("aggregation") == "none", f"{kind}: cross-exchange aggregation is forbidden")
+            exchanges = value.get("by_exchange", {})
+        else:
+            _assert(status == "unavailable", f"{kind}: invalid status")
+            _assert(metric.get("value") == "N/A" and bool(metric.get("error")), f"{kind}: explicit N/A missing")
+            exchanges = metric.get("by_exchange", {})
+        _assert(set(exchanges) == DERIVATIVE_EXCHANGES, f"{kind}: exchange coverage mismatch")
+
+        available = []
+        for exchange, item in exchanges.items():
+            _assert(bool(item.get("source_endpoint")), f"{kind}/{exchange}: endpoint missing")
+            item_status = item.get("status")
+            if item_status == "available":
+                available.append(exchange)
+                timestamp = parse_utc(item["source_timestamp_utc"])
+                _assert(item.get("error") is None, f"{kind}/{exchange}: available item has an error")
+                _assert(
+                    isinstance(item.get("age_seconds_at_generation"), int)
+                    and item["age_seconds_at_generation"] >= 0,
+                    f"{kind}/{exchange}: invalid age",
+                )
+                if kind == "funding":
+                    _assert(item.get("funding_interval_hours") == 8, f"{kind}/{exchange}: interval is not 8h")
+                    _assert(parse_utc(item["settled_at_utc"]) == timestamp, f"{kind}/{exchange}: settlement timestamp mismatch")
+                    rate = item.get("settled_funding_rate")
+                    rate_pct = item.get("settled_funding_rate_pct")
+                    _assert(isinstance(rate, (int, float)), f"{kind}/{exchange}: settled rate missing")
+                    _assert(isinstance(rate_pct, (int, float)), f"{kind}/{exchange}: settled percent missing")
+                    _assert(abs(rate * 100 - rate_pct) < 1e-10, f"{kind}/{exchange}: settled percent mismatch")
+                else:
+                    amount = item.get("open_interest_btc")
+                    _assert(isinstance(amount, (int, float)) and amount >= 0, f"{kind}/{exchange}: BTC amount missing")
+                    _assert(item.get("unit") == "BTC", f"{kind}/{exchange}: unit is not BTC")
+            else:
+                _assert(item_status == "unavailable", f"{kind}/{exchange}: invalid status")
+                _assert(item.get("source_timestamp_utc") == "N/A", f"{kind}/{exchange}: unavailable timestamp is not N/A")
+                _assert(bool(item.get("error")), f"{kind}/{exchange}: unavailable item has no error")
+
+        if status == "available":
+            _assert(bool(available), f"{kind}: available without an exchange value")
+            _assert(metric.get("source_timestamp_utc") != "N/A", f"{kind}: timestamp missing")
+            _assert(set(metric.get("available_exchanges", [])) == set(available), f"{kind}: available exchange summary mismatch")
+        else:
+            _assert(not available, f"{kind}: unavailable metric contains an available exchange")
 
 
 def validate_intraday(data, now=None, max_age_seconds=900):
@@ -138,20 +193,11 @@ def validate_intraday(data, now=None, max_age_seconds=900):
     _assert(isinstance(price.get("price_usdt"), (int, float)) and price["price_usdt"] > 0, "invalid Spot price")
     _assert(bool(price.get("provider")) and bool(price.get("source_timestamp_utc")), "Spot price metadata missing")
 
-    derivatives = data.get("derivatives", {})
-    _assert(set(derivatives) == {"funding", "open_interest"}, "derivatives set mismatch")
-    for name, metric in derivatives.items():
-        _assert(bool(metric.get("provider")) and bool(metric.get("coverage")), f"{name}: metadata missing")
-        if metric.get("status") == "available":
-            _assert(isinstance(metric.get("value"), dict), f"{name}: value missing")
-            _assert(metric.get("source_timestamp_utc") != "N/A", f"{name}: timestamp missing")
-        else:
-            _assert(metric.get("status") == "unavailable", f"{name}: invalid status")
-            _assert(metric.get("value") == "N/A" and bool(metric.get("error")), f"{name}: explicit N/A missing")
+    _validate_derivatives(data.get("derivatives", {}))
     return {"kind": "intraday", **freshness, "integrity": data["integrity"]["status"]}
 
 
-def validate_archive_cvd(data, now=None, max_age_seconds=259_200):
+def validate_archive_cvd(data, now=None, max_age_seconds=259_200, expected_source_day=None):
     now = (now or dt.datetime.now(UTC)).astimezone(UTC)
     _assert(data.get("schema") == "btc_binance_quote_cvd_v1", "unexpected archive CVD schema")
     _assert(data.get("provider") == "Binance Data Vision", "unexpected archive provider")
@@ -161,6 +207,12 @@ def validate_archive_cvd(data, now=None, max_age_seconds=259_200):
     freshness = _validate_freshness(data, now, max_age_seconds)
     _assert(data["as_of_utc"] == data["freshness"]["source_as_of_utc"], "archive as-of/freshness mismatch")
     source_day = dt.date.fromisoformat(data["source_closed_day_utc"])
+    if expected_source_day is not None:
+        expected = (
+            expected_source_day if isinstance(expected_source_day, dt.date)
+            else dt.date.fromisoformat(expected_source_day)
+        )
+        _assert(source_day == expected, f"archive source day is {source_day}, expected {expected}")
     expected_as_of = dt.datetime.combine(source_day + dt.timedelta(days=1), dt.time(), UTC)
     _assert(parse_utc(data["as_of_utc"]) == expected_as_of, "archive source day/as-of mismatch")
     selection = data.get("archive_selection", {})
@@ -185,12 +237,29 @@ def validate_archive_cvd(data, now=None, max_age_seconds=259_200):
     return {"kind": "archive-cvd", **freshness, "integrity": "passed"}
 
 
-def validate_value_map(data, now=None, max_age_seconds=259_200):
+def validate_value_map(data, now=None, max_age_seconds=259_200, expected_source_day=None):
     now = (now or dt.datetime.now(UTC)).astimezone(UTC)
     _assert(data.get("schema") == "btc_lean_amt_value_map_v1", "unexpected value-map schema")
     _assert(data.get("integrity_cross_check", {}).get("status") == "passed", "daily integrity failed")
     _assert(data.get("previous_completed_week_trade_volume_profile", {}).get("integrity_status") == "passed", "weekly integrity failed")
     _assert(data.get("daily_poc_migration", {}).get("to_day_utc") == data.get("as_of_closed_day_utc"), "migration day mismatch")
+    source_day = dt.date.fromisoformat(data["as_of_closed_day_utc"])
+    report_day = dt.date.fromisoformat(data["report_reference_date_utc"])
+    _assert(report_day == source_day + dt.timedelta(days=1), "report/source day mismatch")
+    if expected_source_day is not None:
+        expected = (
+            expected_source_day if isinstance(expected_source_day, dt.date)
+            else dt.date.fromisoformat(expected_source_day)
+        )
+        _assert(source_day == expected, f"value-map source day is {source_day}, expected {expected}")
+    expected_week_start = report_day - dt.timedelta(days=report_day.weekday() + 7)
+    expected_week_end = expected_week_start + dt.timedelta(days=6)
+    weekly = data["previous_completed_week_trade_volume_profile"]
+    _assert(
+        weekly.get("from_utc") == expected_week_start.isoformat()
+        and weekly.get("to_utc") == expected_week_end.isoformat(),
+        "weekly profile is not the previous completed UTC week",
+    )
     freshness = _validate_freshness(data, now, max_age_seconds)
     _assert(data.get("session_end_utc_exclusive") == data["freshness"]["source_as_of_utc"], "value-map as-of/freshness mismatch")
     source = data.get("sources", {})
@@ -204,6 +273,8 @@ def main():
     parser.add_argument("kind", choices=("intraday", "archive-cvd", "value-map"))
     parser.add_argument("path")
     parser.add_argument("--max-age-seconds", type=int)
+    parser.add_argument("--expected-source-day")
+    parser.add_argument("--require-latest-completed-day", action="store_true")
     args = parser.parse_args()
     data = json.loads(pathlib.Path(args.path).read_text(encoding="utf-8"))
     validators = {
@@ -212,7 +283,17 @@ def main():
         "value-map": (validate_value_map, 259_200),
     }
     validator, default_age = validators[args.kind]
-    result = validator(data, max_age_seconds=args.max_age_seconds or default_age)
+    if args.expected_source_day and args.require_latest_completed_day:
+        parser.error("choose either --expected-source-day or --require-latest-completed-day")
+    expected_source_day = args.expected_source_day
+    if args.require_latest_completed_day:
+        expected_source_day = (dt.datetime.now(UTC).date() - dt.timedelta(days=1)).isoformat()
+    kwargs = {"max_age_seconds": args.max_age_seconds or default_age}
+    if expected_source_day:
+        if args.kind == "intraday":
+            parser.error("source-day checks apply only to archive-cvd and value-map")
+        kwargs["expected_source_day"] = expected_source_day
+    result = validator(data, **kwargs)
     print(json.dumps(result, sort_keys=True))
 
 

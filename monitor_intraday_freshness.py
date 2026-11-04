@@ -23,7 +23,14 @@ def parse_utc(value):
     return parsed.astimezone(UTC)
 
 
-def observe(snapshot, ledger=None, observed_at=None, target_age_seconds=900, retain=2_016):
+def observe(
+    snapshot,
+    ledger=None,
+    observed_at=None,
+    target_age_seconds=900,
+    expected_cadence_seconds=600,
+    retain=2_016,
+):
     observed_at = (observed_at or dt.datetime.now(UTC)).astimezone(UTC)
     freshness = snapshot.get("freshness", {})
     source = parse_utc(freshness["source_as_of_utc"])
@@ -50,24 +57,48 @@ def observe(snapshot, ledger=None, observed_at=None, target_age_seconds=900, ret
     observations.append(observation)
     observations = observations[-retain:]
 
-    rolling = observations[-288:]
+    if expected_cadence_seconds < 300 or 86_400 % expected_cadence_seconds:
+        raise ValueError("expected cadence must divide 24 hours and be at least 300 seconds")
+    window_start = observed_at - dt.timedelta(hours=24)
+    recent = [
+        item for item in observations
+        if parse_utc(item["observed_at_utc"]) > window_start
+    ]
+    slots = {}
+    for item in recent:
+        timestamp = parse_utc(item["observed_at_utc"])
+        slot = int(timestamp.timestamp()) // expected_cadence_seconds
+        if slot not in slots or timestamp > parse_utc(slots[slot]["observed_at_utc"]):
+            slots[slot] = item
+    rolling = [slots[key] for key in sorted(slots)]
+    expected_observations = 86_400 // expected_cadence_seconds
     passed = sum(item.get("within_target") is True for item in rolling)
     rate = round(passed / len(rolling) * 100, 6) if rolling else 0.0
+    coverage = round(min(100.0, len(rolling) / expected_observations * 100), 6)
+    has_full_history = bool(observations) and parse_utc(observations[0]["observed_at_utc"]) <= window_start
+    target_met = (
+        rate >= 95.0 and coverage >= 95.0
+        if has_full_history else "insufficient_history"
+    )
     result = {
         "schema": SCHEMA,
         "updated_at_utc": iso_utc(observed_at),
-        "measurement": "Age of the previously published source_as_of timestamp at collector start.",
+        "measurement": "Age of the previously published source_as_of timestamp at collector start, plus unique scheduled observation coverage in the preceding 24 hours.",
         "target": {
             "source_age_seconds_lte": target_age_seconds,
             "pass_rate_pct_gte": 95.0,
-            "rolling_observations": 288,
+            "expected_cadence_seconds": expected_cadence_seconds,
+            "rolling_observations": expected_observations,
+            "observation_coverage_pct_gte": 95.0,
         },
         "rolling_24h": {
             "observations": len(rolling),
+            "expected_observations": expected_observations,
             "passed": passed,
             "failed": len(rolling) - passed,
             "pass_rate_pct": rate,
-            "target_met": rate >= 95.0 if len(rolling) == 288 else "insufficient_observations",
+            "observation_coverage_pct": coverage,
+            "target_met": target_met,
         },
         "latest_observation": observation,
         "observations": observations,
@@ -87,6 +118,7 @@ def main():
     parser.add_argument("snapshot")
     parser.add_argument("--ledger", default="output/intraday_freshness.json")
     parser.add_argument("--target-age-seconds", type=int, default=900)
+    parser.add_argument("--expected-cadence-seconds", type=int, default=600)
     parser.add_argument("--retain", type=int, default=2_016)
     parser.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
     parser.add_argument("--github-summary", default=os.environ.get("GITHUB_STEP_SUMMARY"))
@@ -99,6 +131,7 @@ def main():
         snapshot,
         existing,
         target_age_seconds=args.target_age_seconds,
+        expected_cadence_seconds=args.expected_cadence_seconds,
         retain=args.retain,
     )
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
@@ -110,7 +143,9 @@ def main():
         args.github_output,
         f"within_target={str(latest['within_target']).lower()}\n"
         f"source_age_seconds={latest['source_age_seconds']}\n"
-        f"rolling_pass_rate_pct={rolling['pass_rate_pct']}\n",
+        f"rolling_pass_rate_pct={rolling['pass_rate_pct']}\n"
+        f"observation_coverage_pct={rolling['observation_coverage_pct']}\n"
+        f"rolling_target_met={str(rolling['target_met']).lower()}\n",
     )
     _append(
         args.github_summary,
@@ -118,8 +153,9 @@ def main():
         f"- Source as of: `{latest['source_as_of_utc']}`\n"
         f"- Age: `{latest['source_age_seconds']}s` (target `<= {args.target_age_seconds}s`)\n"
         f"- Within target: `{latest['within_target']}`\n"
-        f"- Rolling observations: `{rolling['observations']}/288`\n"
-        f"- Rolling pass rate: `{rolling['pass_rate_pct']}%` (target `>= 95%`)\n",
+        f"- Rolling observations: `{rolling['observations']}/{rolling['expected_observations']}`\n"
+        f"- Rolling pass rate: `{rolling['pass_rate_pct']}%` (target `>= 95%`)\n"
+        f"- Schedule-observation coverage: `{rolling['observation_coverage_pct']}%` (target `>= 95%`)\n",
     )
     print(json.dumps({"latest": latest, "rolling_24h": rolling}, sort_keys=True))
 

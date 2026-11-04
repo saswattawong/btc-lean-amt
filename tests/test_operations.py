@@ -36,10 +36,12 @@ class OperationsTest(unittest.TestCase):
         second = observe(
             snapshot(source, source + dt.timedelta(minutes=1)),
             first,
-            observed_at=source + dt.timedelta(minutes=16),
+            observed_at=source + dt.timedelta(minutes=26),
         )
         self.assertFalse(second["latest_observation"]["within_target"])
         self.assertEqual(second["rolling_24h"]["pass_rate_pct"], 50.0)
+        self.assertEqual(second["rolling_24h"]["expected_observations"], 144)
+        self.assertEqual(second["rolling_24h"]["target_met"], "insufficient_history")
 
     def test_publish_scope_rejects_traversal(self):
         with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
@@ -55,11 +57,33 @@ class OperationsTest(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn("cancel-in-progress: false", workflow)
-        self.assertIn("timeout-minutes: 6", workflow)
+        self.assertIn("timeout-minutes: 9", workflow)
+        self.assertIn("cron: '7-57/10 * * * *'", workflow)
+        self.assertIn("for attempt in 1 2", workflow)
+        self.assertIn("--expected-cadence-seconds 600", workflow)
         self.assertIn("--perp-backfill-chunk-minutes 5", workflow)
         self.assertIn("--perp-backfill-workers 12", workflow)
         self.assertIn("--perp-max-requests 1600", workflow)
         self.assertIn("--perp-runtime-budget-seconds 150", workflow)
+        self.assertIn("output/perp_cvd_state.json", workflow)
+
+    def test_archive_workflow_requires_current_source_and_dispatches_fallbacks(self):
+        workflow = (REPO_ROOT / ".github" / "workflows" / "cvd-hourly.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("cron: '7,22,37,52 * * * *'", workflow)
+        self.assertIn("--require-latest-completed-day", workflow)
+        self.assertIn("for attempt in 1 2 3", workflow)
+        self.assertIn("gh workflow run intraday.yml", workflow)
+        self.assertIn("gh workflow run daily.yml", workflow)
+
+    def test_daily_workflow_enforces_target_day_and_scoped_publish(self):
+        workflow = (REPO_ROOT / ".github" / "workflows" / "daily.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("--expected-source-day ${{ steps.freshness.outputs.target }}", workflow)
+        self.assertIn("python publish_outputs.py", workflow)
+        self.assertNotIn("git pull --rebase", workflow)
 
 
 if __name__ == "__main__":

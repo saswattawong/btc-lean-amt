@@ -2,9 +2,16 @@ name: BTCUSDT validated intraday snapshot
 
 on:
   workflow_dispatch:
+    inputs:
+      enforce_slo:
+        description: Fail the run when the pre-collection freshness SLO is breached
+        required: false
+        default: false
+        type: boolean
   pull_request:
     paths:
       - 'calculate_cvd.py'
+      - 'derivatives.py'
       - 'gate_perp_cvd.py'
       - 'monitor_intraday_freshness.py'
       - 'publish_outputs.py'
@@ -20,9 +27,9 @@ on:
       - 'validate_outputs.py'
       - '.github/workflows/intraday.yml'
   schedule:
-    # Offset from the top of the hour and touch the trigger registration after
-    # the original schedule produced no events. GitHub schedules remain best effort.
-    - cron: '2-59/5 * * * *'
+    # Ten-minute off-boundary cadence leaves headroom under the 15-minute SLO.
+    # GitHub schedules remain best effort and are measured separately below.
+    - cron: '7-57/10 * * * *'
 
 permissions:
   contents: write
@@ -36,7 +43,7 @@ concurrency:
 jobs:
   publish-intraday:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 9
     steps:
       - uses: actions/checkout@v7
         with:
@@ -51,18 +58,28 @@ jobs:
           python monitor_intraday_freshness.py output/latest_intraday.json
           --ledger output/intraday_freshness.json
           --target-age-seconds 900
+          --expected-cadence-seconds 600
       - name: Collect synchronized closed-minute data
-        run: >-
-          python calculate_cvd.py
-          --output output/latest_intraday.json
-          --perp-state output/perp_cvd_state.json
-          --perp-bootstrap-minutes 60
-          --perp-backfill-minutes 1440
-          --perp-backfill-chunk-minutes 5
-          --perp-backfill-workers 12
-          --perp-max-incremental-gap-minutes 60
-          --perp-max-requests 1600
-          --perp-runtime-budget-seconds 150
+        id: collect
+        run: |
+          for attempt in 1 2; do
+            if python calculate_cvd.py \
+              --output output/latest_intraday.json \
+              --perp-state output/perp_cvd_state.json \
+              --perp-bootstrap-minutes 60 \
+              --perp-backfill-minutes 1440 \
+              --perp-backfill-chunk-minutes 5 \
+              --perp-backfill-workers 12 \
+              --perp-max-incremental-gap-minutes 60 \
+              --perp-max-requests 1600 \
+              --perp-runtime-budget-seconds 150; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 2 ]; then
+              exit 1
+            fi
+            sleep 20
+          done
       - name: Validate structure, completeness and source freshness
         run: python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 900
       - name: Initialize freshness ledger when no previous snapshot existed
@@ -71,6 +88,7 @@ jobs:
           python monitor_intraday_freshness.py output/latest_intraday.json
           --ledger output/intraday_freshness.json
           --target-age-seconds 900
+          --expected-cadence-seconds 600
       - name: Publish separate intraday JSON on main
         id: publish_snapshot
         if: github.ref == 'refs/heads/main'
@@ -80,19 +98,22 @@ jobs:
           output/latest_intraday.json
           output/perp_cvd_state.json
           output/intraday_freshness.json
-      - name: Preserve freshness observation when collection or snapshot publish failed
+      - name: Preserve freshness observation and verified recovery state on failure
         if: >-
           always() && github.ref == 'refs/heads/main' &&
           steps.freshness_before.outcome == 'success' &&
           steps.publish_snapshot.outcome != 'success'
         run: >-
           python publish_outputs.py
-          --message 'Record BTCUSDT intraday freshness observation'
+          --message 'Preserve BTCUSDT intraday recovery checkpoint'
+          output/perp_cvd_state.json
           output/intraday_freshness.json
       - name: Alert when the pre-collection freshness target was breached
         if: >-
-          always() && github.event_name == 'schedule' &&
-          steps.freshness_before.outputs.within_target == 'false'
+          always() &&
+          (github.event_name == 'schedule' || inputs.enforce_slo == true) &&
+          (steps.freshness_before.outputs.within_target == 'false' ||
+           steps.freshness_before.outputs.rolling_target_met == 'false')
         run: |
-          echo "::error title=Intraday freshness SLO breached::Previous source age was ${{ steps.freshness_before.outputs.source_age_seconds }}s; target is <=900s. The collector still ran and attempted recovery."
+          echo "::error title=Intraday freshness SLO breached::Previous source age was ${{ steps.freshness_before.outputs.source_age_seconds }}s (target <=900s); rolling pass rate was ${{ steps.freshness_before.outputs.rolling_pass_rate_pct }}% and schedule-observation coverage was ${{ steps.freshness_before.outputs.observation_coverage_pct }}%. The collector still ran and attempted recovery."
           exit 1
