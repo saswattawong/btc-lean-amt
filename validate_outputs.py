@@ -148,7 +148,16 @@ def _validate_derivatives(derivatives):
                             _assert(delta.get("open_interest_usd") == "N/A", f"{delta_label}: unavailable USD is not N/A")
                             _assert(bool(delta.get("error")), f"{delta_label}: unavailable delta has no error")
                             continue
-                        _assert(parse_utc(delta["start_utc"]) < parse_utc(delta["end_utc"]), f"{delta_label}: invalid window")
+                        start = parse_utc(delta["start_utc"])
+                        end = parse_utc(delta["end_utc"])
+                        drift = delta.get("boundary_drift_seconds")
+                        expected_seconds = {"1h": 3_600, "4h": 14_400, "24h": 86_400}[window]
+                        _assert(start < end, f"{delta_label}: invalid window")
+                        _assert(isinstance(drift, int) and 0 <= drift <= 720, f"{delta_label}: invalid boundary drift")
+                        _assert(
+                            abs(abs((end - start).total_seconds() - expected_seconds) - drift) <= 1,
+                            f"{delta_label}: duration/drift mismatch",
+                        )
                         _validate_change_block(delta["open_interest_btc"], "BTC", f"{delta_label}/BTC")
                         _validate_change_block(delta["open_interest_usd"], "USD", f"{delta_label}/USD")
                         _assert(delta.get("error") is None, f"{delta_label}: available delta has an error")

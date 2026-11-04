@@ -232,6 +232,12 @@ class CvdTest(unittest.TestCase):
             (source_ms - 60 * 60 * 1000, "12000", "960000000"),
             (source_ms, "12345.67", "987653600"),
         ]
+        gate_history = [
+            (source_ms - 24 * 60 * 60 * 1000, "440000000", "3520000000"),
+            (source_ms - 4 * 60 * 60 * 1000, "450000000", "3600000000"),
+            (source_ms - 60 * 60 * 1000, "455000000", "3640000000"),
+            (source_ms, "456789000", "3654312000"),
+        ]
 
         def requester(url):
             if "binance.com" in url and "premiumIndex" in url:
@@ -281,9 +287,9 @@ class CvdTest(unittest.TestCase):
                 ]}
             if "contract_stats" in url:
                 return [
-                    {"time": stamp // 1000, "open_interest": btc,
+                    {"time": stamp // 1000, "open_interest": contracts,
                      "open_interest_usd": float(usd)}
-                    for stamp, btc, usd in history
+                    for stamp, contracts, usd in gate_history
                 ]
             if "funding_rate" in url:
                 return [
