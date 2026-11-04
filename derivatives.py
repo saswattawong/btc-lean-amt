@@ -509,10 +509,10 @@ def _gate(generated_at, requester):
         if contract is None:
             raise ValueError("Gate contract metadata unavailable; cannot convert contracts to BTC")
         multiplier = _decimal(contract["quanto_multiplier"], "quanto_multiplier")
-        current_contracts = _decimal(contract["position_size"], "position_size")
-        current_btc = current_contracts * multiplier
-        mark_price = _decimal(contract["mark_price"], "mark_price")
-        current_usd = current_btc * mark_price
+        # Contract.position_size is documented as current total *long* size;
+        # ContractStat.open_interest is documented as total OI. Never splice
+        # those different measurements into one historical series.
+        current_long_contracts = _decimal(contract["position_size"], "position_size")
         stats, stats_url, attempted = _request_paths(
             GATE_BASES, "/api/v4/futures/usdt/contract_stats",
             {"contract": "BTC_USDT", "from": int((generated_at - dt.timedelta(hours=25)).timestamp()),
@@ -520,19 +520,27 @@ def _gate(generated_at, requester):
         )
         if not isinstance(stats, list):
             raise ValueError("unexpected Gate contract-stats response")
-        samples = [
-            (_timestamp_seconds(item["time"]), _decimal(item["open_interest"], "open_interest") * multiplier,
-             item.get("open_interest_usd")) for item in stats
+        stat_samples = [
+            (_timestamp_seconds(item["time"]),
+             _decimal(item["open_interest"], "open_interest") * multiplier,
+             item.get("open_interest_usd"),
+             _decimal(item["open_interest"], "open_interest"))
+            for item in stats
         ]
-        samples.append((generated_at, current_btc, current_usd))
+        if not stat_samples:
+            raise ValueError("Gate contract stats returned no OI samples")
+        latest = max(stat_samples, key=lambda item: item[0])
+        samples = [item[:3] for item in stat_samples]
         open_interest = _oi_available(
-            "Gate", instrument, contract_url, generated_at, current_btc, current_usd, generated_at,
-            _history_deltas(samples, stats_url, anchor=(generated_at, current_btc, current_usd)),
-            timestamp_semantics="collector observation time; contract response has no data timestamp",
-            provider_fields={"btc": "position_size * quanto_multiplier", "usd": "BTC OI * mark_price"},
+            "Gate", instrument, stats_url, latest[0], latest[1], latest[2], generated_at,
+            _history_deltas(samples, stats_url, anchor=latest[:3]),
+            timestamp_semantics="Gate contract-stats sample time",
+            provider_fields={"btc": "open_interest * quanto_multiplier", "usd": "open_interest_usd"},
             history_source_endpoint=stats_url, history_interval="5m",
-            open_interest_contracts=float(current_contracts),
-            quanto_multiplier_btc_per_contract=float(multiplier), mark_price_usdt=float(mark_price),
+            open_interest_contracts=float(latest[3]),
+            quanto_multiplier_btc_per_contract=float(multiplier),
+            contract_position_size_long_only=float(current_long_contracts),
+            contract_position_size_semantics="current total long position; not used as total OI",
             endpoints_attempted=attempted,
         )
     except (KeyError, OSError, RuntimeError, ValueError, TimeoutError) as error:
