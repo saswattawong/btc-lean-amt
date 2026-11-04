@@ -46,7 +46,11 @@ def publish(paths, message, attempts=4, branch="main", remote="origin"):
         run("git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com")
         for attempt in range(1, attempts + 1):
             run("git", "fetch", remote, branch)
-            run("git", "checkout", "-B", branch, f"{remote}/{branch}")
+            # Collector outputs are already copied to the temporary directory.
+            # Force the ephemeral runner checkout to the new remote head because
+            # another scoped publisher may have changed the same tracked output
+            # after this job started. The saved caller files are restored below.
+            run("git", "checkout", "--force", "-B", branch, f"{remote}/{branch}")
             for relative, _ in validated:
                 destination = root / pathlib.Path(*relative.parts)
                 destination.parent.mkdir(parents=True, exist_ok=True)
