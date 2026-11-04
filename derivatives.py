@@ -598,4 +598,3 @@ def unavailable_derivatives(reason="not collected"):
         for name in EXCHANGES
     }
     return {"funding": _metric("funding", funding), "open_interest": _metric("open_interest", open_interest)}
-

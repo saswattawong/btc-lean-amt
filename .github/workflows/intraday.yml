@@ -133,4 +133,3 @@ jobs:
         run: |
           echo "::error title=Intraday freshness SLO breached::Previous source age was ${{ steps.freshness_before.outputs.source_age_seconds }}s (target <=900s); rolling pass rate was ${{ steps.freshness_before.outputs.rolling_pass_rate_pct }}% and schedule-observation coverage was ${{ steps.freshness_before.outputs.observation_coverage_pct }}%. The collector still ran and attempted recovery."
           exit 1
-
