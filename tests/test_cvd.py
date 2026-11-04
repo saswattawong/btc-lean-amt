@@ -19,6 +19,7 @@ from calculate_cvd import (
     window_stats,
     write_if_fresher,
 )
+from derivatives import BINANCE_BASES, BYBIT_BASES
 from validate_outputs import validate_intraday
 
 
@@ -92,6 +93,13 @@ def gate_perp_market(as_of, count=1_440):
 
 
 class CvdTest(unittest.TestCase):
+    def test_derivative_failover_uses_only_documented_provider_hosts(self):
+        self.assertEqual(BINANCE_BASES, ("https://fapi.binance.com",))
+        self.assertEqual(
+            BYBIT_BASES,
+            ("https://api.bybit.com", "https://api.bytick.com"),
+        )
+
     def test_closed_minute_boundary_allows_settlement(self):
         self.assertEqual(
             closed_minute_boundary(dt.datetime(2026, 10, 27, 12, 7, 45, tzinfo=UTC)),
@@ -217,8 +225,18 @@ class CvdTest(unittest.TestCase):
         source_ms = int(dt.datetime(2026, 10, 27, 12, 3, tzinfo=UTC).timestamp() * 1000)
         settled_ms = int(dt.datetime(2026, 10, 27, 8, 0, tzinfo=UTC).timestamp() * 1000)
         previous_ms = settled_ms - 8 * 60 * 60 * 1000
+        next_ms = int(dt.datetime(2026, 10, 27, 16, 0, tzinfo=UTC).timestamp() * 1000)
+        history = [
+            (source_ms - 24 * 60 * 60 * 1000, "10000", "800000000"),
+            (source_ms - 4 * 60 * 60 * 1000, "11000", "880000000"),
+            (source_ms - 60 * 60 * 1000, "12000", "960000000"),
+            (source_ms, "12345.67", "987653600"),
+        ]
 
         def requester(url):
+            if "binance.com" in url and "premiumIndex" in url:
+                return {"symbol": "BTCUSDT", "time": source_ms, "lastFundingRate": "0.00012",
+                        "nextFundingTime": next_ms, "markPrice": "80000"}
             if "binance.com" in url and "fundingRate" in url:
                 return [
                     {"symbol": "BTCUSDT", "fundingTime": previous_ms,
@@ -226,33 +244,57 @@ class CvdTest(unittest.TestCase):
                     {"symbol": "BTCUSDT", "fundingTime": settled_ms,
                      "fundingRate": "0.0001", "markPrice": "80010"},
                 ]
-            if "binance.com" in url and "openInterest" in url:
-                return {"symbol": "BTCUSDT", "time": source_ms, "openInterest": "12345.67"}
-            if "bybit.com" in url and "funding/history" in url:
+            if "binance.com" in url and "openInterestHist" in url:
+                return [
+                    {"symbol": "BTCUSDT", "timestamp": stamp,
+                     "sumOpenInterest": btc, "sumOpenInterestValue": usd}
+                    for stamp, btc, usd in history
+                ]
+            if ("bybit.com" in url or "bytick.com" in url) and "tickers" in url:
+                return {"retCode": 0, "retMsg": "OK", "time": source_ms, "result": {"list": [
+                    {"symbol": "BTCUSDT", "fundingRate": "0.00012", "nextFundingTime": str(next_ms),
+                     "fundingIntervalHour": "8", "openInterest": "23456.78",
+                     "openInterestValue": "1876542400"}
+                ]}}
+            if ("bybit.com" in url or "bytick.com" in url) and "funding/history" in url:
                 return {"retCode": 0, "retMsg": "OK", "result": {"list": [
                     {"symbol": "BTCUSDT", "fundingRateTimestamp": str(settled_ms), "fundingRate": "0.0001"},
                     {"symbol": "BTCUSDT", "fundingRateTimestamp": str(previous_ms), "fundingRate": "0.0002"},
                 ]}}
-            if "bybit.com" in url and "open-interest" in url:
+            if ("bybit.com" in url or "bytick.com" in url) and "open-interest" in url:
                 return {"retCode": 0, "retMsg": "OK", "result": {"list": [
-                    {"timestamp": str(source_ms), "openInterest": "23456.78"}
+                    {"timestamp": str(stamp), "openInterest": btc}
+                    for stamp, btc, _ in history
                 ]}}
             if "okx.com" in url and "funding-rate-history" in url:
                 return {"code": "0", "msg": "", "data": [
                     {"fundingTime": str(settled_ms), "fundingRate": "0.00011", "realizedRate": "0.0001"},
                     {"fundingTime": str(previous_ms), "fundingRate": "0.00021", "realizedRate": "0.0002"},
                 ]}
+            if "okx.com" in url and "public/funding-rate" in url:
+                return {"code": "0", "msg": "", "data": [
+                    {"ts": str(source_ms), "fundingTime": str(next_ms), "fundingRate": "0.00012"}
+                ]}
             if "okx.com" in url and "open-interest" in url:
                 return {"code": "0", "msg": "", "data": [
                     {"ts": str(source_ms), "oi": "3000000", "oiCcy": "34567.89", "oiUsd": "2800000000"}
                 ]}
+            if "contract_stats" in url:
+                return [
+                    {"time": stamp // 1000, "open_interest": btc,
+                     "open_interest_usd": float(usd)}
+                    for stamp, btc, usd in history
+                ]
             if "funding_rate" in url:
                 return [
                     {"t": settled_ms // 1000, "r": "0.0001"},
                     {"t": previous_ms // 1000, "r": "0.0002"},
                 ]
             if "contracts/BTC_USDT" in url:
-                return {"name": "BTC_USDT", "position_size": "456789000", "quanto_multiplier": "0.0001"}
+                return {"name": "BTC_USDT", "position_size": "456789000",
+                        "quanto_multiplier": "0.0001", "mark_price": "80000",
+                        "funding_interval": 28800, "funding_next_apply": next_ms // 1000,
+                        "funding_rate_indicative": "0.00012"}
             raise AssertionError(url)
 
         result = collect_derivatives(generated_at=generated, requester=requester)
@@ -261,12 +303,37 @@ class CvdTest(unittest.TestCase):
         self.assertEqual(set(funding), {"binance", "bybit", "okx", "gate"})
         self.assertTrue(all(item["settled_at_utc"] == "2026-10-27T08:00:00Z" for item in funding.values()))
         self.assertTrue(all(item["settled_funding_rate_pct"] == 0.01 for item in funding.values()))
+        self.assertTrue(all(item["predicted"]["classification"] == "predicted_not_settled" for item in funding.values()))
+        self.assertTrue(all(item["predicted"]["predicted_funding_rate_pct"] == 0.012 for item in funding.values()))
         open_interest = result["open_interest"]["value"]["by_exchange"]
         self.assertEqual(open_interest["binance"]["open_interest_btc"], 12345.67)
         self.assertEqual(open_interest["bybit"]["open_interest_btc"], 23456.78)
         self.assertEqual(open_interest["okx"]["open_interest_btc"], 34567.89)
         self.assertEqual(open_interest["gate"]["open_interest_btc"], 45678.9)
+        self.assertEqual(open_interest["binance"]["open_interest_usd"], 987653600.0)
+        self.assertEqual(open_interest["bybit"]["open_interest_usd"], 1876542400.0)
+        self.assertEqual(open_interest["gate"]["open_interest_usd"], 3654312000.0)
+        self.assertEqual(open_interest["binance"]["historical_deltas"]["24h"]["status"], "available")
+        self.assertEqual(open_interest["bybit"]["historical_deltas"]["24h"]["open_interest_usd"]["status"], "unavailable")
+        self.assertEqual(open_interest["okx"]["historical_deltas"]["1h"]["status"], "unavailable")
         self.assertEqual(result["open_interest"]["value"]["aggregation"], "none")
+
+        as_of = dt.datetime(2026, 10, 27, 12, 3, tzinfo=UTC)
+
+        def fake_fetch(endpoint, symbol, start_ms, end_ms):
+            return [kline(value) for value in range(start_ms, end_ms, MINUTE_MS)]
+
+        snapshot = compute(
+            as_of,
+            fetcher=fake_fetch,
+            generated_at=generated,
+            perp_market=gate_perp_market(as_of),
+            derivatives=result,
+        )
+        self.assertEqual(
+            validate_intraday(snapshot, now=generated + dt.timedelta(minutes=1))["integrity"],
+            "passed",
+        )
 
     def test_derivatives_do_not_present_predicted_or_wrong_interval_funding_as_settled(self):
         generated = dt.datetime(2026, 10, 27, 12, 4, tzinfo=UTC)
@@ -302,3 +369,4 @@ class CvdTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

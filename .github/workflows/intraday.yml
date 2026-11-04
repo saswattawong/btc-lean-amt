@@ -8,6 +8,14 @@ on:
         required: false
         default: false
         type: boolean
+      observation_kind:
+        description: Provenance for rolling-SLO eligibility
+        required: false
+        default: manual
+        type: choice
+        options:
+          - manual
+          - scheduled_fallback
   pull_request:
     paths:
       - 'calculate_cvd.py'
@@ -21,6 +29,7 @@ on:
     branches: [main]
     paths:
       - 'calculate_cvd.py'
+      - 'derivatives.py'
       - 'gate_perp_cvd.py'
       - 'monitor_intraday_freshness.py'
       - 'publish_outputs.py'
@@ -54,11 +63,14 @@ jobs:
       - name: Observe freshness before collection
         id: freshness_before
         if: hashFiles('output/latest_intraday.json') != ''
+        env:
+          OBSERVATION_KIND: ${{ github.event_name == 'schedule' && 'schedule' || github.event_name == 'workflow_dispatch' && inputs.observation_kind || github.event_name }}
         run: >-
           python monitor_intraday_freshness.py output/latest_intraday.json
           --ledger output/intraday_freshness.json
           --target-age-seconds 900
           --expected-cadence-seconds 600
+          --observation-kind "$OBSERVATION_KIND"
       - name: Collect synchronized closed-minute data
         id: collect
         run: |
@@ -84,11 +96,14 @@ jobs:
         run: python validate_outputs.py intraday output/latest_intraday.json --max-age-seconds 900
       - name: Initialize freshness ledger when no previous snapshot existed
         if: steps.freshness_before.outcome == 'skipped'
+        env:
+          OBSERVATION_KIND: ${{ github.event_name == 'schedule' && 'schedule' || github.event_name == 'workflow_dispatch' && inputs.observation_kind || github.event_name }}
         run: >-
           python monitor_intraday_freshness.py output/latest_intraday.json
           --ledger output/intraday_freshness.json
           --target-age-seconds 900
           --expected-cadence-seconds 600
+          --observation-kind "$OBSERVATION_KIND"
       - name: Publish separate intraday JSON on main
         id: publish_snapshot
         if: github.ref == 'refs/heads/main'
@@ -111,9 +126,11 @@ jobs:
       - name: Alert when the pre-collection freshness target was breached
         if: >-
           always() &&
+          steps.freshness_before.outcome == 'success' &&
           (github.event_name == 'schedule' || inputs.enforce_slo == true) &&
           (steps.freshness_before.outputs.within_target == 'false' ||
            steps.freshness_before.outputs.rolling_target_met == 'false')
         run: |
           echo "::error title=Intraday freshness SLO breached::Previous source age was ${{ steps.freshness_before.outputs.source_age_seconds }}s (target <=900s); rolling pass rate was ${{ steps.freshness_before.outputs.rolling_pass_rate_pct }}% and schedule-observation coverage was ${{ steps.freshness_before.outputs.observation_coverage_pct }}%. The collector still ran and attempted recovery."
           exit 1
+

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Record pre-collection intraday freshness observations and rolling SLO."""
+"""Record provenance-aware pre-collection freshness observations and SLO."""
 
 import argparse
 import datetime as dt
@@ -9,7 +9,9 @@ import pathlib
 
 
 UTC = dt.timezone.utc
-SCHEMA = "btc_intraday_freshness_slo_v1"
+SCHEMA = "btc_intraday_freshness_slo_v2"
+LEGACY_SCHEMA = "btc_intraday_freshness_slo_v1"
+SLO_ELIGIBLE_KINDS = {"schedule", "scheduled_fallback"}
 
 
 def iso_utc(value):
@@ -29,6 +31,7 @@ def observe(
     observed_at=None,
     target_age_seconds=900,
     expected_cadence_seconds=600,
+    observation_kind="manual",
     retain=2_016,
 ):
     observed_at = (observed_at or dt.datetime.now(UTC)).astimezone(UTC)
@@ -47,25 +50,35 @@ def observe(
         "within_target": source_age <= target_age_seconds,
         "snapshot_schema": snapshot.get("schema"),
         "snapshot_integrity": snapshot.get("integrity", {}).get("status", "unknown"),
+        "observation_kind": observation_kind,
+        "slo_eligible": observation_kind in SLO_ELIGIBLE_KINDS,
     }
 
     observations = []
     if ledger:
-        if ledger.get("schema") != SCHEMA:
+        if ledger.get("schema") not in {SCHEMA, LEGACY_SCHEMA}:
             raise ValueError("unexpected freshness ledger schema")
-        observations = list(ledger.get("observations", []))
+        observations = [
+            dict(
+                item,
+                observation_kind=item.get("observation_kind", "legacy_unclassified"),
+                slo_eligible=item.get("slo_eligible", False),
+            )
+            for item in ledger.get("observations", [])
+        ]
     observations.append(observation)
     observations = observations[-retain:]
 
     if expected_cadence_seconds < 300 or 86_400 % expected_cadence_seconds:
         raise ValueError("expected cadence must divide 24 hours and be at least 300 seconds")
     window_start = observed_at - dt.timedelta(hours=24)
-    recent = [
+    recent_eligible = [
         item for item in observations
-        if parse_utc(item["observed_at_utc"]) > window_start
+        if item.get("slo_eligible") is True
+        and parse_utc(item["observed_at_utc"]) > window_start
     ]
     slots = {}
-    for item in recent:
+    for item in recent_eligible:
         timestamp = parse_utc(item["observed_at_utc"])
         slot = int(timestamp.timestamp()) // expected_cadence_seconds
         if slot not in slots or timestamp > parse_utc(slots[slot]["observed_at_utc"]):
@@ -75,7 +88,11 @@ def observe(
     passed = sum(item.get("within_target") is True for item in rolling)
     rate = round(passed / len(rolling) * 100, 6) if rolling else 0.0
     coverage = round(min(100.0, len(rolling) / expected_observations * 100), 6)
-    has_full_history = bool(observations) and parse_utc(observations[0]["observed_at_utc"]) <= window_start
+    eligible_history = [item for item in observations if item.get("slo_eligible") is True]
+    has_full_history = (
+        bool(eligible_history)
+        and parse_utc(eligible_history[0]["observed_at_utc"]) <= window_start
+    )
     target_met = (
         rate >= 95.0 and coverage >= 95.0
         if has_full_history else "insufficient_history"
@@ -83,7 +100,7 @@ def observe(
     result = {
         "schema": SCHEMA,
         "updated_at_utc": iso_utc(observed_at),
-        "measurement": "Age of the previously published source_as_of timestamp at collector start, plus unique scheduled observation coverage in the preceding 24 hours.",
+        "measurement": "Age of the previously published source_as_of timestamp at collector start. Rolling SLO includes only scheduled and explicitly labelled scheduled-fallback runs; push, PR, manual and legacy observations are excluded.",
         "target": {
             "source_age_seconds_lte": target_age_seconds,
             "pass_rate_pct_gte": 95.0,
@@ -101,6 +118,7 @@ def observe(
             "target_met": target_met,
         },
         "latest_observation": observation,
+        "eligible_observation_kinds": sorted(SLO_ELIGIBLE_KINDS),
         "observations": observations,
     }
     return result
@@ -119,6 +137,11 @@ def main():
     parser.add_argument("--ledger", default="output/intraday_freshness.json")
     parser.add_argument("--target-age-seconds", type=int, default=900)
     parser.add_argument("--expected-cadence-seconds", type=int, default=600)
+    parser.add_argument(
+        "--observation-kind",
+        choices=("schedule", "scheduled_fallback", "manual", "push", "pull_request"),
+        default="manual",
+    )
     parser.add_argument("--retain", type=int, default=2_016)
     parser.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
     parser.add_argument("--github-summary", default=os.environ.get("GITHUB_STEP_SUMMARY"))
@@ -132,6 +155,7 @@ def main():
         existing,
         target_age_seconds=args.target_age_seconds,
         expected_cadence_seconds=args.expected_cadence_seconds,
+        observation_kind=args.observation_kind,
         retain=args.retain,
     )
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
@@ -153,6 +177,7 @@ def main():
         f"- Source as of: `{latest['source_as_of_utc']}`\n"
         f"- Age: `{latest['source_age_seconds']}s` (target `<= {args.target_age_seconds}s`)\n"
         f"- Within target: `{latest['within_target']}`\n"
+        f"- Observation kind: `{latest['observation_kind']}` (SLO eligible: `{latest['slo_eligible']}`)\n"
         f"- Rolling observations: `{rolling['observations']}/{rolling['expected_observations']}`\n"
         f"- Rolling pass rate: `{rolling['pass_rate_pct']}%` (target `>= 95%`)\n"
         f"- Schedule-observation coverage: `{rolling['observation_coverage_pct']}%` (target `>= 95%`)\n",
@@ -162,3 +187,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

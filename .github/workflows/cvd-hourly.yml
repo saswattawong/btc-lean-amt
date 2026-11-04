@@ -68,7 +68,10 @@ jobs:
         if: always() && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run intraday.yml --ref main -f enforce_slo=true
+        run: >-
+          gh workflow run intraday.yml --ref main
+          -f enforce_slo=true
+          -f observation_kind=scheduled_fallback
       - name: Dispatch daily value map after the latest archive is verified
         if: >-
           github.ref == 'refs/heads/main' && github.event_name == 'schedule' &&
@@ -76,3 +79,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run daily.yml --ref main
+
