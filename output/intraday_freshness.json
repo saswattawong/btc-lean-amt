@@ -1,7 +1,7 @@
 {
-  "schema": "btc_intraday_freshness_slo_v1",
-  "updated_at_utc": "2026-11-04T12:38:43Z",
-  "measurement": "Age of the previously published source_as_of timestamp at collector start, plus unique scheduled observation coverage in the preceding 24 hours.",
+  "schema": "btc_intraday_freshness_slo_v2",
+  "updated_at_utc": "2026-11-04T12:48:14Z",
+  "measurement": "Age of the previously published source_as_of timestamp at collector start. Rolling SLO includes only scheduled and explicitly labelled scheduled-fallback runs; push, PR, manual and legacy observations are excluded.",
   "target": {
     "source_age_seconds_lte": 900,
     "pass_rate_pct_gte": 95.0,
@@ -10,24 +10,30 @@
     "observation_coverage_pct_gte": 95.0
   },
   "rolling_24h": {
-    "observations": 6,
+    "observations": 0,
     "expected_observations": 144,
     "passed": 0,
-    "failed": 6,
+    "failed": 0,
     "pass_rate_pct": 0.0,
-    "observation_coverage_pct": 4.166667,
-    "target_met": false
+    "observation_coverage_pct": 0.0,
+    "target_met": "insufficient_history"
   },
   "latest_observation": {
-    "observed_at_utc": "2026-11-04T12:38:43Z",
-    "source_as_of_utc": "2026-11-04T05:04:00Z",
-    "snapshot_generated_at_utc": "2026-11-04T05:05:57Z",
-    "source_age_seconds": 27283,
+    "observed_at_utc": "2026-11-04T12:48:14Z",
+    "source_as_of_utc": "2026-11-04T12:38:00Z",
+    "snapshot_generated_at_utc": "2026-11-04T12:40:15Z",
+    "source_age_seconds": 614,
     "target_age_seconds": 900,
-    "within_target": false,
+    "within_target": true,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
-    "snapshot_integrity": "passed"
+    "snapshot_integrity": "passed",
+    "observation_kind": "push",
+    "slo_eligible": false
   },
+  "eligible_observation_kinds": [
+    "schedule",
+    "scheduled_fallback"
+  ],
   "observations": [
     {
       "observed_at_utc": "2026-10-28T07:37:17Z",
@@ -37,7 +43,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_binance_intraday_v1",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-28T12:47:52Z",
@@ -47,7 +55,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-28T13:01:48Z",
@@ -57,7 +67,9 @@
       "target_age_seconds": 900,
       "within_target": true,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-28T18:47:23Z",
@@ -67,7 +79,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-28T22:53:29Z",
@@ -77,7 +91,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-29T02:01:20Z",
@@ -87,7 +103,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-29T08:21:46Z",
@@ -97,7 +115,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-29T12:13:31Z",
@@ -107,7 +127,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-29T15:19:42Z",
@@ -117,7 +139,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-29T20:22:39Z",
@@ -127,7 +151,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-30T00:01:33Z",
@@ -137,7 +163,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-30T05:34:19Z",
@@ -147,7 +175,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-30T11:35:37Z",
@@ -157,7 +187,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-30T13:03:19Z",
@@ -167,7 +199,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "partial"
+      "snapshot_integrity": "partial",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-30T17:09:21Z",
@@ -177,7 +211,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-30T21:29:17Z",
@@ -187,7 +223,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-31T00:59:19Z",
@@ -197,7 +235,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-31T06:52:51Z",
@@ -207,7 +247,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-31T13:12:25Z",
@@ -217,7 +259,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-31T17:45:15Z",
@@ -227,7 +271,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-31T20:41:39Z",
@@ -237,7 +283,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-10-31T23:46:05Z",
@@ -247,7 +295,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-01T02:39:39Z",
@@ -257,7 +307,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-01T09:44:04Z",
@@ -267,7 +319,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-01T16:26:39Z",
@@ -277,7 +331,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-01T20:42:12Z",
@@ -287,7 +343,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-01T23:54:57Z",
@@ -297,7 +355,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-02T04:08:48Z",
@@ -307,7 +367,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-02T12:19:37Z",
@@ -317,7 +379,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-02T21:48:23Z",
@@ -327,7 +391,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-03T03:06:22Z",
@@ -337,7 +403,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-03T10:44:56Z",
@@ -347,7 +415,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-03T18:04:53Z",
@@ -357,7 +427,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-03T23:14:49Z",
@@ -367,7 +439,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-04T03:02:19Z",
@@ -377,7 +451,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-04T04:47:23Z",
@@ -387,7 +463,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-04T05:05:15Z",
@@ -397,7 +475,9 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
     },
     {
       "observed_at_utc": "2026-11-04T12:38:43Z",
@@ -407,7 +487,21 @@
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
-      "snapshot_integrity": "passed"
+      "snapshot_integrity": "passed",
+      "observation_kind": "legacy_unclassified",
+      "slo_eligible": false
+    },
+    {
+      "observed_at_utc": "2026-11-04T12:48:14Z",
+      "source_as_of_utc": "2026-11-04T12:38:00Z",
+      "snapshot_generated_at_utc": "2026-11-04T12:40:15Z",
+      "source_age_seconds": 614,
+      "target_age_seconds": 900,
+      "within_target": true,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "passed",
+      "observation_kind": "push",
+      "slo_eligible": false
     }
   ]
 }
