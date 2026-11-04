@@ -1,24 +1,28 @@
 {
   "schema": "btc_intraday_freshness_slo_v1",
-  "updated_at_utc": "2026-11-04T03:02:19Z",
-  "measurement": "Age of the previously published source_as_of timestamp at collector start.",
+  "updated_at_utc": "2026-11-04T04:47:23Z",
+  "measurement": "Age of the previously published source_as_of timestamp at collector start, plus unique scheduled observation coverage in the preceding 24 hours.",
   "target": {
     "source_age_seconds_lte": 900,
     "pass_rate_pct_gte": 95.0,
-    "rolling_observations": 288
+    "expected_cadence_seconds": 600,
+    "rolling_observations": 144,
+    "observation_coverage_pct_gte": 95.0
   },
   "rolling_24h": {
-    "observations": 35,
-    "passed": 1,
-    "failed": 34,
-    "pass_rate_pct": 2.857143,
-    "target_met": "insufficient_observations"
+    "observations": 5,
+    "expected_observations": 144,
+    "passed": 0,
+    "failed": 5,
+    "pass_rate_pct": 0.0,
+    "observation_coverage_pct": 3.472222,
+    "target_met": false
   },
   "latest_observation": {
-    "observed_at_utc": "2026-11-04T03:02:19Z",
-    "source_as_of_utc": "2026-11-03T23:14:00Z",
-    "snapshot_generated_at_utc": "2026-11-03T23:15:17Z",
-    "source_age_seconds": 13699,
+    "observed_at_utc": "2026-11-04T04:47:23Z",
+    "source_as_of_utc": "2026-11-04T03:01:00Z",
+    "snapshot_generated_at_utc": "2026-11-04T03:04:05Z",
+    "source_age_seconds": 6383,
     "target_age_seconds": 900,
     "within_target": false,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
@@ -370,6 +374,16 @@
       "source_as_of_utc": "2026-11-03T23:14:00Z",
       "snapshot_generated_at_utc": "2026-11-03T23:15:17Z",
       "source_age_seconds": 13699,
+      "target_age_seconds": 900,
+      "within_target": false,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "passed"
+    },
+    {
+      "observed_at_utc": "2026-11-04T04:47:23Z",
+      "source_as_of_utc": "2026-11-04T03:01:00Z",
+      "snapshot_generated_at_utc": "2026-11-04T03:04:05Z",
+      "source_age_seconds": 6383,
       "target_age_seconds": 900,
       "within_target": false,
       "snapshot_schema": "btc_multi_provider_intraday_v2",
