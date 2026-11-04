@@ -49,6 +49,48 @@ def _validate_freshness(data, now, max_age_seconds):
     return {"source_as_of_utc": block["source_as_of_utc"], "source_age_seconds_now": age_now}
 
 
+def _validate_change_block(block, unit, label):
+    _assert(block.get("status") in {"available", "unavailable"}, f"{label}: invalid change status")
+    _assert(block.get("unit") == unit, f"{label}: wrong unit")
+    if block["status"] == "unavailable":
+        _assert(bool(block.get("error")), f"{label}: unavailable change has no error")
+        return
+    start = block.get("from")
+    end = block.get("to")
+    change = block.get("absolute_change")
+    percent = block.get("percent_change")
+    _assert(all(isinstance(value, (int, float)) for value in (start, end, change)), f"{label}: values missing")
+    _assert(start >= 0 and end >= 0, f"{label}: negative OI")
+    _assert(abs((end - start) - change) < 1e-6, f"{label}: change arithmetic mismatch")
+    if start:
+        _assert(isinstance(percent, (int, float)), f"{label}: percent missing")
+        _assert(abs(change / start * 100 - percent) < 1e-6, f"{label}: percent mismatch")
+    else:
+        _assert(percent == "N/A", f"{label}: zero-base percent must be N/A")
+
+
+def _validate_prediction(prediction, label):
+    _assert(isinstance(prediction, dict), f"{label}: predicted funding block missing")
+    _assert(prediction.get("classification") == "predicted_not_settled", f"{label}: prediction classification missing")
+    _assert(bool(prediction.get("source_endpoint")), f"{label}: prediction endpoint missing")
+    status = prediction.get("status")
+    if status == "unavailable":
+        _assert(prediction.get("observed_at_utc") == "N/A", f"{label}: unavailable prediction timestamp")
+        _assert(prediction.get("predicted_funding_rate") == "N/A", f"{label}: unavailable prediction rate")
+        _assert(bool(prediction.get("error")), f"{label}: unavailable prediction has no error")
+        return
+    _assert(status == "available", f"{label}: invalid prediction status")
+    observed = parse_utc(prediction["observed_at_utc"])
+    settles = parse_utc(prediction["settles_at_utc"])
+    _assert(settles > observed, f"{label}: prediction does not target a future settlement")
+    _assert(prediction.get("funding_interval_hours") == 8, f"{label}: prediction interval is not 8h")
+    rate = prediction.get("predicted_funding_rate")
+    rate_pct = prediction.get("predicted_funding_rate_pct")
+    _assert(isinstance(rate, (int, float)) and isinstance(rate_pct, (int, float)), f"{label}: prediction rate missing")
+    _assert(abs(rate * 100 - rate_pct) < 1e-10, f"{label}: prediction percent mismatch")
+    _assert(prediction.get("error") is None, f"{label}: available prediction has an error")
+
+
 def _validate_derivatives(derivatives):
     _assert(set(derivatives) == {"funding", "open_interest"}, "derivatives set mismatch")
     for kind, metric in derivatives.items():
@@ -67,33 +109,53 @@ def _validate_derivatives(derivatives):
 
         available = []
         for exchange, item in exchanges.items():
-            _assert(bool(item.get("source_endpoint")), f"{kind}/{exchange}: endpoint missing")
+            label = f"{kind}/{exchange}"
+            _assert(bool(item.get("source_endpoint")), f"{label}: endpoint missing")
             item_status = item.get("status")
+            if kind == "funding":
+                _validate_prediction(item.get("predicted"), label)
             if item_status == "available":
                 available.append(exchange)
                 timestamp = parse_utc(item["source_timestamp_utc"])
-                _assert(item.get("error") is None, f"{kind}/{exchange}: available item has an error")
+                _assert(item.get("error") is None, f"{label}: available item has an error")
                 _assert(
                     isinstance(item.get("age_seconds_at_generation"), int)
                     and item["age_seconds_at_generation"] >= 0,
-                    f"{kind}/{exchange}: invalid age",
+                    f"{label}: invalid age",
                 )
                 if kind == "funding":
-                    _assert(item.get("funding_interval_hours") == 8, f"{kind}/{exchange}: interval is not 8h")
-                    _assert(parse_utc(item["settled_at_utc"]) == timestamp, f"{kind}/{exchange}: settlement timestamp mismatch")
+                    _assert(item.get("funding_interval_hours") == 8, f"{label}: interval is not 8h")
+                    _assert(parse_utc(item["settled_at_utc"]) == timestamp, f"{label}: settlement timestamp mismatch")
                     rate = item.get("settled_funding_rate")
                     rate_pct = item.get("settled_funding_rate_pct")
-                    _assert(isinstance(rate, (int, float)), f"{kind}/{exchange}: settled rate missing")
-                    _assert(isinstance(rate_pct, (int, float)), f"{kind}/{exchange}: settled percent missing")
-                    _assert(abs(rate * 100 - rate_pct) < 1e-10, f"{kind}/{exchange}: settled percent mismatch")
+                    _assert(isinstance(rate, (int, float)), f"{label}: settled rate missing")
+                    _assert(isinstance(rate_pct, (int, float)), f"{label}: settled percent missing")
+                    _assert(abs(rate * 100 - rate_pct) < 1e-10, f"{label}: settled percent mismatch")
                 else:
-                    amount = item.get("open_interest_btc")
-                    _assert(isinstance(amount, (int, float)) and amount >= 0, f"{kind}/{exchange}: BTC amount missing")
-                    _assert(item.get("unit") == "BTC", f"{kind}/{exchange}: unit is not BTC")
+                    btc = item.get("open_interest_btc")
+                    usd = item.get("open_interest_usd")
+                    _assert(isinstance(btc, (int, float)) and btc >= 0, f"{label}: BTC amount missing")
+                    _assert(isinstance(usd, (int, float)) and usd >= 0, f"{label}: USD amount missing")
+                    _assert(item.get("units") == {"open_interest_btc": "BTC", "open_interest_usd": "USD"}, f"{label}: units mismatch")
+                    deltas = item.get("historical_deltas", {})
+                    _assert(set(deltas) == {"1h", "4h", "24h"}, f"{label}: delta windows mismatch")
+                    for window, delta in deltas.items():
+                        delta_label = f"{label}/{window}"
+                        _assert(delta.get("status") in {"available", "unavailable"}, f"{delta_label}: invalid status")
+                        _assert(bool(delta.get("source_endpoint")), f"{delta_label}: endpoint missing")
+                        if delta["status"] == "unavailable":
+                            _assert(delta.get("open_interest_btc") == "N/A", f"{delta_label}: unavailable BTC is not N/A")
+                            _assert(delta.get("open_interest_usd") == "N/A", f"{delta_label}: unavailable USD is not N/A")
+                            _assert(bool(delta.get("error")), f"{delta_label}: unavailable delta has no error")
+                            continue
+                        _assert(parse_utc(delta["start_utc"]) < parse_utc(delta["end_utc"]), f"{delta_label}: invalid window")
+                        _validate_change_block(delta["open_interest_btc"], "BTC", f"{delta_label}/BTC")
+                        _validate_change_block(delta["open_interest_usd"], "USD", f"{delta_label}/USD")
+                        _assert(delta.get("error") is None, f"{delta_label}: available delta has an error")
             else:
-                _assert(item_status == "unavailable", f"{kind}/{exchange}: invalid status")
-                _assert(item.get("source_timestamp_utc") == "N/A", f"{kind}/{exchange}: unavailable timestamp is not N/A")
-                _assert(bool(item.get("error")), f"{kind}/{exchange}: unavailable item has no error")
+                _assert(item_status == "unavailable", f"{label}: invalid status")
+                _assert(item.get("source_timestamp_utc") == "N/A", f"{label}: unavailable timestamp is not N/A")
+                _assert(bool(item.get("error")), f"{label}: unavailable item has no error")
 
         if status == "available":
             _assert(bool(available), f"{kind}: available without an exchange value")
