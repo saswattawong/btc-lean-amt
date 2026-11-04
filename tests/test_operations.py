@@ -1,5 +1,7 @@
 import datetime as dt
+import os
 import pathlib
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -7,7 +9,7 @@ import unittest
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from monitor_intraday_freshness import SCHEMA, observe
-from publish_outputs import validate_paths
+from publish_outputs import publish, validate_paths
 
 
 UTC = dt.timezone.utc
@@ -25,6 +27,16 @@ def snapshot(source, generated):
 
 
 class OperationsTest(unittest.TestCase):
+    @staticmethod
+    def git(*args, cwd):
+        result = subprocess.run(
+            ("git", *args), cwd=cwd, check=False, text=True,
+            capture_output=True,
+        )
+        if result.returncode:
+            raise AssertionError(result.stderr.strip() or result.stdout.strip())
+        return result.stdout
+
     def test_freshness_slo_uses_source_time_at_observation(self):
         source = dt.datetime(2026, 10, 28, 0, 0, tzinfo=UTC)
         first = observe(
@@ -76,6 +88,45 @@ class OperationsTest(unittest.TestCase):
             self.assertEqual(len(validate_paths(["output.json"], root)), 1)
             with self.assertRaisesRegex(ValueError, "inside the repository"):
                 validate_paths(["../outside.json"], root)
+
+    @unittest.skipIf(os.name == "nt", "local bare-repository push requires MSYS IPC")
+    def test_publish_preserves_scoped_output_when_remote_changes_during_collection(self):
+        with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as directory:
+            root = pathlib.Path(directory)
+            origin = root / "origin.git"
+            seed = root / "seed"
+            collector = root / "collector"
+            concurrent = root / "concurrent"
+            self.git("init", "--bare", str(origin), cwd=root)
+            self.git("init", "-b", "main", str(seed), cwd=root)
+            (seed / "output").mkdir()
+            (seed / "output" / "latest.json").write_text("seed\n", encoding="utf-8")
+            self.git("add", ".", cwd=seed)
+            self.git("-c", "user.name=Test", "-c", "user.email=test@example.com",
+                     "commit", "-m", "seed", cwd=seed)
+            self.git("remote", "add", "origin", str(origin), cwd=seed)
+            self.git("push", "-u", "origin", "main", cwd=seed)
+            self.git("clone", "--branch", "main", str(origin), str(collector), cwd=root)
+            self.git("clone", "--branch", "main", str(origin), str(concurrent), cwd=root)
+
+            (collector / "output" / "latest.json").write_text("collector\n", encoding="utf-8")
+            (concurrent / "output" / "latest.json").write_text("concurrent\n", encoding="utf-8")
+            self.git("add", "output/latest.json", cwd=concurrent)
+            self.git("-c", "user.name=Other", "-c", "user.email=other@example.com",
+                     "commit", "-m", "concurrent", cwd=concurrent)
+            self.git("push", "origin", "main", cwd=concurrent)
+
+            previous = pathlib.Path.cwd()
+            try:
+                os.chdir(collector)
+                published = publish(["output/latest.json"], "publish collector", attempts=1)
+            finally:
+                os.chdir(previous)
+            self.assertIsNotNone(published)
+            self.assertEqual(
+                self.git("--git-dir", str(origin), "show", "main:output/latest.json", cwd=root),
+                "collector\n",
+            )
 
     def test_intraday_workflow_preserves_bounded_recovery_checkpoint(self):
         workflow = (REPO_ROOT / ".github" / "workflows" / "intraday.yml").read_text(
