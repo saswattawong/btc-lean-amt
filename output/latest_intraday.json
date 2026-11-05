@@ -1,15 +1,15 @@
 {
   "schema": "btc_multi_provider_intraday_v2",
-  "generated_at_utc": "2026-11-05T07:28:25Z",
+  "generated_at_utc": "2026-11-05T07:34:46Z",
   "symbol": "BTCUSDT",
   "quote_asset": "USDT",
   "interval": "1m",
-  "as_of_utc": "2026-11-05T07:27:00Z",
-  "range_start_utc": "2026-11-04T07:27:00Z",
+  "as_of_utc": "2026-11-05T07:34:00Z",
+  "range_start_utc": "2026-11-04T07:34:00Z",
   "freshness": {
-    "source_as_of_utc": "2026-11-05T07:27:00Z",
-    "generated_at_utc": "2026-11-05T07:28:25Z",
-    "source_age_seconds_at_generation": 85,
+    "source_as_of_utc": "2026-11-05T07:34:00Z",
+    "generated_at_utc": "2026-11-05T07:34:46Z",
+    "source_age_seconds_at_generation": 46,
     "max_source_age_seconds": 14400,
     "status_at_generation": "fresh",
     "note": "Dashboard interpretation treats snapshots up to 4 hours old as current. Actual age is measured from the last closed source candle, never from file generation time."
@@ -43,12 +43,12 @@
         "https://data-api.binance.vision/api/v3/klines",
         "https://api.binance.com/api/v3/klines"
       ],
-      "source_timestamp_utc": "2026-11-05T07:26:59Z",
+      "source_timestamp_utc": "2026-11-05T07:33:59Z",
       "coverage": {
-        "start_utc": "2026-11-04T07:27:00Z",
-        "end_utc_exclusive": "2026-11-05T07:27:00Z",
-        "first_candle_open_utc": "2026-11-04T07:27:00Z",
-        "last_candle_close_utc": "2026-11-05T07:26:59Z",
+        "start_utc": "2026-11-04T07:34:00Z",
+        "end_utc_exclusive": "2026-11-05T07:34:00Z",
+        "first_candle_open_utc": "2026-11-04T07:34:00Z",
+        "last_candle_close_utc": "2026-11-05T07:33:59Z",
         "expected_closed_1m_klines": 1440,
         "validated_closed_1m_klines": 1440,
         "candle_completeness_pct": 100.0
@@ -56,48 +56,48 @@
       "windows": {
         "1h": {
           "status": "available",
-          "start_utc": "2026-11-05T06:27:00Z",
-          "end_utc_exclusive": "2026-11-05T07:27:00Z",
+          "start_utc": "2026-11-05T06:34:00Z",
+          "end_utc_exclusive": "2026-11-05T07:34:00Z",
           "closed_klines": 60,
-          "quote_volume_usdt": 28657882.8906636,
-          "taker_buy_quote_volume_usdt": 13147138.4372603,
-          "taker_sell_quote_volume_usdt": 15510744.4534033,
-          "cvd_quote_usdt": -2363606.016143,
-          "taker_buy_share": 0.4587616778,
-          "taker_buy_share_pct": 45.87616778,
-          "normalized_cvd": -0.0824766444,
+          "quote_volume_usdt": 34116972.4811203,
+          "taker_buy_quote_volume_usdt": 13029243.1655137,
+          "taker_sell_quote_volume_usdt": 21087729.3156066,
+          "cvd_quote_usdt": -8058486.1500929,
+          "taker_buy_share": 0.381899161,
+          "taker_buy_share_pct": 38.1899161,
+          "normalized_cvd": -0.2362016781,
           "error": null
         },
         "4h": {
           "status": "available",
-          "start_utc": "2026-11-05T03:27:00Z",
-          "end_utc_exclusive": "2026-11-05T07:27:00Z",
+          "start_utc": "2026-11-05T03:34:00Z",
+          "end_utc_exclusive": "2026-11-05T07:34:00Z",
           "closed_klines": 240,
-          "quote_volume_usdt": 117144816.4334418,
-          "taker_buy_quote_volume_usdt": 49288875.595566,
-          "taker_sell_quote_volume_usdt": 67855940.8378758,
-          "cvd_quote_usdt": -18567065.2423098,
-          "taker_buy_share": 0.4207516568,
-          "taker_buy_share_pct": 42.07516568,
-          "normalized_cvd": -0.1584966865,
+          "quote_volume_usdt": 123346062.6193324,
+          "taker_buy_quote_volume_usdt": 50357779.1328134,
+          "taker_sell_quote_volume_usdt": 72988283.486519,
+          "cvd_quote_usdt": -22630504.3537056,
+          "taker_buy_share": 0.4082641802,
+          "taker_buy_share_pct": 40.82641802,
+          "normalized_cvd": -0.1834716397,
           "error": null
         },
         "24h": {
           "status": "available",
-          "start_utc": "2026-11-04T07:27:00Z",
-          "end_utc_exclusive": "2026-11-05T07:27:00Z",
+          "start_utc": "2026-11-04T07:34:00Z",
+          "end_utc_exclusive": "2026-11-05T07:34:00Z",
           "closed_klines": 1440,
-          "quote_volume_usdt": 1504567083.2667592,
-          "taker_buy_quote_volume_usdt": 788593539.4937445,
-          "taker_sell_quote_volume_usdt": 715973543.7730147,
-          "cvd_quote_usdt": 72619995.7207298,
-          "taker_buy_share": 0.5241331864,
-          "taker_buy_share_pct": 52.41331864,
-          "normalized_cvd": 0.0482663728,
+          "quote_volume_usdt": 1502949286.8355694,
+          "taker_buy_quote_volume_usdt": 784005233.2357194,
+          "taker_sell_quote_volume_usdt": 718944053.59985,
+          "cvd_quote_usdt": 65061179.6358693,
+          "taker_buy_share": 0.5216445026,
+          "taker_buy_share_pct": 52.16445026,
+          "normalized_cvd": 0.0432890053,
           "error": null
         }
       },
-      "last_closed_price_usdt": 80628.01,
+      "last_closed_price_usdt": 80400.01,
       "failover_errors": [],
       "error": null
     },
@@ -113,7 +113,7 @@
         "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
         "https://api.gateio.ws/api/v4/futures/usdt/trades"
       ],
-      "source_timestamp_utc": "2026-11-05T07:26:59Z",
+      "source_timestamp_utc": "2026-11-05T07:33:59Z",
       "contract": {
         "name": "BTC_USDT",
         "type": "direct",
@@ -124,8 +124,8 @@
         "in_delisting": false
       },
       "coverage": {
-        "start_utc": "2026-11-04T07:27:00Z",
-        "end_utc_exclusive": "2026-11-05T07:27:00Z",
+        "start_utc": "2026-11-04T07:34:00Z",
+        "end_utc_exclusive": "2026-11-05T07:34:00Z",
         "expected_closed_1m_klines": 1440,
         "validated_closed_1m_klines": 1440,
         "candle_completeness_pct": 100.0
@@ -135,44 +135,44 @@
       "windows": {
         "1h": {
           "status": "available",
-          "start_utc": "2026-11-05T06:27:00Z",
-          "end_utc_exclusive": "2026-11-05T07:27:00Z",
+          "start_utc": "2026-11-05T06:34:00Z",
+          "end_utc_exclusive": "2026-11-05T07:34:00Z",
           "closed_klines": 60,
-          "quote_volume_usdt": 118337073.01522,
-          "taker_buy_quote_volume_usdt": 57423694.68503,
-          "taker_sell_quote_volume_usdt": 60913378.33019,
-          "cvd_quote_usdt": -3489683.64516,
-          "taker_buy_share": 0.4852553238,
-          "taker_buy_share_pct": 48.52553238,
-          "normalized_cvd": -0.0294893524,
+          "quote_volume_usdt": 131088752.16516,
+          "taker_buy_quote_volume_usdt": 63283594.34614,
+          "taker_sell_quote_volume_usdt": 67805157.81902,
+          "cvd_quote_usdt": -4521563.47288,
+          "taker_buy_share": 0.4827538084,
+          "taker_buy_share_pct": 48.27538084,
+          "normalized_cvd": -0.0344923832,
           "error": null
         },
         "4h": {
           "status": "available",
-          "start_utc": "2026-11-05T03:27:00Z",
-          "end_utc_exclusive": "2026-11-05T07:27:00Z",
+          "start_utc": "2026-11-05T03:34:00Z",
+          "end_utc_exclusive": "2026-11-05T07:34:00Z",
           "closed_klines": 240,
-          "quote_volume_usdt": 498716903.32513,
-          "taker_buy_quote_volume_usdt": 244995037.289,
-          "taker_sell_quote_volume_usdt": 253721866.03613,
-          "cvd_quote_usdt": -8726828.74713,
-          "taker_buy_share": 0.4912507189,
-          "taker_buy_share_pct": 49.12507189,
-          "normalized_cvd": -0.0174985622,
+          "quote_volume_usdt": 514564503.50005,
+          "taker_buy_quote_volume_usdt": 252337716.31674,
+          "taker_sell_quote_volume_usdt": 262226787.18331,
+          "cvd_quote_usdt": -9889070.86657,
+          "taker_buy_share": 0.4903908346,
+          "taker_buy_share_pct": 49.03908346,
+          "normalized_cvd": -0.0192183308,
           "error": null
         },
         "24h": {
           "status": "available",
-          "start_utc": "2026-11-04T07:27:00Z",
-          "end_utc_exclusive": "2026-11-05T07:27:00Z",
+          "start_utc": "2026-11-04T07:34:00Z",
+          "end_utc_exclusive": "2026-11-05T07:34:00Z",
           "closed_klines": 1440,
-          "quote_volume_usdt": 8195896869.1477,
-          "taker_buy_quote_volume_usdt": 4257893646.89268,
-          "taker_sell_quote_volume_usdt": 3938003222.25502,
-          "cvd_quote_usdt": 319890424.63766,
-          "taker_buy_share": 0.5195152788,
-          "taker_buy_share_pct": 51.95152788,
-          "normalized_cvd": 0.0390305576,
+          "quote_volume_usdt": 8141616753.99403,
+          "taker_buy_quote_volume_usdt": 4236235498.59616,
+          "taker_sell_quote_volume_usdt": 3905381255.39787,
+          "cvd_quote_usdt": 330854243.19829,
+          "taker_buy_share": 0.5203187065,
+          "taker_buy_share_pct": 52.03187065,
+          "normalized_cvd": 0.0406374131,
           "error": null
         }
       },
@@ -189,1183 +189,54 @@
           "error": null,
           "loaded_buckets": 1440
         },
-        "state_recovery_mode": "gap_recovery",
-        "detected_state_gap_minutes": 386,
-        "persisted_buckets_retained": 1054,
-        "discarded_buckets_outside_target": 386,
-        "checkpoint_count": 67,
+        "state_recovery_mode": "incremental",
+        "detected_state_gap_minutes": 7,
+        "persisted_buckets_retained": 1433,
+        "discarded_buckets_outside_target": 7,
+        "checkpoint_count": 1,
         "stored_verified_minutes": 1440,
         "missing_verified_minutes": 0,
-        "request_count": 227,
+        "request_count": 9,
         "request_budget": 1600,
-        "request_budget_remaining": 1373,
+        "request_budget_remaining": 1591,
         "runtime_budget_seconds": 150,
-        "runtime_elapsed_seconds": 43.675,
+        "runtime_elapsed_seconds": 10.114,
         "backfill_workers": 12,
-        "verified_untruncated_segments": 67,
-        "unique_trades": 189551,
+        "verified_untruncated_segments": 1,
+        "unique_trades": 7977,
         "duplicate_trade_ids_filtered": 0,
         "time_split_count": 0,
         "page_limit": 1000,
-        "range_start_utc": "2026-11-04T07:27:00Z",
-        "range_end_utc_exclusive": "2026-11-05T07:27:00Z",
+        "range_start_utc": "2026-11-04T07:34:00Z",
+        "range_end_utc_exclusive": "2026-11-05T07:34:00Z",
         "current_refresh": {
-          "request_count": 26,
+          "request_count": 8,
           "verified_untruncated_segments": 1,
-          "unique_trades": 25898,
+          "unique_trades": 7977,
           "duplicate_trade_ids_filtered": 0,
           "page_limit": 1000,
           "max_safe_page_offset": 100000,
           "pagination_method": "offset_until_short_page",
           "time_split_count": 0,
           "terminal_short_page_observed": true,
-          "terminal_offset": 25000,
+          "terminal_offset": 7000,
           "terminal_offsets": [
-            25000
+            7000
           ],
-          "range_start_utc": "2026-11-05T06:27:00Z",
-          "range_end_utc_exclusive": "2026-11-05T07:27:00Z"
+          "range_start_utc": "2026-11-05T07:17:00Z",
+          "range_end_utc_exclusive": "2026-11-05T07:34:00Z"
         },
         "historical_backfill": {
-          "status": "passed",
-          "requested_minutes": 326,
-          "completed_minutes": 326,
+          "status": "not_needed",
+          "requested_minutes": 0,
+          "completed_minutes": 0,
           "error": null,
-          "request_count": 200,
-          "verified_untruncated_segments": 66,
-          "unique_trades": 163653,
+          "request_count": 0,
+          "verified_untruncated_segments": 0,
+          "unique_trades": 0,
           "duplicate_trade_ids_filtered": 0,
           "time_split_count": 0,
-          "page_limit": 1000,
-          "pagination_method": "offset_until_short_page",
-          "worker_count": 12,
-          "planned_segments": 66,
-          "range_start_utc": "2026-11-04T07:27:00Z",
-          "range_end_utc_exclusive": "2026-11-05T06:27:00Z",
-          "chunks": [
-            {
-              "request_count": 22,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1678,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T06:22:00Z",
-              "range_end_utc_exclusive": "2026-11-05T06:27:00Z"
-            },
-            {
-              "request_count": 33,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2201,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T06:17:00Z",
-              "range_end_utc_exclusive": "2026-11-05T06:22:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2773,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T06:12:00Z",
-              "range_end_utc_exclusive": "2026-11-05T06:17:00Z"
-            },
-            {
-              "request_count": 23,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1391,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T06:07:00Z",
-              "range_end_utc_exclusive": "2026-11-05T06:12:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2759,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T06:02:00Z",
-              "range_end_utc_exclusive": "2026-11-05T06:07:00Z"
-            },
-            {
-              "request_count": 23,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1689,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T05:57:00Z",
-              "range_end_utc_exclusive": "2026-11-05T06:02:00Z"
-            },
-            {
-              "request_count": 24,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1455,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T05:52:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:57:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2377,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:47:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:52:00Z"
-            },
-            {
-              "request_count": 34,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2206,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:42:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:47:00Z"
-            },
-            {
-              "request_count": 44,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3041,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T05:37:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:42:00Z"
-            },
-            {
-              "request_count": 37,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2539,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:32:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:37:00Z"
-            },
-            {
-              "request_count": 38,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2852,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:27:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:32:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2026,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:22:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:27:00Z"
-            },
-            {
-              "request_count": 35,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2196,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:17:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:22:00Z"
-            },
-            {
-              "request_count": 37,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2173,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:12:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:17:00Z"
-            },
-            {
-              "request_count": 27,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1824,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T05:07:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:12:00Z"
-            },
-            {
-              "request_count": 35,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2317,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T05:02:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:07:00Z"
-            },
-            {
-              "request_count": 24,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1609,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T04:57:00Z",
-              "range_end_utc_exclusive": "2026-11-05T05:02:00Z"
-            },
-            {
-              "request_count": 23,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1143,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T04:52:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:57:00Z"
-            },
-            {
-              "request_count": 25,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1711,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T04:47:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:52:00Z"
-            },
-            {
-              "request_count": 37,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2922,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T04:42:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:47:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2465,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T04:37:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:42:00Z"
-            },
-            {
-              "request_count": 54,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3812,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T04:32:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:37:00Z"
-            },
-            {
-              "request_count": 24,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1700,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T04:27:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:32:00Z"
-            },
-            {
-              "request_count": 24,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1430,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T04:22:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:27:00Z"
-            },
-            {
-              "request_count": 38,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2066,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T04:17:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:22:00Z"
-            },
-            {
-              "request_count": 33,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2004,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T04:12:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:17:00Z"
-            },
-            {
-              "request_count": 24,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1596,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T04:07:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:12:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2560,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T04:02:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:07:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2161,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T03:57:00Z",
-              "range_end_utc_exclusive": "2026-11-05T04:02:00Z"
-            },
-            {
-              "request_count": 20,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1006,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:52:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:57:00Z"
-            },
-            {
-              "request_count": 23,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1209,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:47:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:52:00Z"
-            },
-            {
-              "request_count": 25,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1426,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:42:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:47:00Z"
-            },
-            {
-              "request_count": 25,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1798,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:37:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:42:00Z"
-            },
-            {
-              "request_count": 25,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1604,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:32:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:37:00Z"
-            },
-            {
-              "request_count": 26,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1527,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:27:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:32:00Z"
-            },
-            {
-              "request_count": 22,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1285,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:22:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:27:00Z"
-            },
-            {
-              "request_count": 45,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3015,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T03:17:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:22:00Z"
-            },
-            {
-              "request_count": 23,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1658,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:12:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:17:00Z"
-            },
-            {
-              "request_count": 25,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1874,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T03:07:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:12:00Z"
-            },
-            {
-              "request_count": 37,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2232,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T03:02:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:07:00Z"
-            },
-            {
-              "request_count": 23,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1527,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T02:57:00Z",
-              "range_end_utc_exclusive": "2026-11-05T03:02:00Z"
-            },
-            {
-              "request_count": 24,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 1902,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 1000,
-              "terminal_offsets": [
-                1000
-              ],
-              "range_start_utc": "2026-11-05T02:52:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:57:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2413,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T02:47:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:52:00Z"
-            },
-            {
-              "request_count": 36,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2528,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T02:42:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:47:00Z"
-            },
-            {
-              "request_count": 35,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2146,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T02:37:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:42:00Z"
-            },
-            {
-              "request_count": 47,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3046,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T02:32:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:37:00Z"
-            },
-            {
-              "request_count": 34,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2098,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T02:27:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:32:00Z"
-            },
-            {
-              "request_count": 34,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2077,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T02:22:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:27:00Z"
-            },
-            {
-              "request_count": 37,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2704,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T02:17:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:22:00Z"
-            },
-            {
-              "request_count": 49,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3437,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T02:12:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:17:00Z"
-            },
-            {
-              "request_count": 59,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 4179,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 4000,
-              "terminal_offsets": [
-                4000
-              ],
-              "range_start_utc": "2026-11-05T02:07:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:12:00Z"
-            },
-            {
-              "request_count": 58,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 4170,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 4000,
-              "terminal_offsets": [
-                4000
-              ],
-              "range_start_utc": "2026-11-05T02:02:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:07:00Z"
-            },
-            {
-              "request_count": 38,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2997,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T01:57:00Z",
-              "range_end_utc_exclusive": "2026-11-05T02:02:00Z"
-            },
-            {
-              "request_count": 65,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 6038,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 6000,
-              "terminal_offsets": [
-                6000
-              ],
-              "range_start_utc": "2026-11-05T01:52:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:57:00Z"
-            },
-            {
-              "request_count": 48,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3699,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T01:47:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:52:00Z"
-            },
-            {
-              "request_count": 52,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 4318,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 4000,
-              "terminal_offsets": [
-                4000
-              ],
-              "range_start_utc": "2026-11-05T01:42:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:47:00Z"
-            },
-            {
-              "request_count": 47,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3305,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T01:37:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:42:00Z"
-            },
-            {
-              "request_count": 37,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2865,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T01:32:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:37:00Z"
-            },
-            {
-              "request_count": 47,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3140,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T01:27:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:32:00Z"
-            },
-            {
-              "request_count": 45,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 4826,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 4000,
-              "terminal_offsets": [
-                4000
-              ],
-              "range_start_utc": "2026-11-05T01:22:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:27:00Z"
-            },
-            {
-              "request_count": 47,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 6642,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 6000,
-              "terminal_offsets": [
-                6000
-              ],
-              "range_start_utc": "2026-11-05T01:17:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:22:00Z"
-            },
-            {
-              "request_count": 31,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3436,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T01:12:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:17:00Z"
-            },
-            {
-              "request_count": 24,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 2212,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 2000,
-              "terminal_offsets": [
-                2000
-              ],
-              "range_start_utc": "2026-11-05T01:07:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:12:00Z"
-            },
-            {
-              "request_count": 21,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 3772,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 3000,
-              "terminal_offsets": [
-                3000
-              ],
-              "range_start_utc": "2026-11-05T01:02:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:07:00Z"
-            },
-            {
-              "request_count": 8,
-              "verified_untruncated_segments": 1,
-              "unique_trades": 866,
-              "duplicate_trade_ids_filtered": 0,
-              "page_limit": 1000,
-              "max_safe_page_offset": 100000,
-              "pagination_method": "offset_until_short_page",
-              "time_split_count": 0,
-              "terminal_short_page_observed": true,
-              "terminal_offset": 0,
-              "terminal_offsets": [
-                0
-              ],
-              "range_start_utc": "2026-11-05T01:01:00Z",
-              "range_end_utc_exclusive": "2026-11-05T01:02:00Z"
-            }
-          ]
+          "chunks": []
         }
       },
       "error": null
@@ -1376,8 +247,8 @@
     "provider": "Binance Spot Market Data API",
     "coverage": "close of the latest validated closed BTCUSDT 1m Spot candle",
     "source_endpoint": "https://data-api.binance.vision/api/v3/klines",
-    "source_timestamp_utc": "2026-11-05T07:26:59Z",
-    "price_usdt": 80628.01,
+    "source_timestamp_utc": "2026-11-05T07:33:59Z",
+    "price_usdt": 80400.01,
     "error": null
   },
   "derivatives": {
@@ -1457,12 +328,12 @@
             "funding_interval_hours": 8,
             "settled_funding_rate": 7.48307148042e-05,
             "settled_funding_rate_pct": 0.00748307148042,
-            "age_seconds_at_generation": 26857,
+            "age_seconds_at_generation": 27271,
             "predicted": {
               "status": "available",
               "classification": "predicted_not_settled",
               "source_endpoint": "https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP",
-              "observed_at_utc": "2026-11-05T07:27:14Z",
+              "observed_at_utc": "2026-11-05T07:34:11Z",
               "settles_at_utc": "2026-11-05T08:00:00Z",
               "funding_interval_hours": 8,
               "predicted_funding_rate": 0.0001,
@@ -1490,12 +361,12 @@
             "funding_interval_hours": 8,
             "settled_funding_rate": 8e-05,
             "settled_funding_rate_pct": 0.008,
-            "age_seconds_at_generation": 26857,
+            "age_seconds_at_generation": 27271,
             "predicted": {
               "status": "available",
               "classification": "predicted_not_settled",
               "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
-              "observed_at_utc": "2026-11-05T07:27:37Z",
+              "observed_at_utc": "2026-11-05T07:34:31Z",
               "settles_at_utc": "2026-11-05T08:00:00Z",
               "funding_interval_hours": 8,
               "predicted_funding_rate": 0.0001,
@@ -1530,9 +401,9 @@
       "coverage": "BTC and USD OI plus same-provider 1h/4h/24h deltas by exchange",
       "source_endpoint": [
         "https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP",
-        "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793773657&interval=5m&limit=500"
+        "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500"
       ],
-      "source_timestamp_utc": "2026-11-05T07:27:38Z",
+      "source_timestamp_utc": "2026-11-05T07:34:32Z",
       "value": {
         "measurement": "open interest in BTC and USD with native historical deltas",
         "units": {
@@ -1626,9 +497,9 @@
             "exchange": "OKX",
             "instrument": "BTC-USDT-SWAP",
             "source_endpoint": "https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP",
-            "source_timestamp_utc": "2026-11-05T07:27:38Z",
-            "open_interest_btc": 33352.54020000012,
-            "open_interest_usd": 2687480984.2356095,
+            "source_timestamp_utc": "2026-11-05T07:34:32Z",
+            "open_interest_btc": 33332.04850000012,
+            "open_interest_usd": 2679396718.6725097,
             "units": {
               "open_interest_btc": "BTC",
               "open_interest_usd": "USD"
@@ -1668,7 +539,7 @@
               "btc": "oiCcy",
               "usd": "oiUsd"
             },
-            "open_interest_contracts": 3335254.020000012,
+            "open_interest_contracts": 3333204.8500000117,
             "endpoints_attempted": [
               "https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP"
             ]
@@ -1677,85 +548,85 @@
             "status": "available",
             "exchange": "Gate",
             "instrument": "BTC_USDT USDT-settled perpetual",
-            "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793773657&interval=5m&limit=500",
-            "source_timestamp_utc": "2026-11-05T07:25:00Z",
-            "open_interest_btc": 57319.6896,
-            "open_interest_usd": 4619762923.665024,
+            "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
+            "source_timestamp_utc": "2026-11-05T07:30:00Z",
+            "open_interest_btc": 57206.4368,
+            "open_interest_usd": 4606348100.7912,
             "units": {
               "open_interest_btc": "BTC",
               "open_interest_usd": "USD"
             },
-            "age_seconds_at_generation": 157,
+            "age_seconds_at_generation": 271,
             "historical_deltas": {
               "1h": {
                 "status": "available",
-                "start_utc": "2026-11-05T06:25:00Z",
-                "end_utc": "2026-11-05T07:25:00Z",
-                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793773657&interval=5m&limit=500",
+                "start_utc": "2026-11-05T06:30:00Z",
+                "end_utc": "2026-11-05T07:30:00Z",
+                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
                 "boundary_drift_seconds": 0,
                 "open_interest_btc": {
                   "status": "available",
                   "unit": "BTC",
-                  "from": 57259.8584,
-                  "to": 57319.6896,
-                  "absolute_change": 59.8312,
-                  "percent_change": 0.10449065308900589
+                  "from": 57280.8704,
+                  "to": 57206.4368,
+                  "absolute_change": -74.4336,
+                  "percent_change": -0.1299449527917788
                 },
                 "open_interest_usd": {
                   "status": "available",
                   "unit": "USD",
-                  "from": 4611995294.828,
-                  "to": 4619762923.665024,
-                  "absolute_change": 7767628.837024,
-                  "percent_change": 0.16842230619217677
+                  "from": 4608062724.89472,
+                  "to": 4606348100.7912,
+                  "absolute_change": -1714624.10352,
+                  "percent_change": -0.03720921797042539
                 },
                 "error": null
               },
               "4h": {
                 "status": "available",
-                "start_utc": "2026-11-05T03:25:00Z",
-                "end_utc": "2026-11-05T07:25:00Z",
-                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793773657&interval=5m&limit=500",
+                "start_utc": "2026-11-05T03:30:00Z",
+                "end_utc": "2026-11-05T07:30:00Z",
+                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
                 "boundary_drift_seconds": 0,
                 "open_interest_btc": {
                   "status": "available",
                   "unit": "BTC",
-                  "from": 57560.5072,
-                  "to": 57319.6896,
-                  "absolute_change": -240.8176,
-                  "percent_change": -0.4183729638852105
+                  "from": 57580.1432,
+                  "to": 57206.4368,
+                  "absolute_change": -373.7064,
+                  "percent_change": -0.6490195738172461
                 },
                 "open_interest_usd": {
                   "status": "available",
                   "unit": "USD",
-                  "from": 4642387294.84656,
-                  "to": 4619762923.665024,
-                  "absolute_change": -22624371.181536,
-                  "percent_change": -0.4873434667256425
+                  "from": 4647005456.956,
+                  "to": 4606348100.7912,
+                  "absolute_change": -40657356.1648,
+                  "percent_change": -0.8749151801390915
                 },
                 "error": null
               },
               "24h": {
                 "status": "available",
-                "start_utc": "2026-11-04T07:25:00Z",
-                "end_utc": "2026-11-05T07:25:00Z",
-                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793773657&interval=5m&limit=500",
+                "start_utc": "2026-11-04T07:30:00Z",
+                "end_utc": "2026-11-05T07:30:00Z",
+                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
                 "boundary_drift_seconds": 0,
                 "open_interest_btc": {
                   "status": "available",
                   "unit": "BTC",
-                  "from": 64825.5608,
-                  "to": 57319.6896,
-                  "absolute_change": -7505.8712,
-                  "percent_change": -11.578567323400618
+                  "from": 64944.3008,
+                  "to": 57206.4368,
+                  "absolute_change": -7737.864,
+                  "percent_change": -11.914615916536283
                 },
                 "open_interest_usd": {
                   "status": "available",
                   "unit": "USD",
-                  "from": 5073784495.595816,
-                  "to": 4619762923.665024,
-                  "absolute_change": -454021571.930792,
-                  "percent_change": -8.94838108171317
+                  "from": 5075325668.78912,
+                  "to": 4606348100.7912,
+                  "absolute_change": -468977567.99792,
+                  "percent_change": -9.240344336559776
                 },
                 "error": null
               }
@@ -1766,14 +637,14 @@
               "btc": "open_interest * quanto_multiplier",
               "usd": "open_interest_usd"
             },
-            "history_source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793773657&interval=5m&limit=500",
+            "history_source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
             "history_interval": "5m",
-            "open_interest_contracts": 573196896.0,
+            "open_interest_contracts": 572064368.0,
             "quanto_multiplier_btc_per_contract": 0.0001,
-            "contract_position_size_long_only": 285962244.0,
+            "contract_position_size_long_only": 285919028.0,
             "contract_position_size_semantics": "current total long position; not used as total OI",
             "endpoints_attempted": [
-              "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793773657&interval=5m&limit=500"
+              "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500"
             ]
           }
         }
