@@ -1,15 +1,15 @@
 {
   "schema": "btc_multi_provider_intraday_v2",
-  "generated_at_utc": "2026-11-05T07:34:46Z",
+  "generated_at_utc": "2026-11-05T15:48:31Z",
   "symbol": "BTCUSDT",
   "quote_asset": "USDT",
   "interval": "1m",
-  "as_of_utc": "2026-11-05T07:34:00Z",
-  "range_start_utc": "2026-11-04T07:34:00Z",
+  "as_of_utc": "2026-11-05T15:45:00Z",
+  "range_start_utc": "2026-11-04T15:45:00Z",
   "freshness": {
-    "source_as_of_utc": "2026-11-05T07:34:00Z",
-    "generated_at_utc": "2026-11-05T07:34:46Z",
-    "source_age_seconds_at_generation": 46,
+    "source_as_of_utc": "2026-11-05T15:45:00Z",
+    "generated_at_utc": "2026-11-05T15:48:31Z",
+    "source_age_seconds_at_generation": 211,
     "max_source_age_seconds": 14400,
     "status_at_generation": "fresh",
     "note": "Dashboard interpretation treats snapshots up to 4 hours old as current. Actual age is measured from the last closed source candle, never from file generation time."
@@ -22,16 +22,17 @@
     "provider_separation": "Spot and perpetual observations retain their own exchange, endpoint, instrument, timestamp, coverage, and integrity. Values are not merged across providers."
   },
   "integrity": {
-    "status": "passed",
+    "status": "partial",
     "requested_synchronized_utc_boundary": true,
     "providers_are_separate": true,
     "cross_provider_values_not_merged": true,
     "required_closed_1m_klines_per_available_market": 1440,
     "available_markets": [
-      "spot",
-      "usd_m_futures"
+      "spot"
     ],
-    "unavailable_markets": []
+    "unavailable_markets": [
+      "usd_m_futures"
+    ]
   },
   "markets": {
     "spot": {
@@ -43,12 +44,12 @@
         "https://data-api.binance.vision/api/v3/klines",
         "https://api.binance.com/api/v3/klines"
       ],
-      "source_timestamp_utc": "2026-11-05T07:33:59Z",
+      "source_timestamp_utc": "2026-11-05T15:44:59Z",
       "coverage": {
-        "start_utc": "2026-11-04T07:34:00Z",
-        "end_utc_exclusive": "2026-11-05T07:34:00Z",
-        "first_candle_open_utc": "2026-11-04T07:34:00Z",
-        "last_candle_close_utc": "2026-11-05T07:33:59Z",
+        "start_utc": "2026-11-04T15:45:00Z",
+        "end_utc_exclusive": "2026-11-05T15:45:00Z",
+        "first_candle_open_utc": "2026-11-04T15:45:00Z",
+        "last_candle_close_utc": "2026-11-05T15:44:59Z",
         "expected_closed_1m_klines": 1440,
         "validated_closed_1m_klines": 1440,
         "candle_completeness_pct": 100.0
@@ -56,190 +57,113 @@
       "windows": {
         "1h": {
           "status": "available",
-          "start_utc": "2026-11-05T06:34:00Z",
-          "end_utc_exclusive": "2026-11-05T07:34:00Z",
+          "start_utc": "2026-11-05T14:45:00Z",
+          "end_utc_exclusive": "2026-11-05T15:45:00Z",
           "closed_klines": 60,
-          "quote_volume_usdt": 34116972.4811203,
-          "taker_buy_quote_volume_usdt": 13029243.1655137,
-          "taker_sell_quote_volume_usdt": 21087729.3156066,
-          "cvd_quote_usdt": -8058486.1500929,
-          "taker_buy_share": 0.381899161,
-          "taker_buy_share_pct": 38.1899161,
-          "normalized_cvd": -0.2362016781,
+          "quote_volume_usdt": 420989661.713005,
+          "taker_buy_quote_volume_usdt": 183885947.4811962,
+          "taker_sell_quote_volume_usdt": 237103714.2318088,
+          "cvd_quote_usdt": -53217766.7506126,
+          "taker_buy_share": 0.4367944494,
+          "taker_buy_share_pct": 43.67944494,
+          "normalized_cvd": -0.1264111012,
           "error": null
         },
         "4h": {
           "status": "available",
-          "start_utc": "2026-11-05T03:34:00Z",
-          "end_utc_exclusive": "2026-11-05T07:34:00Z",
+          "start_utc": "2026-11-05T11:45:00Z",
+          "end_utc_exclusive": "2026-11-05T15:45:00Z",
           "closed_klines": 240,
-          "quote_volume_usdt": 123346062.6193324,
-          "taker_buy_quote_volume_usdt": 50357779.1328134,
-          "taker_sell_quote_volume_usdt": 72988283.486519,
-          "cvd_quote_usdt": -22630504.3537056,
-          "taker_buy_share": 0.4082641802,
-          "taker_buy_share_pct": 40.82641802,
-          "normalized_cvd": -0.1834716397,
+          "quote_volume_usdt": 604589482.2975588,
+          "taker_buy_quote_volume_usdt": 263989660.2038252,
+          "taker_sell_quote_volume_usdt": 340599822.0937336,
+          "cvd_quote_usdt": -76610161.8899084,
+          "taker_buy_share": 0.4366428261,
+          "taker_buy_share_pct": 43.66428261,
+          "normalized_cvd": -0.1267143477,
           "error": null
         },
         "24h": {
           "status": "available",
-          "start_utc": "2026-11-04T07:34:00Z",
-          "end_utc_exclusive": "2026-11-05T07:34:00Z",
+          "start_utc": "2026-11-04T15:45:00Z",
+          "end_utc_exclusive": "2026-11-05T15:45:00Z",
           "closed_klines": 1440,
-          "quote_volume_usdt": 1502949286.8355694,
-          "taker_buy_quote_volume_usdt": 784005233.2357194,
-          "taker_sell_quote_volume_usdt": 718944053.59985,
-          "cvd_quote_usdt": 65061179.6358693,
-          "taker_buy_share": 0.5216445026,
-          "taker_buy_share_pct": 52.16445026,
-          "normalized_cvd": 0.0432890053,
+          "quote_volume_usdt": 1616965362.1589625,
+          "taker_buy_quote_volume_usdt": 732854144.232456,
+          "taker_sell_quote_volume_usdt": 884111217.9265064,
+          "cvd_quote_usdt": -151257073.6940504,
+          "taker_buy_share": 0.4532281033,
+          "taker_buy_share_pct": 45.32281033,
+          "normalized_cvd": -0.0935437934,
           "error": null
         }
       },
-      "last_closed_price_usdt": 80400.01,
+      "last_closed_price_usdt": 76409.67,
       "failover_errors": [],
       "error": null
     },
     "usd_m_futures": {
-      "status": "available",
+      "status": "unavailable",
       "market": "Gate BTC_USDT USDT-settled perpetual",
-      "exchange": "Gate",
       "provider": "Gate API v4",
-      "provider_documentation": "https://www.gate.com/docs/developers/apiv4/en/futures/",
-      "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/trades",
-      "contract_metadata_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
+      "source_endpoint": "N/A",
       "endpoints_attempted": [
         "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
         "https://api.gateio.ws/api/v4/futures/usdt/trades"
       ],
-      "source_timestamp_utc": "2026-11-05T07:33:59Z",
-      "contract": {
-        "name": "BTC_USDT",
-        "type": "direct",
-        "settlement_asset": "USDT",
-        "underlying_asset": "BTC",
-        "quanto_multiplier_btc_per_contract": "0.0001",
-        "status": "trading",
-        "in_delisting": false
-      },
+      "source_timestamp_utc": "N/A",
       "coverage": {
-        "start_utc": "2026-11-04T07:34:00Z",
-        "end_utc_exclusive": "2026-11-05T07:34:00Z",
+        "start_utc": "2026-11-04T15:45:00Z",
+        "end_utc_exclusive": "2026-11-05T15:45:00Z",
         "expected_closed_1m_klines": 1440,
-        "validated_closed_1m_klines": 1440,
-        "candle_completeness_pct": 100.0
+        "validated_closed_1m_klines": "N/A",
+        "candle_completeness_pct": "N/A"
       },
-      "aggressor_side_rule": "positive trade size = taker buy; negative trade size = taker sell",
-      "quote_notional_formula": "abs(size_contracts) * quanto_multiplier_btc_per_contract * price_usdt",
       "windows": {
         "1h": {
-          "status": "available",
-          "start_utc": "2026-11-05T06:34:00Z",
-          "end_utc_exclusive": "2026-11-05T07:34:00Z",
-          "closed_klines": 60,
-          "quote_volume_usdt": 131088752.16516,
-          "taker_buy_quote_volume_usdt": 63283594.34614,
-          "taker_sell_quote_volume_usdt": 67805157.81902,
-          "cvd_quote_usdt": -4521563.47288,
-          "taker_buy_share": 0.4827538084,
-          "taker_buy_share_pct": 48.27538084,
-          "normalized_cvd": -0.0344923832,
-          "error": null
+          "status": "unavailable",
+          "start_utc": "2026-11-05T14:45:00Z",
+          "end_utc_exclusive": "2026-11-05T15:45:00Z",
+          "closed_klines": "N/A",
+          "quote_volume_usdt": "N/A",
+          "taker_buy_quote_volume_usdt": "N/A",
+          "taker_sell_quote_volume_usdt": "N/A",
+          "cvd_quote_usdt": "N/A",
+          "taker_buy_share": "N/A",
+          "taker_buy_share_pct": "N/A",
+          "normalized_cvd": "N/A",
+          "error": "RuntimeBudgetExceeded: Gate runtime budget exhausted at 150s"
         },
         "4h": {
-          "status": "available",
-          "start_utc": "2026-11-05T03:34:00Z",
-          "end_utc_exclusive": "2026-11-05T07:34:00Z",
-          "closed_klines": 240,
-          "quote_volume_usdt": 514564503.50005,
-          "taker_buy_quote_volume_usdt": 252337716.31674,
-          "taker_sell_quote_volume_usdt": 262226787.18331,
-          "cvd_quote_usdt": -9889070.86657,
-          "taker_buy_share": 0.4903908346,
-          "taker_buy_share_pct": 49.03908346,
-          "normalized_cvd": -0.0192183308,
-          "error": null
+          "status": "unavailable",
+          "start_utc": "2026-11-05T11:45:00Z",
+          "end_utc_exclusive": "2026-11-05T15:45:00Z",
+          "closed_klines": "N/A",
+          "quote_volume_usdt": "N/A",
+          "taker_buy_quote_volume_usdt": "N/A",
+          "taker_sell_quote_volume_usdt": "N/A",
+          "cvd_quote_usdt": "N/A",
+          "taker_buy_share": "N/A",
+          "taker_buy_share_pct": "N/A",
+          "normalized_cvd": "N/A",
+          "error": "RuntimeBudgetExceeded: Gate runtime budget exhausted at 150s"
         },
         "24h": {
-          "status": "available",
-          "start_utc": "2026-11-04T07:34:00Z",
-          "end_utc_exclusive": "2026-11-05T07:34:00Z",
-          "closed_klines": 1440,
-          "quote_volume_usdt": 8141616753.99403,
-          "taker_buy_quote_volume_usdt": 4236235498.59616,
-          "taker_sell_quote_volume_usdt": 3905381255.39787,
-          "cvd_quote_usdt": 330854243.19829,
-          "taker_buy_share": 0.5203187065,
-          "taker_buy_share_pct": 52.03187065,
-          "normalized_cvd": 0.0406374131,
-          "error": null
+          "status": "unavailable",
+          "start_utc": "2026-11-04T15:45:00Z",
+          "end_utc_exclusive": "2026-11-05T15:45:00Z",
+          "closed_klines": "N/A",
+          "quote_volume_usdt": "N/A",
+          "taker_buy_quote_volume_usdt": "N/A",
+          "taker_sell_quote_volume_usdt": "N/A",
+          "cvd_quote_usdt": "N/A",
+          "taker_buy_share": "N/A",
+          "taker_buy_share_pct": "N/A",
+          "normalized_cvd": "N/A",
+          "error": "RuntimeBudgetExceeded: Gate runtime budget exhausted at 150s"
         }
       },
-      "fetch_integrity": {
-        "status": "passed",
-        "state_schema": "btc_gate_perp_cvd_state_v2",
-        "time_range_untruncated": true,
-        "state_continuity_verified": true,
-        "target_window_continuity": "passed",
-        "state_reset_reason": null,
-        "state_load": {
-          "status": "loaded",
-          "schema": "btc_gate_perp_cvd_state_v2",
-          "error": null,
-          "loaded_buckets": 1440
-        },
-        "state_recovery_mode": "incremental",
-        "detected_state_gap_minutes": 7,
-        "persisted_buckets_retained": 1433,
-        "discarded_buckets_outside_target": 7,
-        "checkpoint_count": 1,
-        "stored_verified_minutes": 1440,
-        "missing_verified_minutes": 0,
-        "request_count": 9,
-        "request_budget": 1600,
-        "request_budget_remaining": 1591,
-        "runtime_budget_seconds": 150,
-        "runtime_elapsed_seconds": 10.114,
-        "backfill_workers": 12,
-        "verified_untruncated_segments": 1,
-        "unique_trades": 7977,
-        "duplicate_trade_ids_filtered": 0,
-        "time_split_count": 0,
-        "page_limit": 1000,
-        "range_start_utc": "2026-11-04T07:34:00Z",
-        "range_end_utc_exclusive": "2026-11-05T07:34:00Z",
-        "current_refresh": {
-          "request_count": 8,
-          "verified_untruncated_segments": 1,
-          "unique_trades": 7977,
-          "duplicate_trade_ids_filtered": 0,
-          "page_limit": 1000,
-          "max_safe_page_offset": 100000,
-          "pagination_method": "offset_until_short_page",
-          "time_split_count": 0,
-          "terminal_short_page_observed": true,
-          "terminal_offset": 7000,
-          "terminal_offsets": [
-            7000
-          ],
-          "range_start_utc": "2026-11-05T07:17:00Z",
-          "range_end_utc_exclusive": "2026-11-05T07:34:00Z"
-        },
-        "historical_backfill": {
-          "status": "not_needed",
-          "requested_minutes": 0,
-          "completed_minutes": 0,
-          "error": null,
-          "request_count": 0,
-          "verified_untruncated_segments": 0,
-          "unique_trades": 0,
-          "duplicate_trade_ids_filtered": 0,
-          "time_split_count": 0,
-          "chunks": []
-        }
-      },
-      "error": null
+      "error": "RuntimeBudgetExceeded: Gate runtime budget exhausted at 150s"
     }
   },
   "btc_spot_price": {
@@ -247,8 +171,8 @@
     "provider": "Binance Spot Market Data API",
     "coverage": "close of the latest validated closed BTCUSDT 1m Spot candle",
     "source_endpoint": "https://data-api.binance.vision/api/v3/klines",
-    "source_timestamp_utc": "2026-11-05T07:33:59Z",
-    "price_usdt": 80400.01,
+    "source_timestamp_utc": "2026-11-05T15:44:59Z",
+    "price_usdt": 76409.67,
     "error": null
   },
   "derivatives": {
@@ -260,7 +184,7 @@
         "https://www.okx.com/api/v5/public/funding-rate-history?instId=BTC-USDT-SWAP&limit=2",
         "https://api.gateio.ws/api/v4/futures/usdt/funding_rate?contract=BTC_USDT&limit=2"
       ],
-      "source_timestamp_utc": "2026-11-05T00:00:00Z",
+      "source_timestamp_utc": "2026-11-05T08:00:00Z",
       "value": {
         "measurement": "settled and predicted funding kept separate",
         "units": {
@@ -323,18 +247,18 @@
             "exchange": "OKX",
             "instrument": "BTC-USDT-SWAP",
             "source_endpoint": "https://www.okx.com/api/v5/public/funding-rate-history?instId=BTC-USDT-SWAP&limit=2",
-            "source_timestamp_utc": "2026-11-05T00:00:00Z",
-            "settled_at_utc": "2026-11-05T00:00:00Z",
+            "source_timestamp_utc": "2026-11-05T08:00:00Z",
+            "settled_at_utc": "2026-11-05T08:00:00Z",
             "funding_interval_hours": 8,
-            "settled_funding_rate": 7.48307148042e-05,
-            "settled_funding_rate_pct": 0.00748307148042,
-            "age_seconds_at_generation": 27271,
+            "settled_funding_rate": 0.0001,
+            "settled_funding_rate_pct": 0.01,
+            "age_seconds_at_generation": 27957,
             "predicted": {
               "status": "available",
               "classification": "predicted_not_settled",
               "source_endpoint": "https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP",
-              "observed_at_utc": "2026-11-05T07:34:11Z",
-              "settles_at_utc": "2026-11-05T08:00:00Z",
+              "observed_at_utc": "2026-11-05T15:45:09Z",
+              "settles_at_utc": "2026-11-05T16:00:00Z",
               "funding_interval_hours": 8,
               "predicted_funding_rate": 0.0001,
               "predicted_funding_rate_pct": 0.01,
@@ -356,18 +280,18 @@
             "exchange": "Gate",
             "instrument": "BTC_USDT USDT-settled perpetual",
             "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/funding_rate?contract=BTC_USDT&limit=2",
-            "source_timestamp_utc": "2026-11-05T00:00:00Z",
-            "settled_at_utc": "2026-11-05T00:00:00Z",
+            "source_timestamp_utc": "2026-11-05T08:00:00Z",
+            "settled_at_utc": "2026-11-05T08:00:00Z",
             "funding_interval_hours": 8,
-            "settled_funding_rate": 8e-05,
-            "settled_funding_rate_pct": 0.008,
-            "age_seconds_at_generation": 27271,
+            "settled_funding_rate": 0.0001,
+            "settled_funding_rate_pct": 0.01,
+            "age_seconds_at_generation": 27957,
             "predicted": {
               "status": "available",
               "classification": "predicted_not_settled",
               "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT",
-              "observed_at_utc": "2026-11-05T07:34:31Z",
-              "settles_at_utc": "2026-11-05T08:00:00Z",
+              "observed_at_utc": "2026-11-05T15:45:57Z",
+              "settles_at_utc": "2026-11-05T16:00:00Z",
               "funding_interval_hours": 8,
               "predicted_funding_rate": 0.0001,
               "predicted_funding_rate_pct": 0.01,
@@ -401,9 +325,9 @@
       "coverage": "BTC and USD OI plus same-provider 1h/4h/24h deltas by exchange",
       "source_endpoint": [
         "https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP",
-        "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500"
+        "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793803557&interval=5m&limit=500"
       ],
-      "source_timestamp_utc": "2026-11-05T07:34:32Z",
+      "source_timestamp_utc": "2026-11-05T15:45:58Z",
       "value": {
         "measurement": "open interest in BTC and USD with native historical deltas",
         "units": {
@@ -497,9 +421,9 @@
             "exchange": "OKX",
             "instrument": "BTC-USDT-SWAP",
             "source_endpoint": "https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP",
-            "source_timestamp_utc": "2026-11-05T07:34:32Z",
-            "open_interest_btc": 33332.04850000012,
-            "open_interest_usd": 2679396718.6725097,
+            "source_timestamp_utc": "2026-11-05T15:45:58Z",
+            "open_interest_btc": 31401.594600000157,
+            "open_interest_usd": 2390656779.608832,
             "units": {
               "open_interest_btc": "BTC",
               "open_interest_usd": "USD"
@@ -539,7 +463,7 @@
               "btc": "oiCcy",
               "usd": "oiUsd"
             },
-            "open_interest_contracts": 3333204.8500000117,
+            "open_interest_contracts": 3140159.460000016,
             "endpoints_attempted": [
               "https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP"
             ]
@@ -548,85 +472,85 @@
             "status": "available",
             "exchange": "Gate",
             "instrument": "BTC_USDT USDT-settled perpetual",
-            "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
-            "source_timestamp_utc": "2026-11-05T07:30:00Z",
-            "open_interest_btc": 57206.4368,
-            "open_interest_usd": 4606348100.7912,
+            "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793803557&interval=5m&limit=500",
+            "source_timestamp_utc": "2026-11-05T15:40:00Z",
+            "open_interest_btc": 58122.348,
+            "open_interest_usd": 4441936511.3172,
             "units": {
               "open_interest_btc": "BTC",
               "open_interest_usd": "USD"
             },
-            "age_seconds_at_generation": 271,
+            "age_seconds_at_generation": 357,
             "historical_deltas": {
               "1h": {
                 "status": "available",
-                "start_utc": "2026-11-05T06:30:00Z",
-                "end_utc": "2026-11-05T07:30:00Z",
-                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
+                "start_utc": "2026-11-05T14:40:00Z",
+                "end_utc": "2026-11-05T15:40:00Z",
+                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793803557&interval=5m&limit=500",
                 "boundary_drift_seconds": 0,
                 "open_interest_btc": {
                   "status": "available",
                   "unit": "BTC",
-                  "from": 57280.8704,
-                  "to": 57206.4368,
-                  "absolute_change": -74.4336,
-                  "percent_change": -0.1299449527917788
+                  "from": 56342.1112,
+                  "to": 58122.348,
+                  "absolute_change": 1780.2368,
+                  "percent_change": 3.1596913251628385
                 },
                 "open_interest_usd": {
                   "status": "available",
                   "unit": "USD",
-                  "from": 4608062724.89472,
-                  "to": 4606348100.7912,
-                  "absolute_change": -1714624.10352,
-                  "percent_change": -0.03720921797042539
+                  "from": 4449206934.60824,
+                  "to": 4441936511.3172,
+                  "absolute_change": -7270423.29104,
+                  "percent_change": -0.16340942100235606
                 },
                 "error": null
               },
               "4h": {
                 "status": "available",
-                "start_utc": "2026-11-05T03:30:00Z",
-                "end_utc": "2026-11-05T07:30:00Z",
-                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
+                "start_utc": "2026-11-05T11:40:00Z",
+                "end_utc": "2026-11-05T15:40:00Z",
+                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793803557&interval=5m&limit=500",
                 "boundary_drift_seconds": 0,
                 "open_interest_btc": {
                   "status": "available",
                   "unit": "BTC",
-                  "from": 57580.1432,
-                  "to": 57206.4368,
-                  "absolute_change": -373.7064,
-                  "percent_change": -0.6490195738172461
+                  "from": 56858.7704,
+                  "to": 58122.348,
+                  "absolute_change": 1263.5776,
+                  "percent_change": 2.222309049440858
                 },
                 "open_interest_usd": {
                   "status": "available",
                   "unit": "USD",
-                  "from": 4647005456.956,
-                  "to": 4606348100.7912,
-                  "absolute_change": -40657356.1648,
-                  "percent_change": -0.8749151801390915
+                  "from": 4567831765.30108,
+                  "to": 4441936511.3172,
+                  "absolute_change": -125895253.98388,
+                  "percent_change": -2.7561272054769264
                 },
                 "error": null
               },
               "24h": {
                 "status": "available",
-                "start_utc": "2026-11-04T07:30:00Z",
-                "end_utc": "2026-11-05T07:30:00Z",
-                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
+                "start_utc": "2026-11-04T15:40:00Z",
+                "end_utc": "2026-11-05T15:40:00Z",
+                "source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793803557&interval=5m&limit=500",
                 "boundary_drift_seconds": 0,
                 "open_interest_btc": {
                   "status": "available",
                   "unit": "BTC",
-                  "from": 64944.3008,
-                  "to": 57206.4368,
-                  "absolute_change": -7737.864,
-                  "percent_change": -11.914615916536283
+                  "from": 59872.7936,
+                  "to": 58122.348,
+                  "absolute_change": -1750.4456,
+                  "percent_change": -2.92360769349503
                 },
                 "open_interest_usd": {
                   "status": "available",
                   "unit": "USD",
-                  "from": 5075325668.78912,
-                  "to": 4606348100.7912,
-                  "absolute_change": -468977567.99792,
-                  "percent_change": -9.240344336559776
+                  "from": 4808266104.612608,
+                  "to": 4441936511.3172,
+                  "absolute_change": -366329593.295408,
+                  "percent_change": -7.618746245013043
                 },
                 "error": null
               }
@@ -637,14 +561,14 @@
               "btc": "open_interest * quanto_multiplier",
               "usd": "open_interest_usd"
             },
-            "history_source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500",
+            "history_source_endpoint": "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793803557&interval=5m&limit=500",
             "history_interval": "5m",
-            "open_interest_contracts": 572064368.0,
+            "open_interest_contracts": 581223480.0,
             "quanto_multiplier_btc_per_contract": 0.0001,
-            "contract_position_size_long_only": 285919028.0,
+            "contract_position_size_long_only": 293086308.0,
             "contract_position_size_semantics": "current total long position; not used as total OI",
             "endpoints_attempted": [
-              "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793774071&interval=5m&limit=500"
+              "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&from=1793803557&interval=5m&limit=500"
             ]
           }
         }
