@@ -1,6 +1,6 @@
 {
   "schema": "btc_intraday_freshness_slo_v2",
-  "updated_at_utc": "2026-11-04T20:06:15Z",
+  "updated_at_utc": "2026-11-05T00:51:44Z",
   "measurement": "Age of the previously published source_as_of timestamp at collector start. Rolling SLO includes only scheduled and explicitly labelled scheduled-fallback runs; push, PR, manual and legacy observations are excluded.",
   "target": {
     "source_age_seconds_lte": 900,
@@ -10,24 +10,24 @@
     "observation_coverage_pct_gte": 95.0
   },
   "rolling_24h": {
-    "observations": 1,
+    "observations": 2,
     "expected_observations": 144,
     "passed": 1,
-    "failed": 0,
-    "pass_rate_pct": 100.0,
-    "observation_coverage_pct": 0.694444,
+    "failed": 1,
+    "pass_rate_pct": 50.0,
+    "observation_coverage_pct": 1.388889,
     "target_met": "insufficient_history"
   },
   "latest_observation": {
-    "observed_at_utc": "2026-11-04T20:06:15Z",
-    "source_as_of_utc": "2026-11-04T20:02:00Z",
-    "snapshot_generated_at_utc": "2026-11-04T20:04:25Z",
-    "source_age_seconds": 255,
+    "observed_at_utc": "2026-11-05T00:51:44Z",
+    "source_as_of_utc": "2026-11-04T20:05:00Z",
+    "snapshot_generated_at_utc": "2026-11-04T20:06:31Z",
+    "source_age_seconds": 17204,
     "target_age_seconds": 900,
-    "within_target": true,
+    "within_target": false,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
     "snapshot_integrity": "passed",
-    "observation_kind": "scheduled_fallback",
+    "observation_kind": "schedule",
     "slo_eligible": true
   },
   "eligible_observation_kinds": [
@@ -537,6 +537,18 @@
       "snapshot_schema": "btc_multi_provider_intraday_v2",
       "snapshot_integrity": "passed",
       "observation_kind": "scheduled_fallback",
+      "slo_eligible": true
+    },
+    {
+      "observed_at_utc": "2026-11-05T00:51:44Z",
+      "source_as_of_utc": "2026-11-04T20:05:00Z",
+      "snapshot_generated_at_utc": "2026-11-04T20:06:31Z",
+      "source_age_seconds": 17204,
+      "target_age_seconds": 900,
+      "within_target": false,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "passed",
+      "observation_kind": "schedule",
       "slo_eligible": true
     }
   ]
