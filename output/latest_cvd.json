@@ -1,29 +1,29 @@
 {
   "schema": "btc_binance_quote_cvd_v1",
-  "generated_at_utc": "2026-11-05T07:34:22Z",
+  "generated_at_utc": "2026-11-06T08:35:43Z",
   "provider": "Binance Data Vision",
   "symbol": "BTCUSDT",
   "quote_asset": "USDT",
   "interval": "1m",
-  "source_closed_day_utc": "2026-11-04",
-  "as_of_utc": "2026-11-05T00:00:00Z",
-  "range_start_utc": "2026-11-04T00:00:00Z",
+  "source_closed_day_utc": "2026-11-05",
+  "as_of_utc": "2026-11-06T00:00:00Z",
+  "range_start_utc": "2026-11-05T00:00:00Z",
   "freshness": {
-    "source_as_of_utc": "2026-11-05T00:00:00Z",
-    "generated_at_utc": "2026-11-05T07:34:22Z",
-    "source_age_seconds_at_generation": 27262,
-    "source_closed_day_utc": "2026-11-04",
+    "source_as_of_utc": "2026-11-06T00:00:00Z",
+    "generated_at_utc": "2026-11-06T08:35:43Z",
+    "source_age_seconds_at_generation": 30943,
+    "source_closed_day_utc": "2026-11-05",
     "status_at_generation": "latest_verified_archive",
     "note": "Freshness is measured from the completed source-day boundary, never from file generation time."
   },
   "archive_selection": {
     "strategy": "newest checksum-verified common completed UTC day with 1440 synchronized closed one-minute klines",
-    "latest_completed_day_utc": "2026-11-04",
-    "selected_day_utc": "2026-11-04",
+    "latest_completed_day_utc": "2026-11-05",
+    "selected_day_utc": "2026-11-05",
     "days_behind_latest_completed": 0,
     "attempts": [
       {
-        "day_utc": "2026-11-04",
+        "day_utc": "2026-11-05",
         "status": "selected",
         "markets": {
           "spot": "checksum_verified",
@@ -49,94 +49,94 @@
     "spot": {
       "market": "Binance Spot",
       "source_archive": {
-        "archive_url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-04.zip",
-        "checksum_url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-04.zip.CHECKSUM",
-        "sha256": "44c7dfc10dff28bd3050f0129c201872994f3f09e2b2d00a76bd44fb419e509d"
+        "archive_url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-05.zip",
+        "checksum_url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-05.zip.CHECKSUM",
+        "sha256": "593269bd48415848f3dac0d77d647f65e7a1c089d64af5b5192da1bb1e1079c0"
       },
       "validated_closed_1m_klines": 1440,
       "windows": {
         "1h": {
-          "start_utc": "2026-11-04T23:00:00Z",
-          "end_utc_exclusive": "2026-11-05T00:00:00Z",
+          "start_utc": "2026-11-05T23:00:00Z",
+          "end_utc_exclusive": "2026-11-06T00:00:00Z",
           "closed_klines": 60,
-          "quote_volume_usdt": 32643511.3484352,
-          "taker_buy_quote_volume_usdt": 13883087.7835766,
-          "taker_sell_quote_volume_usdt": 18760423.5648586,
-          "cvd_quote_usdt": -4877335.781282,
-          "taker_buy_share": 0.4252939469,
-          "taker_buy_share_pct": 42.52939469,
-          "normalized_cvd": -0.1494121061
+          "quote_volume_usdt": 98648731.3246527,
+          "taker_buy_quote_volume_usdt": 42820368.3539342,
+          "taker_sell_quote_volume_usdt": 55828362.9707185,
+          "cvd_quote_usdt": -13007994.6167843,
+          "taker_buy_share": 0.4340691236,
+          "taker_buy_share_pct": 43.40691236,
+          "normalized_cvd": -0.1318617527
         },
         "4h": {
-          "start_utc": "2026-11-04T20:00:00Z",
-          "end_utc_exclusive": "2026-11-05T00:00:00Z",
+          "start_utc": "2026-11-05T20:00:00Z",
+          "end_utc_exclusive": "2026-11-06T00:00:00Z",
           "closed_klines": 240,
-          "quote_volume_usdt": 130842767.4954705,
-          "taker_buy_quote_volume_usdt": 63995008.0430377,
-          "taker_sell_quote_volume_usdt": 66847759.4524328,
-          "cvd_quote_usdt": -2852751.4093951,
-          "taker_buy_share": 0.4890985514,
-          "taker_buy_share_pct": 48.90985514,
-          "normalized_cvd": -0.0218028972
+          "quote_volume_usdt": 290795442.0747764,
+          "taker_buy_quote_volume_usdt": 139645885.8489111,
+          "taker_sell_quote_volume_usdt": 151149556.2258653,
+          "cvd_quote_usdt": -11503670.3769542,
+          "taker_buy_share": 0.4802203393,
+          "taker_buy_share_pct": 48.02203393,
+          "normalized_cvd": -0.0395593215
         },
         "24h": {
-          "start_utc": "2026-11-04T00:00:00Z",
-          "end_utc_exclusive": "2026-11-05T00:00:00Z",
+          "start_utc": "2026-11-05T00:00:00Z",
+          "end_utc_exclusive": "2026-11-06T00:00:00Z",
           "closed_klines": 1440,
-          "quote_volume_usdt": 1747282788.7987144,
-          "taker_buy_quote_volume_usdt": 944236209.7777187,
-          "taker_sell_quote_volume_usdt": 803046579.0209959,
-          "cvd_quote_usdt": 141189630.7567229,
-          "taker_buy_share": 0.5404026273,
-          "taker_buy_share_pct": 54.04026273,
-          "normalized_cvd": 0.0808052547
+          "quote_volume_usdt": 2025460886.896445,
+          "taker_buy_quote_volume_usdt": 904097623.22911,
+          "taker_sell_quote_volume_usdt": 1121363263.667335,
+          "cvd_quote_usdt": -217265640.438225,
+          "taker_buy_share": 0.4463663698,
+          "taker_buy_share_pct": 44.63663698,
+          "normalized_cvd": -0.1072672604
         }
       }
     },
     "usd_m_futures": {
       "market": "Binance USD-M Futures perpetual",
       "source_archive": {
-        "archive_url": "https://data.binance.vision/data/futures/um/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-04.zip",
-        "checksum_url": "https://data.binance.vision/data/futures/um/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-04.zip.CHECKSUM",
-        "sha256": "97f2903fbfc4918732aa9b9d49a08e075c2f8d5972cd96fbd42413f185352134"
+        "archive_url": "https://data.binance.vision/data/futures/um/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-05.zip",
+        "checksum_url": "https://data.binance.vision/data/futures/um/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2026-11-05.zip.CHECKSUM",
+        "sha256": "c1791512bfd222f289887a9c73b72b5ce2745da4e1091c3b7f6cec5001925453"
       },
       "validated_closed_1m_klines": 1440,
       "windows": {
         "1h": {
-          "start_utc": "2026-11-04T23:00:00Z",
-          "end_utc_exclusive": "2026-11-05T00:00:00Z",
+          "start_utc": "2026-11-05T23:00:00Z",
+          "end_utc_exclusive": "2026-11-06T00:00:00Z",
           "closed_klines": 60,
-          "quote_volume_usdt": 340867432.2949,
-          "taker_buy_quote_volume_usdt": 136642872.899,
-          "taker_sell_quote_volume_usdt": 204224559.3959,
-          "cvd_quote_usdt": -67581686.4969,
-          "taker_buy_share": 0.4008680794,
-          "taker_buy_share_pct": 40.08680794,
-          "normalized_cvd": -0.1982638413
+          "quote_volume_usdt": 1152015978.9018,
+          "taker_buy_quote_volume_usdt": 556927331.6543,
+          "taker_sell_quote_volume_usdt": 595088647.2475,
+          "cvd_quote_usdt": -38161315.5932,
+          "taker_buy_share": 0.4834371587,
+          "taker_buy_share_pct": 48.34371587,
+          "normalized_cvd": -0.0331256825
         },
         "4h": {
-          "start_utc": "2026-11-04T20:00:00Z",
-          "end_utc_exclusive": "2026-11-05T00:00:00Z",
+          "start_utc": "2026-11-05T20:00:00Z",
+          "end_utc_exclusive": "2026-11-06T00:00:00Z",
           "closed_klines": 240,
-          "quote_volume_usdt": 1448399396.6271,
-          "taker_buy_quote_volume_usdt": 724127479.056,
-          "taker_sell_quote_volume_usdt": 724271917.5711,
-          "cvd_quote_usdt": -144438.5151,
-          "taker_buy_share": 0.4999501386,
-          "taker_buy_share_pct": 49.99501386,
-          "normalized_cvd": -9.97228e-05
+          "quote_volume_usdt": 2709066465.269,
+          "taker_buy_quote_volume_usdt": 1340937235.1702,
+          "taker_sell_quote_volume_usdt": 1368129230.0988,
+          "cvd_quote_usdt": -27191994.9286,
+          "taker_buy_share": 0.4949812979,
+          "taker_buy_share_pct": 49.49812979,
+          "normalized_cvd": -0.0100374041
         },
         "24h": {
-          "start_utc": "2026-11-04T00:00:00Z",
-          "end_utc_exclusive": "2026-11-05T00:00:00Z",
+          "start_utc": "2026-11-05T00:00:00Z",
+          "end_utc_exclusive": "2026-11-06T00:00:00Z",
           "closed_klines": 1440,
-          "quote_volume_usdt": 19719225491.3975,
-          "taker_buy_quote_volume_usdt": 10135544625.2989,
-          "taker_sell_quote_volume_usdt": 9583680866.0986,
-          "cvd_quote_usdt": 551863759.2003,
-          "taker_buy_share": 0.5139930384,
-          "taker_buy_share_pct": 51.39930384,
-          "normalized_cvd": 0.0279860768
+          "quote_volume_usdt": 20751735998.5904,
+          "taker_buy_quote_volume_usdt": 10207751508.9594,
+          "taker_sell_quote_volume_usdt": 10543984489.631,
+          "cvd_quote_usdt": -336232980.6716,
+          "taker_buy_share": 0.4918986782,
+          "taker_buy_share_pct": 49.18986782,
+          "normalized_cvd": -0.0162026435
         }
       }
     }
