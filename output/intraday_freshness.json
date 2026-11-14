@@ -1,6 +1,6 @@
 {
   "schema": "btc_intraday_freshness_slo_v2",
-  "updated_at_utc": "2026-11-14T08:54:08Z",
+  "updated_at_utc": "2026-11-14T09:13:32Z",
   "measurement": "Age of the previously published source_as_of timestamp at collector start. Rolling SLO includes only scheduled and explicitly labelled scheduled-fallback runs; push, PR, manual and legacy observations are excluded.",
   "target": {
     "source_age_seconds_lte": 900,
@@ -10,24 +10,24 @@
     "observation_coverage_pct_gte": 95.0
   },
   "rolling_24h": {
-    "observations": 7,
+    "observations": 8,
     "expected_observations": 144,
     "passed": 0,
-    "failed": 7,
+    "failed": 8,
     "pass_rate_pct": 0.0,
-    "observation_coverage_pct": 4.861111,
+    "observation_coverage_pct": 5.555556,
     "target_met": false
   },
   "latest_observation": {
-    "observed_at_utc": "2026-11-14T08:54:08Z",
-    "source_as_of_utc": "2026-11-14T02:25:00Z",
-    "snapshot_generated_at_utc": "2026-11-14T02:26:55Z",
-    "source_age_seconds": 23348,
+    "observed_at_utc": "2026-11-14T09:13:32Z",
+    "source_as_of_utc": "2026-11-14T08:53:00Z",
+    "snapshot_generated_at_utc": "2026-11-14T08:55:59Z",
+    "source_age_seconds": 1232,
     "target_age_seconds": 900,
     "within_target": false,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
     "snapshot_integrity": "passed",
-    "observation_kind": "scheduled_fallback",
+    "observation_kind": "schedule",
     "slo_eligible": true
   },
   "eligible_observation_kinds": [
@@ -1401,6 +1401,18 @@
       "snapshot_schema": "btc_multi_provider_intraday_v2",
       "snapshot_integrity": "passed",
       "observation_kind": "scheduled_fallback",
+      "slo_eligible": true
+    },
+    {
+      "observed_at_utc": "2026-11-14T09:13:32Z",
+      "source_as_of_utc": "2026-11-14T08:53:00Z",
+      "snapshot_generated_at_utc": "2026-11-14T08:55:59Z",
+      "source_age_seconds": 1232,
+      "target_age_seconds": 900,
+      "within_target": false,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "passed",
+      "observation_kind": "schedule",
       "slo_eligible": true
     }
   ]
