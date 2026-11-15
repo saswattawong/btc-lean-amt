@@ -1,6 +1,6 @@
 {
   "schema": "btc_intraday_freshness_slo_v2",
-  "updated_at_utc": "2026-11-14T23:54:22Z",
+  "updated_at_utc": "2026-11-14T23:59:06Z",
   "measurement": "Age of the previously published source_as_of timestamp at collector start. Rolling SLO includes only scheduled and explicitly labelled scheduled-fallback runs; push, PR, manual and legacy observations are excluded.",
   "target": {
     "source_age_seconds_lte": 900,
@@ -12,22 +12,22 @@
   "rolling_24h": {
     "observations": 7,
     "expected_observations": 144,
-    "passed": 1,
-    "failed": 6,
-    "pass_rate_pct": 14.285714,
+    "passed": 2,
+    "failed": 5,
+    "pass_rate_pct": 28.571429,
     "observation_coverage_pct": 4.861111,
     "target_met": false
   },
   "latest_observation": {
-    "observed_at_utc": "2026-11-14T23:54:22Z",
-    "source_as_of_utc": "2026-11-14T20:12:00Z",
-    "snapshot_generated_at_utc": "2026-11-14T20:14:51Z",
-    "source_age_seconds": 13342,
+    "observed_at_utc": "2026-11-14T23:59:06Z",
+    "source_as_of_utc": "2026-11-14T23:53:00Z",
+    "snapshot_generated_at_utc": "2026-11-14T23:56:57Z",
+    "source_age_seconds": 366,
     "target_age_seconds": 900,
-    "within_target": false,
+    "within_target": true,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
-    "snapshot_integrity": "passed",
-    "observation_kind": "schedule",
+    "snapshot_integrity": "partial",
+    "observation_kind": "scheduled_fallback",
     "slo_eligible": true
   },
   "eligible_observation_kinds": [
@@ -1461,6 +1461,18 @@
       "snapshot_schema": "btc_multi_provider_intraday_v2",
       "snapshot_integrity": "passed",
       "observation_kind": "schedule",
+      "slo_eligible": true
+    },
+    {
+      "observed_at_utc": "2026-11-14T23:59:06Z",
+      "source_as_of_utc": "2026-11-14T23:53:00Z",
+      "snapshot_generated_at_utc": "2026-11-14T23:56:57Z",
+      "source_age_seconds": 366,
+      "target_age_seconds": 900,
+      "within_target": true,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "partial",
+      "observation_kind": "scheduled_fallback",
       "slo_eligible": true
     }
   ]
