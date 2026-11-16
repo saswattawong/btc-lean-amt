@@ -1,6 +1,6 @@
 {
   "schema": "btc_intraday_freshness_slo_v2",
-  "updated_at_utc": "2026-11-15T23:34:30Z",
+  "updated_at_utc": "2026-11-16T02:21:56Z",
   "measurement": "Age of the previously published source_as_of timestamp at collector start. Rolling SLO includes only scheduled and explicitly labelled scheduled-fallback runs; push, PR, manual and legacy observations are excluded.",
   "target": {
     "source_age_seconds_lte": 900,
@@ -12,22 +12,22 @@
   "rolling_24h": {
     "observations": 9,
     "expected_observations": 144,
-    "passed": 1,
-    "failed": 8,
-    "pass_rate_pct": 11.111111,
+    "passed": 0,
+    "failed": 9,
+    "pass_rate_pct": 0.0,
     "observation_coverage_pct": 6.25,
     "target_met": false
   },
   "latest_observation": {
-    "observed_at_utc": "2026-11-15T23:34:30Z",
-    "source_as_of_utc": "2026-11-15T22:27:00Z",
-    "snapshot_generated_at_utc": "2026-11-15T22:28:09Z",
-    "source_age_seconds": 4050,
+    "observed_at_utc": "2026-11-16T02:21:56Z",
+    "source_as_of_utc": "2026-11-15T23:34:00Z",
+    "snapshot_generated_at_utc": "2026-11-15T23:35:21Z",
+    "source_age_seconds": 10076,
     "target_age_seconds": 900,
     "within_target": false,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
     "snapshot_integrity": "passed",
-    "observation_kind": "scheduled_fallback",
+    "observation_kind": "schedule",
     "slo_eligible": true
   },
   "eligible_observation_kinds": [
@@ -1569,6 +1569,18 @@
       "snapshot_schema": "btc_multi_provider_intraday_v2",
       "snapshot_integrity": "passed",
       "observation_kind": "scheduled_fallback",
+      "slo_eligible": true
+    },
+    {
+      "observed_at_utc": "2026-11-16T02:21:56Z",
+      "source_as_of_utc": "2026-11-15T23:34:00Z",
+      "snapshot_generated_at_utc": "2026-11-15T23:35:21Z",
+      "source_age_seconds": 10076,
+      "target_age_seconds": 900,
+      "within_target": false,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "passed",
+      "observation_kind": "schedule",
       "slo_eligible": true
     }
   ]
