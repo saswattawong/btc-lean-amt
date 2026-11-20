@@ -1,6 +1,6 @@
 {
   "schema": "btc_intraday_freshness_slo_v2",
-  "updated_at_utc": "2026-11-19T23:17:53Z",
+  "updated_at_utc": "2026-11-20T01:07:41Z",
   "measurement": "Age of the previously published source_as_of timestamp at collector start. Rolling SLO includes only scheduled and explicitly labelled scheduled-fallback runs; push, PR, manual and legacy observations are excluded.",
   "target": {
     "source_age_seconds_lte": 900,
@@ -19,15 +19,15 @@
     "target_met": false
   },
   "latest_observation": {
-    "observed_at_utc": "2026-11-19T23:17:53Z",
-    "source_as_of_utc": "2026-11-19T18:36:00Z",
-    "snapshot_generated_at_utc": "2026-11-19T18:39:08Z",
-    "source_age_seconds": 16913,
+    "observed_at_utc": "2026-11-20T01:07:41Z",
+    "source_as_of_utc": "2026-11-19T23:17:00Z",
+    "snapshot_generated_at_utc": "2026-11-19T23:18:58Z",
+    "source_age_seconds": 6641,
     "target_age_seconds": 900,
     "within_target": false,
     "snapshot_schema": "btc_multi_provider_intraday_v2",
     "snapshot_integrity": "passed",
-    "observation_kind": "schedule",
+    "observation_kind": "scheduled_fallback",
     "slo_eligible": true
   },
   "eligible_observation_kinds": [
@@ -1869,6 +1869,18 @@
       "snapshot_schema": "btc_multi_provider_intraday_v2",
       "snapshot_integrity": "passed",
       "observation_kind": "schedule",
+      "slo_eligible": true
+    },
+    {
+      "observed_at_utc": "2026-11-20T01:07:41Z",
+      "source_as_of_utc": "2026-11-19T23:17:00Z",
+      "snapshot_generated_at_utc": "2026-11-19T23:18:58Z",
+      "source_age_seconds": 6641,
+      "target_age_seconds": 900,
+      "within_target": false,
+      "snapshot_schema": "btc_multi_provider_intraday_v2",
+      "snapshot_integrity": "passed",
+      "observation_kind": "scheduled_fallback",
       "slo_eligible": true
     }
   ]
