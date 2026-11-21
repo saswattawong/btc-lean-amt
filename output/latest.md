@@ -2,22 +2,22 @@
 
 **Status:** VERIFIED — Binance Spot archive checksum and daily/weekly kline cross-checks passed.
 
-- Report reference date (UTC): **2026-11-20**
-- Last completed session (UTC): **2026-11-19**
-- Generated at: **2026-11-20T08:25:49.389227+00:00**
+- Report reference date (UTC): **2026-11-21**
+- Last completed session (UTC): **2026-11-20**
+- Generated at: **2026-11-21T10:07:33.424482+00:00**
 
-## Daily profile — 2026-11-19 UTC
+## Daily profile — 2026-11-20 UTC
 
-- VAH: **$63,730.00**
-- VAL: **$61,870.00**
-- POC: **$62,000.00**
-- VWAP: **$62,939.17**
-- Value-area share: **70.5289%**
+- VAH: **$61,520.00**
+- VAL: **$57,770.00**
+- POC: **$59,000.00**
+- VWAP: **$60,088.30**
+- Value-area share: **70.0421%**
 
 ## Daily POC migration
 
-- 2026-11-18 → 2026-11-19: **$64,450.00 → $62,000.00**
-- Direction: **lower** (-2,450.00 USDT)
+- 2026-11-19 → 2026-11-20: **$62,000.00 → $59,000.00**
+- Direction: **lower** (-3,000.00 USDT)
 
 ## Previous completed UTC week — 2026-11-09 to 2026-11-15
 
@@ -29,8 +29,8 @@
 
 ## Longer VWAP references (through the last completed UTC day)
 
-- Developing month VWAP: **$70,583.27**
+- Developing month VWAP: **$69,567.35**
 - Previous completed month VWAP: **$82,303.43**
-- Rolling 365 completed UTC days VWAP: **$74,822.45**
+- Rolling 365 completed UTC days VWAP: **$74,649.04**
 
 Historical closed-session data only; not a live price, order-book signal, or trade recommendation. The exact calculation method and source URLs are in `latest.json`.
